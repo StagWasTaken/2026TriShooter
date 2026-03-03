@@ -179,14 +179,14 @@ public class IntakeIOSpark implements IntakeIO {
     if (lowCurrentMode) {
       SparkFlexConfig newConfig = new SparkFlexConfig();
       newConfig.apply(IntakeConfig.intakeExtenderConfig);
-      newConfig.smartCurrentLimit(2).secondaryCurrentLimit(2);
+      newConfig.smartCurrentLimit(2);
 
       intakeExtenderMotor.configureAsync(
           newConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
     } else {
       SparkFlexConfig newConfig = new SparkFlexConfig();
       newConfig.apply(IntakeConfig.intakeExtenderConfig);
-      newConfig.smartCurrentLimit(40).secondaryCurrentLimit(60);
+      newConfig.smartCurrentLimit(40);
 
       intakeExtenderMotor.configureAsync(
           newConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);

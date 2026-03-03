@@ -5,6 +5,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.conveyor.Conveyor;
 import frc.robot.subsystems.conveyor.ConveyorConstants;
 import frc.robot.subsystems.hood.Hood;
+import frc.robot.subsystems.hood.HoodConstants;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeConstants.ExtenderConstants;
 import frc.robot.subsystems.kicker.Kicker;
@@ -61,6 +62,14 @@ public class CMD_Shoot extends Command {
 
     shooter.setReference(shooterSupplier.getAsDouble());
     hood.setReference(hoodSupplier.getAsDouble());
+  }
+  
+  @Override
+  public void end(boolean interrupted) {
+    shooter.setReference(0);
+    hood.setReference(HoodConstants.kMinPos);
+    conveyor.setVoltage(ConveyorConstants.kOff);
+    kicker.setVoltage(KickerConstants.kOff);
   }
 
   @Override
