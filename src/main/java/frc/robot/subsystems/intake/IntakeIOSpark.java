@@ -169,26 +169,27 @@ public class IntakeIOSpark implements IntakeIO {
 
   @Override
   public boolean getExtenderInPosition() {
-    double positionError = Math.abs(getPosition() - getReference());
+    double positionError = Math.abs(getExtenderPosition() - getExtenderReference());
     return positionError < ExtenderConstants.kPositionTolerance;
+    // return true;
   }
 
   @Override
   public void setExtenderLowCurrentMode(boolean lowCurrentMode) {
     if (lowCurrentMode) {
-      SparkFlexConfig newLeadConfig = new SparkFlexConfig();
-      newLeadConfig.apply(IntakeConfig.intakeExtenderConfig);
-      newLeadConfig.smartCurrentLimit(5);
+      SparkFlexConfig newConfig = new SparkFlexConfig();
+      newConfig.apply(IntakeConfig.intakeExtenderConfig);
+      newConfig.smartCurrentLimit(2).secondaryCurrentLimit(2);
 
       intakeExtenderMotor.configureAsync(
-          newLeadConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
+          newConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
     } else {
-      SparkFlexConfig newLeadConfig = new SparkFlexConfig();
-      newLeadConfig.apply(IntakeConfig.intakeExtenderConfig);
-      newLeadConfig.smartCurrentLimit(40);
+      SparkFlexConfig newConfig = new SparkFlexConfig();
+      newConfig.apply(IntakeConfig.intakeExtenderConfig);
+      newConfig.smartCurrentLimit(40).secondaryCurrentLimit(60);
 
       intakeExtenderMotor.configureAsync(
-          newLeadConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
+          newConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
     }
   }
 
@@ -196,10 +197,8 @@ public class IntakeIOSpark implements IntakeIO {
   public void periodic() {
     intakeController.setSetpoint(intakeReference, intakeType);
 
-    // horizontal is 270, offset to 0
-
-    double ff = -ExtenderConstants.kG * (Math.cos(getExtenderPosition() - Math.toRadians(270)));
     intakeExtenderController.setSetpoint(
-        intakeExtenderReference, intakeExtenderType, ClosedLoopSlot.kSlot0, ff);
+        intakeExtenderReference, intakeExtenderType, ClosedLoopSlot.kSlot0);
+    // intakeExtenderController.setSetpoint(0, ControlType.kVoltage);
   }
 }

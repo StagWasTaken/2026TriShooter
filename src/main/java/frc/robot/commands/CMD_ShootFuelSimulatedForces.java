@@ -19,7 +19,7 @@ import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.AbstractDriveTrainSimulation;
 import org.ironmaple.simulation.seasonspecific.rebuilt2026.RebuiltFuelOnFly;
 
-public class ShootFuelSim extends Command {
+public class CMD_ShootFuelSimulatedForces extends Command {
   private final AbstractDriveTrainSimulation driveSim;
   private final Hood hood;
   private final Shooter shooter;
@@ -34,7 +34,8 @@ public class ShootFuelSim extends Command {
     CENTER_SHOOTER_OFFSET, LEFT_SHOOTER_OFFSET, RIGHT_SHOOTER_OFFSET
   };
 
-  public ShootFuelSim(AbstractDriveTrainSimulation driveSim, Hood hood, Shooter shooter) {
+  public CMD_ShootFuelSimulatedForces(
+      AbstractDriveTrainSimulation driveSim, Hood hood, Shooter shooter) {
     this.driveSim = driveSim;
     this.hood = hood;
     this.shooter = shooter;

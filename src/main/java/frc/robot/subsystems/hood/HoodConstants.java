@@ -8,7 +8,6 @@ public class HoodConstants {
   public static final double kP = 5;
   public static final double kI = 0.0;
   public static final double kD = 0.0;
-  public static final double kFF = 0.0;
 
   public static final double kV = 0.0;
   public static final double kS = 0.0;

@@ -1,11 +1,3 @@
-// Copyright 2021-2025 FRC 6328
-// http://github.com/Mechanical-Advantage
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// version 3 as published by the Free Software Foundation or
-// available in the root directory of this project.
-
 package frc.robot.subsystems.vision;
 
 import static frc.robot.subsystems.vision.Vision_Constants.aprilTagLayout;
@@ -13,6 +5,7 @@ import static frc.robot.subsystems.vision.Vision_Constants.aprilTagLayout;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.wpilibj.DriverStation;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -40,7 +33,6 @@ public class VisionIOPhotonVision implements VisionIO {
     List<PoseObservation> poseObservations = new LinkedList<>();
 
     for (var result : camera.getAllUnreadResults()) {
-      // Update latest target observation (raw crosshair data)
       if (result.hasTargets()) {
         inputs.latestTargetObservation =
             new TargetObservation(
@@ -50,74 +42,70 @@ public class VisionIOPhotonVision implements VisionIO {
         inputs.latestTargetObservation = new TargetObservation(new Rotation2d(), new Rotation2d());
       }
 
-      // --- MULTI-TAG PROCESSING ---
-      if (result.multitagResult.isPresent()) {
-        var multitagResult = result.multitagResult.get();
+      if (DriverStation.isTeleopEnabled()) {
 
-        // Filter out tags that are too far away
-        List<PhotonTrackedTarget> validTargets = new ArrayList<>();
-        double totalDistance = 0.0;
+        if (result.multitagResult.isPresent()) {
+          var multitagResult = result.multitagResult.get();
+          List<PhotonTrackedTarget> validTargets = new ArrayList<>();
+          double totalDistance = 0.0;
 
-        for (var target : result.targets) {
-          double dist = target.bestCameraToTarget.getTranslation().getNorm();
-          if (dist <= MAX_DISTANCE_METERS) {
-            validTargets.add(target);
-            totalDistance += dist;
+          for (var target : result.targets) {
+            double dist = target.bestCameraToTarget.getTranslation().getNorm();
+            if (dist <= MAX_DISTANCE_METERS) {
+              validTargets.add(target);
+              totalDistance += dist;
+            }
           }
-        }
 
-        // Only process if we still have tags after filtering
-        if (!validTargets.isEmpty()) {
-          Transform3d fieldToCamera = multitagResult.estimatedPose.best;
-          Transform3d fieldToRobot = fieldToCamera.plus(robotToCamera.inverse());
-          Pose3d robotPose = new Pose3d(fieldToRobot.getTranslation(), fieldToRobot.getRotation());
-
-          // Add valid IDs to the set
-          for (var t : validTargets) tagIds.add((short) t.fiducialId);
-
-          poseObservations.add(
-              new PoseObservation(
-                  result.getTimestampSeconds(),
-                  robotPose,
-                  multitagResult.estimatedPose.ambiguity,
-                  validTargets.size(),
-                  totalDistance / validTargets.size(),
-                  PoseObservationType.PHOTONVISION));
-        }
-
-        // --- SINGLE TAG PROCESSING ---
-      } else if (!result.targets.isEmpty()) {
-        var target = result.targets.get(0);
-        double distance = target.bestCameraToTarget.getTranslation().getNorm();
-
-        // Only process if the single tag is within 3m
-        if (distance <= MAX_DISTANCE_METERS) {
-          var tagPose = aprilTagLayout.getTagPose(target.fiducialId);
-          if (tagPose.isPresent()) {
-            Transform3d fieldToTarget =
-                new Transform3d(tagPose.get().getTranslation(), tagPose.get().getRotation());
-            Transform3d cameraToTarget = target.bestCameraToTarget;
-            Transform3d fieldToCamera = fieldToTarget.plus(cameraToTarget.inverse());
+          if (!validTargets.isEmpty()) {
+            Transform3d fieldToCamera = multitagResult.estimatedPose.best;
             Transform3d fieldToRobot = fieldToCamera.plus(robotToCamera.inverse());
             Pose3d robotPose =
                 new Pose3d(fieldToRobot.getTranslation(), fieldToRobot.getRotation());
 
-            tagIds.add((short) target.fiducialId);
+            for (var t : validTargets) tagIds.add((short) t.fiducialId);
 
             poseObservations.add(
                 new PoseObservation(
                     result.getTimestampSeconds(),
                     robotPose,
-                    target.poseAmbiguity,
-                    1,
-                    distance,
+                    multitagResult.estimatedPose.ambiguity,
+                    validTargets.size(),
+                    totalDistance / validTargets.size(),
                     PoseObservationType.PHOTONVISION));
+          }
+
+        } else if (!result.targets.isEmpty()) {
+          var target = result.targets.get(0);
+          double distance = target.bestCameraToTarget.getTranslation().getNorm();
+
+          if (distance <= MAX_DISTANCE_METERS) {
+            var tagPose = aprilTagLayout.getTagPose(target.fiducialId);
+            if (tagPose.isPresent()) {
+              Transform3d fieldToTarget =
+                  new Transform3d(tagPose.get().getTranslation(), tagPose.get().getRotation());
+              Transform3d cameraToTarget = target.bestCameraToTarget;
+              Transform3d fieldToCamera = fieldToTarget.plus(cameraToTarget.inverse());
+              Transform3d fieldToRobot = fieldToCamera.plus(robotToCamera.inverse());
+              Pose3d robotPose =
+                  new Pose3d(fieldToRobot.getTranslation(), fieldToRobot.getRotation());
+
+              tagIds.add((short) target.fiducialId);
+
+              poseObservations.add(
+                  new PoseObservation(
+                      result.getTimestampSeconds(),
+                      robotPose,
+                      target.poseAmbiguity,
+                      1,
+                      distance,
+                      PoseObservationType.PHOTONVISION));
+            }
           }
         }
       }
     }
 
-    // Save results to inputs
     inputs.poseObservations = poseObservations.toArray(new PoseObservation[0]);
     inputs.tagIds = tagIds.stream().mapToInt(Short::intValue).toArray();
   }

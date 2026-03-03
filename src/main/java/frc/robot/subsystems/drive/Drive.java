@@ -330,8 +330,11 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer, Holon
       Pose2d visionRobotPoseMeters,
       double timestampSeconds,
       Matrix<N3, N1> visionMeasurementStdDevs) {
+
+    // ignore AprilTag heading data
+    Pose2d poseWithGyroHeading = new Pose2d(visionRobotPoseMeters.getTranslation(), getRotation());
     poseEstimator.addVisionMeasurement(
-        visionRobotPoseMeters, timestampSeconds, visionMeasurementStdDevs);
+        poseWithGyroHeading, timestampSeconds, visionMeasurementStdDevs);
   }
 
   /** Returns the maximum linear speed in meters per sec. */

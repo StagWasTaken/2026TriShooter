@@ -131,4 +131,35 @@ public class ShooterConstants {
 
     return new ShootingParams(launchAngleRad, shooterVelRad, tofSeconds);
   }
+
+  public static final ShootingParams getSimShootingParams(double distance) {
+    if (distance <= SHOOTING_TABLE[0][0]) {
+      return new ShootingParams(
+          Units.degreesToRadians(SHOOTING_TABLE[0][1]), SHOOTING_TABLE[0][2], SHOOTING_TABLE[0][3]);
+    }
+    if (distance >= SHOOTING_TABLE[SHOOTING_TABLE.length - 1][0]) {
+      int last = SHOOTING_TABLE.length - 1;
+      return new ShootingParams(
+          Units.degreesToRadians(SHOOTING_TABLE[last][1]),
+          SHOOTING_TABLE[last][2],
+          SHOOTING_TABLE[last][3]);
+    }
+
+    for (int i = 0; i < SHOOTING_TABLE.length - 1; i++) {
+      if (distance >= SHOOTING_TABLE[i][0] && distance <= SHOOTING_TABLE[i + 1][0]) {
+        double d0 = SHOOTING_TABLE[i][0];
+        double d1 = SHOOTING_TABLE[i + 1][0];
+        double t = (distance - d0) / (d1 - d0);
+
+        double angle = SHOOTING_TABLE[i][1] + t * (SHOOTING_TABLE[i + 1][1] - SHOOTING_TABLE[i][1]);
+        double velocity =
+            SHOOTING_TABLE[i][2] + t * (SHOOTING_TABLE[i + 1][2] - SHOOTING_TABLE[i][2]);
+        double tof = SHOOTING_TABLE[i][3] + t * (SHOOTING_TABLE[i + 1][3] - SHOOTING_TABLE[i][3]);
+
+        return new ShootingParams(Units.degreesToRadians(angle), velocity, tof);
+      }
+    }
+
+    return new ShootingParams(Units.degreesToRadians(75), 7.0, 1.0);
+  }
 }

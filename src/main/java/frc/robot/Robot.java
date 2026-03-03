@@ -9,6 +9,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.commands.CMD_Extend;
 import frc.robot.subsystems.conveyor.ConveyorConstants;
 import frc.robot.subsystems.drive.DriveConstants;
 import frc.robot.subsystems.drive.SwervePhysicsSim;
@@ -138,14 +139,13 @@ public class Robot extends LoggedRobot {
   /** This function is called once when the robot is disabled. */
   @Override
   public void disabledInit() {
+    CommandScheduler.getInstance().schedule(new CMD_Extend(robotContainer.intake));
     robotContainer.resetSimulationField();
   }
 
   /** This function is called periodically when disabled. */
   @Override
-  public void disabledPeriodic() {
-    // robotContainer.checkForCommandChanges();
-  }
+  public void disabledPeriodic() {}
 
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override

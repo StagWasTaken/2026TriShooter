@@ -3,14 +3,13 @@ package frc.robot.subsystems.led;
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.AddressableLEDBufferView;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
-import frc.robot.RobotContainer;
-import frc.robot.RobotState;
+import frc.robot.utils.hubcounter.HubShiftUtil;
+import frc.robot.utils.hubcounter.HubShiftUtil.ShiftInfo;
 import java.util.Arrays;
 import org.littletonrobotics.junction.Logger;
 
@@ -82,28 +81,32 @@ public class LEDStatusLight extends SubsystemBase {
     return this.playAnimation(animation, timeSeconds).repeatedly().ignoringDisable(true);
   }
 
-  public Command showRobotState() {
-    return defer(
+  public Command showHubStatus() {
+    return this.run(
             () -> {
-              if (DriverStation.isEnabled())
-                return playAnimation(
-                        new LEDAnimation.SlideBackAndForth(
-                            () ->
-                                RobotState.getInstance().visionObservationRate() > 0.25
-                                    ? new Color(0, 200, 255)
-                                    : new Color(255, 255, 255)),
-                        2.5)
-                    .until(DriverStation::isDisabled);
-              return playAnimation(
-                      new LEDAnimation.Breathe(
-                          () ->
-                              RobotContainer.motorBrakeEnabled
-                                  ? new Color(0, 200, 255)
-                                  : new Color(255, 255, 255)),
-                      3)
-                  .until(DriverStation::isEnabled);
+              ShiftInfo info = HubShiftUtil.getOfficialShiftInfo();
+              boolean isActive = info.active();
+              double timeLeft = info.remainingTime();
+              Color baseColor = isActive ? Color.kGreen : Color.kRed;
+
+              // DYNAMIC FLASHING (5s down to 0s)
+              if (timeLeft <= 5.0 && timeLeft > 0) {
+                // Increase frequency from 2Hz at 5s to 10Hz at 0s
+                double freq = 10.0 - (1.6 * timeLeft);
+
+                // Use Sine wave to toggle between the color and OFF
+                boolean isOn = Math.sin(Timer.getFPGATimestamp() * freq * 2.0 * Math.PI) > 0;
+
+                Color flashColor = isOn ? baseColor : Color.kBlack;
+                Arrays.fill(ledColors, flashColor);
+                Arrays.fill(dashboardColors, flashColor);
+              }
+              // CONSTANT SOLID (Above 5s)
+              else {
+                Arrays.fill(ledColors, baseColor);
+                Arrays.fill(dashboardColors, baseColor);
+              }
             })
-        .repeatedly()
         .ignoringDisable(true);
   }
 }

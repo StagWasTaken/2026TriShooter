@@ -6,7 +6,6 @@ public class ClimbConstants {
   public static final double kP = 0.0;
   public static final double kI = 0.0;
   public static final double kD = 0.0;
-  public static final double kFF = 0.0;
 
   public static final double kV = 0.0;
   public static final double kS = 0.0;
@@ -16,7 +15,6 @@ public class ClimbConstants {
   public static final double kPSim = 0.0;
   public static final double kISim = 0.0;
   public static final double kDSim = 0.0;
-  public static final double kFFSim = 0.0;
 
   public static final double kSSim = 0.0;
   public static final double kVSim = 0.0;

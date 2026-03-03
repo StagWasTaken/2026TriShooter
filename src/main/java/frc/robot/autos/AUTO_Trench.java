@@ -20,7 +20,13 @@ public class AUTO_Trench implements Auto {
         // turn off intake and run back to our side to shoot
         new CMD_Extend(robot.intake),
         followPath("ShootTrench", mirrored),
-        // shoot for 2 seconds and then run to outpost
+        // shoot for 2 seconds and then sweep middle again
+        robot.shootClose().withTimeout(2),
+        new ParallelCommandGroup(new CMD_Intake(robot.intake), followPath("SweepAgain", mirrored)),
+        // turn of intake and run back to our side to shoot
+        new CMD_Extend(robot.intake),
+        followPath("ShootTrench", mirrored),
+        // shoot until auto ends
         robot.shootClose());
   }
 }
