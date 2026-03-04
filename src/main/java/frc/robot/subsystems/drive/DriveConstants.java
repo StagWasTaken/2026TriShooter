@@ -38,7 +38,7 @@ import org.ironmaple.simulation.drivesims.configs.DriveTrainSimulationConfig;
 import org.ironmaple.simulation.drivesims.configs.SwerveModuleSimulationConfig;
 
 public class DriveConstants {
-  public static final double maxSpeedMetersPerSec = 4;
+  public static final double maxSpeedMetersPerSec = 3;
   public static final LinearVelocity CHASSIS_MAX_VELOCITY =
       MetersPerSecond.of(maxSpeedMetersPerSec);
   public static final double odometryFrequency = 100.0; // Hz
@@ -89,9 +89,9 @@ public class DriveConstants {
   // Drive PID configuration
   public static final double driveKp = 0.0;
   public static final double driveKd = 0.0;
-  public static final double driveKs = 0.0; // 0.021182
-  public static final double driveKv = 0.09; // 0.091324
-  public static final double driveKa = 0.0; // 0.0092296
+  public static final double driveKs = 0.09815;
+  public static final double driveKv = 0.093236;
+  public static final double driveKa = 0.013717;
   public static final double driveSimP = 0.05;
   public static final double driveSimD = 0.0;
   public static final double driveSimKs = 0.0;

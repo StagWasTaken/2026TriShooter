@@ -34,7 +34,6 @@ import frc.robot.subsystems.drive.*;
 import frc.robot.subsystems.drive.IO.*;
 import frc.robot.subsystems.hood.*;
 import frc.robot.subsystems.intake.*;
-import frc.robot.subsystems.intake.IntakeConstants.ExtenderConstants;
 import frc.robot.subsystems.kicker.*;
 import frc.robot.subsystems.led.LEDStatusLight;
 import frc.robot.subsystems.shooter.*;
@@ -72,7 +71,7 @@ public class RobotContainer {
   private final Field2d field = new Field2d();
   // Controller
   public final DriverMap driver = new DriverMap.LeftHandedXbox(0);
-  public final DriverMap operator = new DriverMap.LeftHandedXbox(1);
+//   public final DriverMap operator = new DriverMap.LeftHandedXbox(1);
 
   public Pose2d resetPose;
 
@@ -238,16 +237,16 @@ public class RobotContainer {
                 HubShiftUtil.getOfficialShiftInfo().active()
                     && HubShiftUtil.getOfficialShiftInfo().remainingTime() < 3
                     && DriverStation.isTeleopEnabled())
-        .onTrue(driver.rumbleLeftRight(1))
-        .onTrue(operator.rumbleLeftRight(1));
+            .onTrue(driver.rumbleLeftRight(1));
+        // .onTrue(operator.rumbleLeftRight(1));
     // rumble driver / operator joystick when 5 seconds left until hub active period
     new Trigger(
             () ->
                 !HubShiftUtil.getOfficialShiftInfo().active()
                     && HubShiftUtil.getOfficialShiftInfo().remainingTime() < 5
                     && DriverStation.isTeleopEnabled())
-        .onTrue(driver.rumble(1))
-        .onTrue(operator.rumble(1));
+            .onTrue(driver.rumble(1));
+        // .onTrue(operator.rumble(1));
 
     // Reset gyro / odometry
     final Runnable resetGyro =
@@ -281,10 +280,10 @@ public class RobotContainer {
       driver.scoreButton().whileTrue(shootClose());
       driver.rightBumper().whileTrue(shootFar());
 
-      operator
-          .scoreButton()
-          .onTrue(intake.setExtenderTargetAngle(ExtenderConstants.kStow))
-          .onFalse(intake.setExtenderTargetAngle(ExtenderConstants.kExtended));
+    //   operator
+    //       .scoreButton()
+    //       .onTrue(intake.setExtenderTargetAngle(ExtenderConstants.kStow))
+    //       .onFalse(intake.setExtenderTargetAngle(ExtenderConstants.kExtended));
 
     } else if (Robot.CURRENT_ROBOT_MODE == RobotMode.SIM) {
       driver.scoreButton().whileTrue(new CMD_ShootFuelSim(driveSimulation));

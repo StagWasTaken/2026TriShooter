@@ -235,12 +235,12 @@ public class ModuleIOSpark implements ModuleIO {
 
   @Override
   public void setDriveOpenLoop(double output) {
-    driveSpark.setVoltage(output);
+    driveController.setSetpoint(output, ControlType.kVoltage);
   }
 
   @Override
   public void setTurnOpenLoop(double output) {
-    turnSpark.setVoltage(output);
+    turnController.setSetpoint(output, ControlType.kVoltage);
   }
 
   @Override

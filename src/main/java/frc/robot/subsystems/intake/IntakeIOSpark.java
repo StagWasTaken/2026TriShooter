@@ -197,8 +197,8 @@ public class IntakeIOSpark implements IntakeIO {
   public void periodic() {
     intakeController.setSetpoint(intakeReference, intakeType);
 
-    intakeExtenderController.setSetpoint(
-        intakeExtenderReference, intakeExtenderType, ClosedLoopSlot.kSlot0);
-    // intakeExtenderController.setSetpoint(0, ControlType.kVoltage);
+    // intakeExtenderController.setSetpoint(
+    //     intakeExtenderReference, intakeExtenderType, ClosedLoopSlot.kSlot0);
+    intakeExtenderController.setSetpoint(0, ControlType.kVoltage);
   }
 }
