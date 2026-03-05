@@ -38,7 +38,7 @@ import org.ironmaple.simulation.drivesims.configs.DriveTrainSimulationConfig;
 import org.ironmaple.simulation.drivesims.configs.SwerveModuleSimulationConfig;
 
 public class DriveConstants {
-  public static final double maxSpeedMetersPerSec = 3;
+  public static final double maxSpeedMetersPerSec = 4;
   public static final LinearVelocity CHASSIS_MAX_VELOCITY =
       MetersPerSecond.of(maxSpeedMetersPerSec);
   public static final double odometryFrequency = 100.0; // Hz
@@ -75,7 +75,7 @@ public class DriveConstants {
 
   // Drive motor configuration
   public static final int driveMotorCurrentLimit = 60;
-  public static final double wheelRadiusMeters = Units.inchesToMeters(1.48);
+  public static final double wheelRadiusMeters = Units.inchesToMeters(1.474);
   public static final double driveMotorReduction =
       (45.0 * 22.0) / (12.0 * 15.0); // MAXSwerve with 12 pinion teeth and 22 spur teeth
   public static final DCMotor driveGearbox = DCMotor.getNeoVortex(1);
@@ -89,9 +89,9 @@ public class DriveConstants {
   // Drive PID configuration
   public static final double driveKp = 0.0;
   public static final double driveKd = 0.0;
-  public static final double driveKs = 0.09815;
-  public static final double driveKv = 0.093236;
-  public static final double driveKa = 0.013717;
+  public static final double driveKs = 0.06;
+  public static final double driveKv = 0.092;
+  public static final double driveKa = 0.0;
   public static final double driveSimP = 0.05;
   public static final double driveSimD = 0.0;
   public static final double driveSimKs = 0.0;

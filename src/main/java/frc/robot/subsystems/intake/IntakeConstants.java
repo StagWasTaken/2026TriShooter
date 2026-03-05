@@ -34,7 +34,7 @@ public class IntakeConstants {
   public static final class ExtenderConstants {
     public static final int kIntakeExtenderCanId = 7;
 
-    public static final double kP = 10; // 5
+    public static final double kP = 3;
     public static final double kI = 0.0;
     public static final double kD = 0.0;
 
@@ -43,13 +43,13 @@ public class IntakeConstants {
     public static final double kG = 0.0;
     public static final double kA = 0.0;
 
-    public static final double kPSim = 0.0;
+    public static final double kPSim = 0.25;
     public static final double kISim = 0.0;
     public static final double kDSim = 0.0;
 
-    public static final double kSSim = 0.0;
-    public static final double kVSim = 0.0;
-    public static final double kGSim = 0.0;
+    public static final double kSSim = 0.02;
+    public static final double kVSim = 1.725;
+    public static final double kGSim = 0.825;
     public static final double kASim = 0.0;
 
     public static final boolean kInverted = false;
@@ -57,13 +57,13 @@ public class IntakeConstants {
     public static final double kMaxOutput = 1;
 
     public static final double kHome = Math.toRadians(70);
-    public static final double kStow = Math.toRadians(185);
-    public static final double kExtended = Math.toRadians(250);
+    public static final double kStow = Math.toRadians(120);
+    public static final double kExtended = Math.toRadians(270);
 
-    public static final double kMaxVel = Math.toRadians(64000);
-    public static final double kMaxAccel = Math.toRadians(72000);
+    public static final double kMaxVel = Math.toRadians(43200);
+    public static final double kMaxAccel = Math.toRadians(86400);
 
-    public static final double kPositionTolerance = Math.toRadians(5);
+    public static final double kPositionTolerance = Math.toRadians(50);
 
     public static final double kGearRatio = 81;
     // absolute encoder has another 3:1 reduction after it

@@ -3,12 +3,15 @@ package frc.robot.subsystems.intake;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Inches;
 
+import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
+import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import frc.robot.subsystems.intake.IntakeConstants.ExtenderConstants;
 import org.ironmaple.simulation.IntakeSimulation;
@@ -29,12 +32,22 @@ public class IntakeIOSim implements IntakeIO {
   private static IntakeSimulation intakeSimulation;
   private double reference = 0;
 
-  private final DCMotorSim intakeExtenderSim;
+  private final SingleJointedArmSim intakeExtenderSim;
   private final PIDController intakeExtenderPIDController =
       new PIDController(ExtenderConstants.kPSim, ExtenderConstants.kISim, ExtenderConstants.kDSim);
-  private final SimpleMotorFeedforward intakeExtenderFeedforward =
-      new SimpleMotorFeedforward(ExtenderConstants.kS, ExtenderConstants.kV, IntakeConstants.kA);
-  private double extenderReference = 0;
+  private final ArmFeedforward intakeExtenderFeedforward =
+      new ArmFeedforward(
+          ExtenderConstants.kSSim,
+          ExtenderConstants.kGSim,
+          ExtenderConstants.kVSim,
+          ExtenderConstants.kASim);
+
+  private final TrapezoidProfile profile =
+      new TrapezoidProfile(new TrapezoidProfile.Constraints(Math.PI, Math.PI * 4));
+
+  private TrapezoidProfile.State setpoint = new TrapezoidProfile.State(ExtenderConstants.kHome, 0);
+  private TrapezoidProfile.State goal = new TrapezoidProfile.State(ExtenderConstants.kStow, 0);
+  private double appliedExtenderVoltage = 0.0;
 
   private final LoggedMechanism2d intakeMechanism;
   private final LoggedMechanismRoot2d intakeRoot;
@@ -45,13 +58,21 @@ public class IntakeIOSim implements IntakeIO {
   public IntakeIOSim(AbstractDriveTrainSimulation driveSim) {
     intakeSim =
         new DCMotorSim(
-            LinearSystemId.createDCMotorSystem(DCMotor.getNEO(1), .178, IntakeConstants.kGearRatio),
-            DCMotor.getNEO(1));
+            LinearSystemId.createDCMotorSystem(
+                DCMotor.getNeoVortex(2), .178, IntakeConstants.kGearRatio),
+            DCMotor.getNeoVortex(2));
 
     intakeExtenderSim =
-        new DCMotorSim(
-            LinearSystemId.createDCMotorSystem(DCMotor.getNEO(1), .1, ExtenderConstants.kGearRatio),
-            DCMotor.getNEO(1));
+        new SingleJointedArmSim(
+            LinearSystemId.createSingleJointedArmSystem(
+                DCMotor.getNEO(1), .3, ExtenderConstants.kGearRatio),
+            DCMotor.getNEO(1),
+            ExtenderConstants.kGearRatio,
+            Units.inchesToMeters(12),
+            ExtenderConstants.kHome - Math.toRadians(270),
+            0,
+            true,
+            ExtenderConstants.kHome - Math.toRadians(270));
 
     intakeMechanism = new LoggedMechanism2d(Inches.of(24), Inches.of(10));
     intakeRoot =
@@ -63,6 +84,10 @@ public class IntakeIOSim implements IntakeIO {
             "Fuel", driveSim, Inches.of(24), Inches.of(10), IntakeSide.BACK, 48);
 
     intakeSimulation.startIntake();
+
+    intakeExtenderSim.setState(ExtenderConstants.kHome - Math.toRadians(270), 0);
+
+    setExtenderReference(ExtenderConstants.kExtended);
   }
 
   @Override
@@ -75,9 +100,11 @@ public class IntakeIOSim implements IntakeIO {
 
     inputs.extenderCurrent = getExtenderCurrent();
     inputs.extenderVoltage = getExtenderVoltage();
-    inputs.extenderReference = getExtenderReference();
+    inputs.extenderReference = Units.radiansToDegrees(getExtenderReference());
     inputs.extenderVelocity = Units.radiansToDegrees(getExtenderVelocity());
     inputs.extenderPosition = Units.radiansToDegrees(getExtenderPosition());
+    inputs.extenderProfilePositionSetpoint = Units.radiansToDegrees(setpoint.position);
+    inputs.extenderProfileVelocitySetpoint = Units.radiansToDegrees(setpoint.velocity);
     inputs.extenderInPosition = getExtenderInPosition();
   }
 
@@ -118,12 +145,12 @@ public class IntakeIOSim implements IntakeIO {
 
   @Override
   public void setExtenderReference(double reference) {
-    this.extenderReference = reference;
+    goal = new TrapezoidProfile.State(reference, 0);
   }
 
   @Override
   public double getExtenderReference() {
-    return extenderReference;
+    return goal.position;
   }
 
   @Override
@@ -133,7 +160,7 @@ public class IntakeIOSim implements IntakeIO {
 
   @Override
   public double getExtenderVoltage() {
-    return intakeExtenderSim.getInputVoltage();
+    return appliedExtenderVoltage;
   }
 
   @Override
@@ -143,33 +170,42 @@ public class IntakeIOSim implements IntakeIO {
 
   @Override
   public double getExtenderVelocity() {
-    return intakeExtenderSim.getAngularVelocityRadPerSec();
+    return intakeExtenderSim.getVelocityRadPerSec();
   }
 
   @Override
   public double getExtenderPosition() {
-    return intakeExtenderSim.getAngularPositionRad();
+    return intakeExtenderSim.getAngleRads() + Math.toRadians(270);
   }
 
   @Override
   public boolean getExtenderInPosition() {
-    // Math.abs(getExtenderPosition() - getExtenderReference()) < ExtenderConstants.kTolerance;
-    return true;
+    return Math.abs(getExtenderPosition() - getExtenderReference())
+        < ExtenderConstants.kPositionTolerance;
   }
 
   @Override
   public void periodic() {
-    intakeSim.setInput(
+    double currentVelocityTarget = setpoint.velocity;
+    setpoint = profile.calculate(0.02, setpoint, goal);
+
+    intakeSim.setInputVoltage(
         intakePIDController.calculate(intakeSim.getAngularVelocityRadPerSec(), reference)
             + intakeFeedforward.calculateWithVelocities(getVelocity(), reference));
 
-    intakeExtenderSim.setInput(
-        intakeExtenderPIDController.calculate(
-                intakeExtenderSim.getAngularVelocityRadPerSec(), reference)
-            + intakeExtenderFeedforward.calculateWithVelocities(getVelocity(), reference));
+    appliedExtenderVoltage =
+        intakeExtenderPIDController.calculate(getExtenderPosition(), setpoint.position)
+            + intakeExtenderFeedforward.calculateWithVelocities(
+                getExtenderPosition() - Math.toRadians(270),
+                currentVelocityTarget,
+                setpoint.velocity);
+
+    setExtenderVoltage(appliedExtenderVoltage);
 
     intakeSim.update(0.02);
     intakeExtenderSim.update(0.02);
+
+    intakeVisualizer.setAngle(Units.radiansToDegrees(getExtenderPosition()));
 
     Logger.recordOutput("Intake/FuelInHopper", numObjectsInHopper());
     Logger.recordOutput("IntakeVisualizer", intakeMechanism);

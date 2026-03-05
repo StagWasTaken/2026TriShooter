@@ -1,5 +1,6 @@
 package frc.robot.commands.drive;
 
+import static frc.robot.subsystems.drive.DriveConstants.maxSpeedMetersPerSec;
 import static frc.robot.subsystems.drive.HolonomicDriveSubsystem.isZero;
 import static frc.robot.utils.constants.JoystickConfigs.*;
 
@@ -63,9 +64,9 @@ public class JoystickDrive extends Command {
             driveSubsystem.getChassisMaxLinearVelocityMetersPerSec() * translationalSensitivity,
             driveSubsystem.getChassisMaxAngularVelocity() * rotationalSensitivity);
 
-    pilotInputSpeeds = applyDeadband(pilotInputSpeeds, 0.05);
+    pilotInputSpeeds = applyDeadband(pilotInputSpeeds, 0.02);
 
-    if (Math.abs(pilotInputSpeeds.omegaRadiansPerSecond) > 0.05)
+    if (Math.abs(pilotInputSpeeds.omegaRadiansPerSecond) > 0.02 * maxSpeedMetersPerSec)
       previousRotationalInputTimer.reset();
 
     if (povButtonSupplier.getAsInt() != -1)

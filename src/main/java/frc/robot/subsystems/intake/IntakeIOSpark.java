@@ -34,22 +34,18 @@ public class IntakeIOSpark implements IntakeIO {
   private ControlType intakeExtenderType;
 
   public IntakeIOSpark() {
-    // initialize motor
     intakeMotor = new SparkFlex(IntakeConstants.kIntakeCanId, MotorType.kBrushless);
     intakeFollowerMotor = new SparkFlex(IntakeConstants.kIntakeFollowerCanId, MotorType.kBrushless);
 
     intakeExtenderMotor =
         new SparkMax(ExtenderConstants.kIntakeExtenderCanId, MotorType.kBrushless);
 
-    // initialize PID controller
     intakeController = intakeMotor.getClosedLoopController();
     intakeExtenderController = intakeExtenderMotor.getClosedLoopController();
 
-    // initalize encoder
     intakeEncoder = intakeMotor.getEncoder();
     intakeExtenderEncoder = intakeExtenderMotor.getAbsoluteEncoder();
 
-    // apply config
     intakeMotor.configure(
         IntakeConfig.intakeConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
@@ -63,7 +59,6 @@ public class IntakeIOSpark implements IntakeIO {
         ResetMode.kResetSafeParameters,
         PersistMode.kPersistParameters);
 
-    // reset target speed in init
     intakeReference = 0;
     intakeType = ControlType.kVelocity;
 
@@ -88,8 +83,10 @@ public class IntakeIOSpark implements IntakeIO {
     inputs.extenderVoltage = getExtenderVoltage();
     inputs.extenderVelocity = getExtenderVelocity();
     inputs.extenderPosition = Units.radiansToDegrees(getExtenderPosition());
-    inputs.extenderProfileSetpoint =
+    inputs.extenderProfilePositionSetpoint =
         Units.radiansToDegrees(intakeExtenderController.getMAXMotionSetpointPosition());
+    inputs.extenderProfileVelocitySetpoint =
+        Units.radiansToDegrees(intakeExtenderController.getMAXMotionSetpointVelocity());
     inputs.extenderInPosition = getExtenderInPosition();
     inputs.extenderTemp =
         Fahrenheit.convertFrom(intakeExtenderMotor.getMotorTemperature(), Celsius);
