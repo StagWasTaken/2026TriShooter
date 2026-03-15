@@ -84,6 +84,7 @@ public class RobotContainer {
 
   // Dashboard inputs
   private final LoggedDashboardChooser<Auto> autoChooser;
+
   // private final LoggedDashboardChooser<Boolean> buttonBindingChooser;
 
   /** The container for the robot. Contains subsystems, IO devices, and commands. */

@@ -32,7 +32,7 @@ public class CMD_Shoot extends Command {
 
   private boolean shooting;
   private final Timer timer = new Timer();
-  private final Debouncer atSetpointDebouncer = new Debouncer(0.5);
+  private final Debouncer atSetpointDebouncer = new Debouncer(0.25);
   private Command driveCommand;
 
   public CMD_Shoot(
