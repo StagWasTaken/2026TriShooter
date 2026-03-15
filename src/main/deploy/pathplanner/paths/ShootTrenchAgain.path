@@ -3,41 +3,41 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.67,
-        "y": 3.5
+        "x": 8.27,
+        "y": 3.899144079885877
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.67,
-        "y": 0.75
+        "x": 8.27,
+        "y": 1.1491440798858772
       },
       "isLocked": false,
       "linkedName": "SweepHalfMiddle"
     },
     {
       "anchor": {
-        "x": 4.736964837140723,
-        "y": 0.7348600371265877
+        "x": 4.8291189712930915,
+        "y": 0.725867264380829
       },
       "prevControl": {
-        "x": 6.235782890862042,
-        "y": 0.7943952522436865
+        "x": 6.3279370250144105,
+        "y": 0.785402479497928
       },
       "nextControl": {
-        "x": 4.237358819233617,
-        "y": 0.7150149654208879
+        "x": 4.3295129533859855,
+        "y": 0.7060221926751293
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 3.1129780076751543,
-        "y": 0.7348600371265877
+        "x": 3.224652763325538,
+        "y": 1.0661714862011298
       },
       "prevControl": {
-        "x": 3.3629780076751543,
-        "y": 0.7348600371265877
+        "x": 3.444681944165774,
+        "y": 0.8064429643723667
       },
       "nextControl": null,
       "isLocked": false,
@@ -46,11 +46,19 @@
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 0.9,
-      "rotationDegrees": 0.0
+      "waypointRelativePos": 0.29045643153528433,
+      "rotationDegrees": -90.0
     },
     {
-      "waypointRelativePos": 1.33,
+      "waypointRelativePos": 0.58257261410788,
+      "rotationDegrees": 39.38649517094632
+    },
+    {
+      "waypointRelativePos": 0.9,
+      "rotationDegrees": 0.8922698247782124
+    },
+    {
+      "waypointRelativePos": 1.6514522821576798,
       "rotationDegrees": 0.0
     }
   ],
@@ -61,13 +69,13 @@
     "maxVelocity": 3.25,
     "maxAcceleration": 3.25,
     "maxAngularVelocity": 360.0,
-    "maxAngularAcceleration": 720.0,
+    "maxAngularAcceleration": 360.0,
     "nominalVoltage": 12.0,
     "unlimited": false
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 65.66724958624866
+    "rotation": 64.66609909453904
   },
   "reversed": false,
   "folder": "Trench",

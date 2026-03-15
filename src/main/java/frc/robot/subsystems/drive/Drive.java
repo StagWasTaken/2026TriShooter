@@ -482,9 +482,11 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer, Holon
         },
 
         // onEnd
-        interrupted ->
-            ChassisHeadingController.getInstance()
-                .setHeadingRequest(new ChassisHeadingController.NullRequest()),
+        interrupted -> {
+          ChassisHeadingController.getInstance()
+              .setHeadingRequest(new ChassisHeadingController.NullRequest());
+          stop();
+        },
 
         // isFinished — custom tolerance check
         () -> {
@@ -498,7 +500,7 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer, Holon
           double error =
               Math.abs(MathUtil.angleModulus(currentHeading.minus(desiredHeading).getRadians()));
 
-          return error < Math.toRadians(5);
+          return error < Math.toRadians(3);
         },
         this);
   }

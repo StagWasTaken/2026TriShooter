@@ -54,7 +54,7 @@ public class Conveyor extends SubsystemBase {
   }
 
   public Command runVoltage(double voltage) {
-    return Commands.runOnce(() -> setVoltage(voltage), this);
+    return Commands.run(() -> setVoltage(voltage), this);
   }
 
   @Override

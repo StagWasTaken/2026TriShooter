@@ -32,6 +32,7 @@ import frc.robot.subsystems.drive.*;
 import frc.robot.subsystems.drive.IO.*;
 import frc.robot.subsystems.hood.*;
 import frc.robot.subsystems.intake.*;
+import frc.robot.subsystems.intake.IntakeConstants.ExtenderConstants;
 import frc.robot.subsystems.kicker.*;
 import frc.robot.subsystems.led.LEDStatusLight;
 import frc.robot.subsystems.shooter.*;
@@ -66,10 +67,10 @@ public class RobotContainer {
   public final LEDStatusLight ledStatusLight;
 
   private final LoggedNetworkNumber shooterRef =
-      new LoggedNetworkNumber("/Tuning/shooterRef", 20000);
+      new LoggedNetworkNumber("/Tuning/shooterRef", 21000);
   private final LoggedNetworkNumber hoodRef =
       new LoggedNetworkNumber(
-          "/Tuning/hoodRef", Robot.CURRENT_ROBOT == Robot.RobotName.COMP_BOT ? 0.4 : 0.25);
+          "/Tuning/hoodRef", Robot.CURRENT_ROBOT == Robot.RobotName.COMP_BOT ? 0.4 : 0.33);
 
   public SwerveDriveSimulation driveSimulation = null;
 
@@ -184,8 +185,8 @@ public class RobotContainer {
     autoChooser.addOption("Trench Left", new AUTO_TrenchLeft());
     autoChooser.addOption("Trench Right", new AUTO_TrenchRight());
     autoChooser.addOption("Outpost", new AUTO_Outpost());
-    // autoChooser.addOption("2 sweep left", new AUTO_2SweepLeft());
-    // autoChooser.addOption("2 sweep right", new AUTO_2SweepRight());
+    autoChooser.addOption("2 sweep left", new AUTO_2SweepLeft());
+    autoChooser.addOption("2 sweep right", new AUTO_2SweepRight());
 
     // Wheel Radius Test, tell the bot to run in a straight line for 3 meters, measure actual
     // distance
@@ -256,8 +257,10 @@ public class RobotContainer {
       driver.rightBumper().whileTrue(pass());
       driver
           .povDown()
-          .onTrue(conveyor.runVoltage(-ConveyorConstants.kConvey))
-          .onFalse(conveyor.runVoltage(ConveyorConstants.kOff));
+          .whileTrue(
+              conveyor
+                  .runVoltage(-ConveyorConstants.kConvey)
+                  .alongWith(intake.setExtenderTargetAngle(ExtenderConstants.kExtended)));
       driver.autoAlignmentButton().whileTrue(shootClose());
 
     } else if (Robot.CURRENT_ROBOT_MODE == RobotMode.SIM) {
@@ -347,6 +350,6 @@ public class RobotContainer {
 
   public Command pass() {
     return new CMD_ShootNoVision(
-        conveyor, hood, intake, kicker, shooter, () -> Math.toRadians(23000), () -> 0.8);
+        conveyor, hood, intake, kicker, shooter, () -> Math.toRadians(30000), () -> 0.8);
   }
 }

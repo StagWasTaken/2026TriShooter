@@ -1,10 +1,9 @@
 package frc.robot.commands;
 
 import edu.wpi.first.math.filter.Debouncer;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Robot;
-import frc.robot.Robot.RobotName;
 import frc.robot.commands.drive.JoystickDriveAndAimAtTarget;
 import frc.robot.subsystems.conveyor.Conveyor;
 import frc.robot.subsystems.conveyor.ConveyorConstants;
@@ -17,6 +16,7 @@ import frc.robot.subsystems.kicker.Kicker;
 import frc.robot.subsystems.kicker.KickerConstants;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.ShooterConstants;
+import frc.robot.subsystems.shooter.ShooterConstants.ShootingParams;
 import frc.robot.utils.CustomPIDs.ChassisHeadingController;
 import frc.robot.utils.CustomPIDs.MapleJoystickDriveInput;
 import frc.robot.utils.constants.FieldConstants;
@@ -54,6 +54,33 @@ public class CMD_Shoot extends Command {
     addRequirements(drive, conveyor, hood, intake, kicker, shooter);
   }
 
+  private Translation2d getPredictedPosition(double tofSeconds) {
+    var chassisSpeeds = drive.getMeasuredChassisSpeedsRobotRelative();
+    var robotAngle = drive.getPose().getRotation();
+
+    double vxField =
+        chassisSpeeds.vxMetersPerSecond * robotAngle.getCos()
+            - chassisSpeeds.vyMetersPerSecond * robotAngle.getSin();
+    double vyField =
+        chassisSpeeds.vxMetersPerSecond * robotAngle.getSin()
+            + chassisSpeeds.vyMetersPerSecond * robotAngle.getCos();
+
+    return drive
+        .getPose()
+        .getTranslation()
+        .plus(new Translation2d(vxField * tofSeconds, vyField * tofSeconds));
+  }
+
+  private ShootingParams getShootingParamsWithPrediction() {
+    double distMeters = FieldConstants.getHubPose().getDistance(drive.getPose().getTranslation());
+    ShootingParams initialParams = ShooterConstants.getShootingParams(distMeters);
+
+    Translation2d predictedPos = getPredictedPosition(initialParams.tofSeconds());
+    double predictedDist = FieldConstants.getHubPose().getDistance(predictedPos);
+
+    return ShooterConstants.getShootingParams(predictedDist);
+  }
+
   @Override
   public void initialize() {
     shooting = false;
@@ -69,19 +96,15 @@ public class CMD_Shoot extends Command {
             0.5,
             false);
     driveCommand.initialize();
-
-    // double distMeters =
-    // FieldConstants.getHubPose().getDistance(drive.getPose().getTranslation());
-    // ShootingParams shootingParams = ShooterConstants.getShootingParams(distMeters);
-    // shooter.setReference(shootingParams.shooterReference());
-    // hood.setReference(shootingParams.hoodReference());
   }
 
   @Override
   public void execute() {
     driveCommand.execute();
-    shooter.setReference(Math.toRadians(20000));
-    hood.setReference(Robot.CURRENT_ROBOT == RobotName.COMP_BOT ? 0.4 : 0.25);
+
+    ShootingParams shootingParams = getShootingParamsWithPrediction();
+    shooter.setReference(shootingParams.shooterReference());
+    hood.setReference(shootingParams.hoodReference());
 
     boolean driveReady =
         atSetpointDebouncer.calculate(ChassisHeadingController.getInstance().atSetPoint());

@@ -16,12 +16,12 @@
     },
     {
       "anchor": {
-        "x": 3.1129780076751543,
-        "y": 0.7348600371265877
+        "x": 3.224652763325538,
+        "y": 1.0661714862011298
       },
       "prevControl": {
-        "x": 2.4794913110422265,
-        "y": 0.05432583524105827
+        "x": 2.5911660666926104,
+        "y": 0.3856372843156004
       },
       "nextControl": null,
       "isLocked": false,
@@ -36,13 +36,13 @@
     "maxVelocity": 3.25,
     "maxAcceleration": 3.25,
     "maxAngularVelocity": 360.0,
-    "maxAngularAcceleration": 720.0,
+    "maxAngularAcceleration": 360.0,
     "nominalVoltage": 12.0,
     "unlimited": false
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 65.66724958624866
+    "rotation": 64.66609909453904
   },
   "reversed": false,
   "folder": "Outpost",

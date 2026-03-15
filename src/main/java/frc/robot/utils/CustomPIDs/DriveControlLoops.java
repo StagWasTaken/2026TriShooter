@@ -29,7 +29,7 @@ public class DriveControlLoops {
   public static final AngularVelocity ANGULAR_VELOCITY_SOFT_CONSTRAIN_LOW =
       RotationsPerSecond.of(0.75);
   public static final AngularAcceleration ANGULAR_ACCELERATION_SOFT_CONSTRAIN_LOW =
-      RotationsPerSecondPerSecond.of(1.5); // 1.5
+      RotationsPerSecondPerSecond.of(1); // 1.5
 
   public static final Time DISCRETIZE_TIME = Seconds.of(0.04);
   public static final LinearVelocity SWERVE_VELOCITY_DEADBAND = MetersPerSecond.of(0.03);

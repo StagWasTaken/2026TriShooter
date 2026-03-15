@@ -3,41 +3,41 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.1129780076751543,
-        "y": 0.7348600371265877
+        "x": 3.224652763325538,
+        "y": 1.0661714862011298
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.077037831119139,
-        "y": 0.6406119847559123
+        "x": 4.723663193578563,
+        "y": 0.7905669437118161
       },
       "isLocked": false,
       "linkedName": "ShootTrench"
     },
     {
       "anchor": {
-        "x": 6.510638554216978,
-        "y": 0.8441084337390419
+        "x": 6.887541625973061,
+        "y": 0.8221045310103863
       },
       "prevControl": {
-        "x": 5.970055610091824,
-        "y": 0.561121981826459
+        "x": 6.421194889311083,
+        "y": 0.7892780922314124
       },
       "nextControl": {
-        "x": 6.75237576640874,
-        "y": 0.9706539652191252
+        "x": 7.159724614047544,
+        "y": 0.8412636619580129
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 7.67,
-        "y": 3.5
+        "x": 8.27,
+        "y": 3.899144079885877
       },
       "prevControl": {
-        "x": 7.659072289156626,
-        "y": 2.046614457831326
+        "x": 8.259072289156626,
+        "y": 2.4457585377172033
       },
       "nextControl": null,
       "isLocked": false,
@@ -47,14 +47,14 @@
   "rotationTargets": [
     {
       "waypointRelativePos": 0.22074688796680147,
-      "rotationDegrees": 180.0
+      "rotationDegrees": 90.0
     },
     {
       "waypointRelativePos": 0.47966804979252897,
-      "rotationDegrees": 180.0
+      "rotationDegrees": 90.0
     },
     {
-      "waypointRelativePos": 1.1336099585061865,
+      "waypointRelativePos": 1.4029850746268546,
       "rotationDegrees": -135.0
     }
   ],
@@ -79,7 +79,7 @@
     "maxVelocity": 3.25,
     "maxAcceleration": 3.25,
     "maxAngularVelocity": 360.0,
-    "maxAngularAcceleration": 720.0,
+    "maxAngularAcceleration": 360.0,
     "nominalVoltage": 12.0,
     "unlimited": false
   },
@@ -91,7 +91,7 @@
   "folder": "Trench",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 65.66724958624866
+    "rotation": 64.66609909453904
   },
   "useDefaultConstraints": true
 }
