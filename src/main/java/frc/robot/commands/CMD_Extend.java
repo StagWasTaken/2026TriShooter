@@ -29,7 +29,7 @@ public class CMD_Extend extends Command {
     if (interrupted) {
       return;
     }
-    
+
     intake.setExtenderVoltage(0.1);
   }
 }

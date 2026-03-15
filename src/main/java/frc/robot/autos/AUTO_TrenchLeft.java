@@ -8,7 +8,7 @@ import frc.robot.commands.*;
 import java.io.IOException;
 import org.json.simple.parser.ParseException;
 
-public class AUTO_Trench implements Auto {
+public class AUTO_TrenchLeft implements Auto {
   @Override
   public Command getAutoCommand(RobotContainer robot) throws IOException, ParseException {
     return Commands.sequence(

@@ -3,41 +3,41 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 8.5,
+        "x": 7.67,
         "y": 3.5
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.008503521126761,
-        "y": 1.7994366197183098
+        "x": 7.67,
+        "y": 0.75
       },
       "isLocked": false,
-      "linkedName": "SweepOpponentHalf"
+      "linkedName": "SweepHalfMiddle"
     },
     {
       "anchor": {
-        "x": 4.6,
-        "y": 0.75
+        "x": 4.736964837140723,
+        "y": 0.7348600371265877
       },
       "prevControl": {
-        "x": 6.19691082546885,
-        "y": 0.7499999999999998
+        "x": 6.235782890862042,
+        "y": 0.7943952522436865
       },
       "nextControl": {
-        "x": 3.6153882648882067,
-        "y": 0.7500000000000001
+        "x": 4.237358819233617,
+        "y": 0.7150149654208879
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 3.0,
-        "y": 1.55
+        "x": 3.1129780076751543,
+        "y": 0.7348600371265877
       },
       "prevControl": {
-        "x": 3.1187952213527157,
-        "y": 1.3300279668145079
+        "x": 3.3629780076751543,
+        "y": 0.7348600371265877
       },
       "nextControl": null,
       "isLocked": false,
@@ -58,8 +58,8 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 3.0,
-    "maxAcceleration": 3.0,
+    "maxVelocity": 3.25,
+    "maxAcceleration": 3.25,
     "maxAngularVelocity": 360.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,
@@ -67,7 +67,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 59.99999999999999
+    "rotation": 65.66724958624866
   },
   "reversed": false,
   "folder": "Trench",

@@ -15,7 +15,6 @@ import frc.robot.subsystems.kicker.Kicker;
 import frc.robot.subsystems.kicker.KickerConstants;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.ShooterConstants;
-import frc.robot.subsystems.shooter.ShooterConstants.ShootingParams;
 import frc.robot.utils.CustomPIDs.ChassisHeadingController;
 import frc.robot.utils.CustomPIDs.MapleJoystickDriveInput;
 import frc.robot.utils.constants.FieldConstants;
@@ -69,15 +68,18 @@ public class CMD_Shoot extends Command {
             false);
     driveCommand.initialize();
 
-    double distMeters = FieldConstants.getHubPose().getDistance(drive.getPose().getTranslation());
-    ShootingParams shootingParams = ShooterConstants.getShootingParams(distMeters);
-    shooter.setReference(shootingParams.shooterReference());
-    hood.setReference(shootingParams.hoodReference());
+    // double distMeters =
+    // FieldConstants.getHubPose().getDistance(drive.getPose().getTranslation());
+    // ShootingParams shootingParams = ShooterConstants.getShootingParams(distMeters);
+    // shooter.setReference(shootingParams.shooterReference());
+    // hood.setReference(shootingParams.hoodReference());
   }
 
   @Override
   public void execute() {
     driveCommand.execute();
+    shooter.setReference(Math.toRadians(20000));
+    hood.setReference(0.25);
 
     boolean driveReady =
         atSetpointDebouncer.calculate(ChassisHeadingController.getInstance().atSetPoint());

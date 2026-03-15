@@ -67,7 +67,9 @@ public class RobotContainer {
 
   private final LoggedNetworkNumber shooterRef =
       new LoggedNetworkNumber("/Tuning/shooterRef", 20000);
-  private final LoggedNetworkNumber hoodRef = new LoggedNetworkNumber("/Tuning/hoodRef", Robot.CURRENT_ROBOT == Robot.RobotName.COMP_BOT ? .4 : .25);
+  private final LoggedNetworkNumber hoodRef =
+      new LoggedNetworkNumber(
+          "/Tuning/hoodRef", Robot.CURRENT_ROBOT == Robot.RobotName.COMP_BOT ? .4 : .25);
 
   public SwerveDriveSimulation driveSimulation = null;
 
@@ -179,15 +181,16 @@ public class RobotContainer {
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices");
     autoChooser.addDefaultOption("Trench And Outpost", new AUTO_TrenchAndOutpost());
-    autoChooser.addOption("Trench Left", new AUTO_Trench());
+    autoChooser.addOption("Trench Left", new AUTO_TrenchLeft());
+    autoChooser.addOption("Trench Right", new AUTO_TrenchRight());
     autoChooser.addOption("Outpost", new AUTO_Outpost());
-    autoChooser.addOption("2 sweep left", new AUTO_2SweepLeft());
-    autoChooser.addOption("2 sweep right", new AUTO_2SweepRight());
+    // autoChooser.addOption("2 sweep left", new AUTO_2SweepLeft());
+    // autoChooser.addOption("2 sweep right", new AUTO_2SweepRight());
 
     // Wheel Radius Test, tell the bot to run in a straight line for 3 meters, measure actual
     // distance
     //   Multiply wheel radius by actual distance (in) / 118.11 inches
-    // autoChooser.addOption("3MeterTest", new AUTO_3MeterTest().getAutoCommand(this, false));
+    // autoChooser.addOption("3MeterTest", new AUTO_3MeterTest());
 
     // Configure the button bindings
     configureButtonBindings();
@@ -230,16 +233,16 @@ public class RobotContainer {
                     new Pose2d(drive.getPose().getTranslation(), new Rotation2d())); // zero gyro
     driver.resetOdometryButton().onTrue(Commands.runOnce(resetGyro, drive).ignoringDisable(true));
 
-    driver
-        .autoAlignmentButton()
-        .whileTrue(
-            JoystickDriveAndAimAtTarget.driveAndAimAtTarget(
-                driveInput,
-                drive,
-                () -> FieldConstants.getHubPose(),
-                ShooterConstants.kShooterOptimization,
-                0.5,
-                false));
+    // driver
+    //     .autoAlignmentButton()
+    //     .whileTrue(
+    //         JoystickDriveAndAimAtTarget.driveAndAimAtTarget(
+    //             driveInput,
+    //             drive,
+    //             () -> FieldConstants.getHubPose(),
+    //             ShooterConstants.kShooterOptimization,
+    //             0.5,
+    //             false));
 
     driver.stopWithXButton().onTrue(Commands.runOnce(() -> drive.stopWithX()));
     driver
@@ -250,7 +253,12 @@ public class RobotContainer {
 
       driver.yButton().onTrue(new CMD_Stow(intake));
       driver.aButton().onTrue(new CMD_Home(intake));
-      driver.rightBumper().whileTrue(shootClose());
+      driver.rightBumper().whileTrue(pass());
+      driver
+          .povDown()
+          .onTrue(conveyor.runVoltage(-ConveyorConstants.kConvey))
+          .onFalse(conveyor.runVoltage(ConveyorConstants.kOff));
+      driver.autoAlignmentButton().whileTrue(shootClose());
 
     } else if (Robot.CURRENT_ROBOT_MODE == RobotMode.SIM) {
       driver.scoreButton().whileTrue(new CMD_ShootFuelSim(driveSimulation));
@@ -335,5 +343,10 @@ public class RobotContainer {
         shooter,
         () -> Math.toRadians(shooterRef.get()),
         () -> hoodRef.get());
+  }
+
+  public Command pass() {
+    return new CMD_ShootNoVision(
+        conveyor, hood, intake, kicker, shooter, () -> Math.toRadians(23000), () -> 0.8);
   }
 }

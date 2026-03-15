@@ -3,67 +3,81 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.0,
-        "y": 1.55
+        "x": 3.1129780076751543,
+        "y": 0.7348600371265877
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.0,
-        "y": 0.6597252128067641
+        "x": 5.077037831119139,
+        "y": 0.6406119847559123
       },
       "isLocked": false,
       "linkedName": "ShootTrench"
     },
     {
       "anchor": {
-        "x": 4.5,
-        "y": 0.67
+        "x": 6.510638554216978,
+        "y": 0.8441084337390419
       },
       "prevControl": {
-        "x": 4.0,
-        "y": 0.6700000000000002
+        "x": 5.970055610091824,
+        "y": 0.561121981826459
       },
       "nextControl": {
-        "x": 8.25,
-        "y": 0.67
+        "x": 6.75237576640874,
+        "y": 0.9706539652191252
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 8.5,
+        "x": 7.67,
         "y": 3.5
       },
       "prevControl": {
-        "x": 8.5,
-        "y": 0.5000000000000004
+        "x": 7.659072289156626,
+        "y": 2.046614457831326
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "SweepOpponentHalf"
+      "linkedName": "SweepHalfMiddle"
     }
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 0.8616352201257862,
-      "rotationDegrees": 0.0
+      "waypointRelativePos": 0.22074688796680147,
+      "rotationDegrees": 180.0
     },
     {
-      "waypointRelativePos": 1.1289308176100643,
-      "rotationDegrees": 0.0
+      "waypointRelativePos": 0.47966804979252897,
+      "rotationDegrees": 180.0
     },
     {
-      "waypointRelativePos": 1.5,
-      "rotationDegrees": -90.0
+      "waypointRelativePos": 1.1336099585061865,
+      "rotationDegrees": -135.0
     }
   ],
-  "constraintZones": [],
+  "constraintZones": [
+    {
+      "name": "Constraints Zone",
+      "minWaypointRelativePos": 1.33,
+      "maxWaypointRelativePos": 2.0,
+      "constraints": {
+        "maxVelocity": 2.0,
+        "maxAcceleration": 3.25,
+        "maxAngularVelocity": 360.0,
+        "maxAngularAcceleration": 720.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
+    }
+  ],
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 3.0,
-    "maxAcceleration": 3.0,
+    "maxVelocity": 3.25,
+    "maxAcceleration": 3.25,
     "maxAngularVelocity": 360.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,
@@ -77,7 +91,7 @@
   "folder": "Trench",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 59.99999999999999
+    "rotation": 65.66724958624866
   },
   "useDefaultConstraints": true
 }
