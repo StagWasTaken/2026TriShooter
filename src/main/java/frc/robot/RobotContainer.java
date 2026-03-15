@@ -24,6 +24,7 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.autos.*;
 import frc.robot.commands.*;
 import frc.robot.commands.drive.*;
@@ -83,6 +84,7 @@ public class RobotContainer {
 
   // Dashboard inputs
   private final LoggedDashboardChooser<Auto> autoChooser;
+  // private final LoggedDashboardChooser<Boolean> buttonBindingChooser;
 
   /** The container for the robot. Contains subsystems, IO devices, and commands. */
   public RobotContainer() {
@@ -267,6 +269,21 @@ public class RobotContainer {
       driver.scoreButton().whileTrue(new CMD_ShootFuelSim(driveSimulation));
     }
   }
+
+  public void sysIDButtonBindings() {
+    driver.aButton().whileTrue(drive.sysIdQuasistatic(Direction.kForward));
+    driver.bButton().whileTrue(drive.sysIdQuasistatic(Direction.kReverse));
+    driver.stopWithXButton().whileTrue(drive.sysIdDynamic(Direction.kForward));
+    driver.yButton().whileTrue(drive.sysIdDynamic(Direction.kReverse));
+  }
+
+  // public void updateButtonBindings() {
+  //   if (Boolean.TRUE.equals(buttonBindingChooser.get())) {
+  //   } else {
+  //       // This triggers if the value is FALSE or NULL
+  //       sysIDButtonBindings();
+  //   }
+  // }
 
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
