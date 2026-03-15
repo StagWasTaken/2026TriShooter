@@ -3,6 +3,8 @@ package frc.robot.commands;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Robot;
+import frc.robot.Robot.RobotName;
 import frc.robot.commands.drive.JoystickDriveAndAimAtTarget;
 import frc.robot.subsystems.conveyor.Conveyor;
 import frc.robot.subsystems.conveyor.ConveyorConstants;
@@ -79,7 +81,7 @@ public class CMD_Shoot extends Command {
   public void execute() {
     driveCommand.execute();
     shooter.setReference(Math.toRadians(20000));
-    hood.setReference(0.25);
+    hood.setReference(Robot.CURRENT_ROBOT == RobotName.COMP_BOT ? 0.4 : 0.25);
 
     boolean driveReady =
         atSetpointDebouncer.calculate(ChassisHeadingController.getInstance().atSetPoint());
