@@ -20,7 +20,7 @@ public class AUTO_TrenchRight implements Auto {
         new CMD_Extend(robot.intake),
         followPath("ShootTrench", false),
         // shoot for 2 seconds and then sweep middle again
-        robot.shootClose().withTimeout(2),
+        robot.shootClose().withTimeout(3),
         new ParallelCommandGroup(new CMD_Intake(robot.intake), followPath("SweepAgain", false)),
         // turn of intake and run back to our side to shoot
         new CMD_Extend(robot.intake),

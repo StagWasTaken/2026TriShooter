@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.1129780076751543,
-        "y": 0.7348600371265877
+        "x": 2.913395149786019,
+        "y": 1.0526390870185458
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.2341061924348447,
-        "y": 0.061557198529716084
+        "x": 2.0345233345457094,
+        "y": 0.37933624842167424
       },
       "isLocked": false,
       "linkedName": "ShootTrench"
@@ -48,7 +48,7 @@
   "folder": "Outpost",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 65.66724958624866
+    "rotation": 64.88516511385538
   },
   "useDefaultConstraints": true
 }
