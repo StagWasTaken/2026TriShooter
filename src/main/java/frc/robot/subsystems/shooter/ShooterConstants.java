@@ -57,8 +57,6 @@ public class ShooterConstants {
     // Current exit angle in degrees
     double exitAngle = 85.0 - (40.0 * hoodRotations);
 
-    // Assuming entry is fixed at the "bottom" of the arc (e.g., 135 degrees)
-    // You'll need to check your CAD for the actual entry transition point
     double entryAngle = -90;
 
     double deltaThetaDegrees = exitAngle - entryAngle;
@@ -74,20 +72,20 @@ public class ShooterConstants {
 
   // Shooting table: {distance (meters), angle (degrees), velocity (rpm), time of flight (s)}
   public static final double[][] SHOOTING_TABLE = {
-    {3.0480, 75.51, 3383.33, 1.532}, // 120in
-    {3.5560, 73.42, 3625.00, 1.608}, // 140in
-    {4.0640, 71.33, 3866.67, 1.681}, // 160in
-    {4.5720, 69.25, 4108.33, 1.751}, // 180in
-    {5.0800, 67.16, 4350.00, 1.816}, // 200in
+    {3.0480, 75.51, 3323.33, 1.532}, // 120in
+    {3.5560, 73.42, 3565.00, 1.608}, // 140in
+    {4.0640, 71.33, 3806.67, 1.681}, // 160in
+    {4.5720, 69.25, 4048.33, 1.751}, // 180in
+    {5.0800, 67.16, 4290.00, 1.816}, // 200in
   };
 
   // Shooting table: {distance (meters), hood (0-1 rotations), velocity (rad/s), time of flight (s)}
   public static final double[][] SHOOTING_TABLE_REAL = {
-    {3.0480, 0.2500, 349.0659, 1.515}, // 120in
-    {3.5560, 0.3000, 383.9724, 1.627}, // 140in
-    {4.0640, 0.4000, 410.1524, 1.690}, // 160in
-    {4.5720, 0.4300, 427.6057, 1.740}, // 180in
-    {5.0800, 0.4670, 453.7856, 1.817}, // 200in
+    {3.0480, 0.2500, 342.7827, 1.515}, // 120in
+    {3.5560, 0.3000, 377.6892, 1.627}, // 140in
+    {4.0640, 0.4000, 403.8692, 1.690}, // 160in
+    {4.5720, 0.4300, 421.3225, 1.740}, // 180in
+    {5.0800, 0.4670, 447.5024, 1.817}, // 200in
   };
 
   // Extract columns for MapleShooterOptimization

@@ -67,8 +67,11 @@ public class CMD_ShootNoVision extends Command {
       shooting = true;
     }
 
-    if (shooting && timer.get() > 1) {
-      intake.setExtenderReference(ExtenderConstants.kStow);
+    if (shooting && intake.getExtenderPosition() > ExtenderConstants.kStow) {
+      intake.setExtenderVoltage(-1.25);
+      intake.setVoltage(2);
+    } else {
+      intake.setExtenderVoltage(0);
     }
   }
 
@@ -78,5 +81,7 @@ public class CMD_ShootNoVision extends Command {
     hood.setReference(HoodConstants.kMinPos);
     conveyor.setVoltage(ConveyorConstants.kOff);
     kicker.setVoltage(KickerConstants.kOff);
+    intake.setExtenderReference(intake.getExtenderPosition());
+    intake.setVoltage(0);
   }
 }

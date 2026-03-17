@@ -188,8 +188,7 @@ public class RobotContainer {
     autoChooser.addOption("Trench Left", new AUTO_TrenchLeft());
     autoChooser.addOption("Trench Right", new AUTO_TrenchRight());
     autoChooser.addOption("Outpost", new AUTO_Outpost());
-    autoChooser.addOption("2 sweep left", new AUTO_2SweepLeft());
-    autoChooser.addOption("2 sweep right", new AUTO_2SweepRight());
+    autoChooser.addOption("Disrupt Middle", new AUTO_DisruptMiddle());
 
     // Wheel Radius Test, tell the bot to run in a straight line for 3 meters, measure actual
     // distance

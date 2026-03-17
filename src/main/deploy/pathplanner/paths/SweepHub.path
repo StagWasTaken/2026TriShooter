@@ -1,0 +1,159 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 2.725,
+        "y": 1.0
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 3.7930353753443127,
+        "y": 0.48637749301361977
+      },
+      "isLocked": false,
+      "linkedName": "ShootTrenchDisrupt"
+    },
+    {
+      "anchor": {
+        "x": 6.56250327515863,
+        "y": 0.7679641948857137
+      },
+      "prevControl": {
+        "x": 5.635239319400296,
+        "y": 0.19601685187029827
+      },
+      "nextControl": {
+        "x": 6.907531605701681,
+        "y": 0.9807817380390611
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 6.673129569362665,
+        "y": 2.848672965115601
+      },
+      "prevControl": {
+        "x": 6.804980714803362,
+        "y": 1.434935683445906
+      },
+      "nextControl": {
+        "x": 6.532905418629904,
+        "y": 4.3521874701946555
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 6.027773629760248,
+        "y": 3.670660008964692
+      },
+      "prevControl": {
+        "x": 6.027840552950616,
+        "y": 4.157400529723984
+      },
+      "nextControl": {
+        "x": 6.027731276712744,
+        "y": 3.3626211320870825
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 6.027773629760248,
+        "y": 3.038733921919936
+      },
+      "prevControl": {
+        "x": 6.016773185027533,
+        "y": 3.288491785090813
+      },
+      "nextControl": {
+        "x": 6.08787257653141,
+        "y": 1.674226859787643
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 6.027773629760248,
+        "y": 1.0
+      },
+      "prevControl": {
+        "x": 6.284150857006047,
+        "y": 1.244093331199341
+      },
+      "nextControl": {
+        "x": 5.47362166222927,
+        "y": 0.47239931877560304
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 2.725,
+        "y": 1.0
+      },
+      "prevControl": {
+        "x": 4.072811708949347,
+        "y": 0.17226780917784723
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "ShootTrenchDisrupt"
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.2838174273858985,
+      "rotationDegrees": 0.0
+    },
+    {
+      "waypointRelativePos": 0.731950207468871,
+      "rotationDegrees": 0.0
+    },
+    {
+      "waypointRelativePos": 3.0,
+      "rotationDegrees": 45.0
+    },
+    {
+      "waypointRelativePos": 4.75,
+      "rotationDegrees": 45.0
+    },
+    {
+      "waypointRelativePos": 5.33,
+      "rotationDegrees": 0.0
+    },
+    {
+      "waypointRelativePos": 5.75,
+      "rotationDegrees": 0.0
+    }
+  ],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 2.0,
+    "maxAcceleration": 2.0,
+    "maxAngularVelocity": 360.0,
+    "maxAngularAcceleration": 360.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 58.08039229714565
+  },
+  "reversed": false,
+  "folder": "TrenchV2",
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": 58.08039229714565
+  },
+  "useDefaultConstraints": false
+}

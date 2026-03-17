@@ -55,6 +55,12 @@ public class IntakeConfig {
         .outputRange(ExtenderConstants.kMinOutput, ExtenderConstants.kMaxOutput)
         .feedbackSensor(FeedbackSensor.kAbsoluteEncoder);
     intakeExtenderConfig
+        .softLimit
+        .forwardSoftLimit(ExtenderConstants.kExtended + ExtenderConstants.kPositionTolerance)
+        .forwardSoftLimitEnabled(true)
+        .reverseSoftLimit(ExtenderConstants.kHome - ExtenderConstants.kPositionTolerance)
+        .reverseSoftLimitEnabled(true);
+    intakeExtenderConfig
         .closedLoop
         .maxMotion
         .allowedProfileError(ExtenderConstants.kPositionTolerance, ClosedLoopSlot.kSlot0)
