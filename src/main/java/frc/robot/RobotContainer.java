@@ -71,7 +71,7 @@ public class RobotContainer {
       new LoggedNetworkNumber("/Tuning/shooterRef", 21000);
   private final LoggedNetworkNumber hoodRef =
       new LoggedNetworkNumber(
-          "/Tuning/hoodRef", Robot.CURRENT_ROBOT == Robot.RobotName.COMP_BOT ? 0.4 : 0.33);
+          "/Tuning/hoodRef", Robot.CURRENT_ROBOT == Robot.RobotName.COMP_BOT ? 0.4 : 0.55);
 
   public SwerveDriveSimulation driveSimulation = null;
 
@@ -188,12 +188,13 @@ public class RobotContainer {
     autoChooser.addOption("Trench Left", new AUTO_TrenchLeft());
     autoChooser.addOption("Trench Right", new AUTO_TrenchRight());
     autoChooser.addOption("Outpost", new AUTO_Outpost());
-    autoChooser.addOption("Disrupt Middle", new AUTO_DisruptMiddle());
+    autoChooser.addOption("Disrupt Middle Left", new AUTO_DisruptMiddleLeft());
+    autoChooser.addOption("Disrupt Middle Right", new AUTO_DisruptMiddleLeft());
 
     // Wheel Radius Test, tell the bot to run in a straight line for 3 meters, measure actual
     // distance
     //   Multiply wheel radius by actual distance (in) / 118.11 inches
-    // autoChooser.addOption("3MeterTest", new AUTO_3MeterTest());
+    autoChooser.addOption("3MeterTest", new AUTO_3MeterTest());
 
     // Configure the button bindings
     configureButtonBindings();
@@ -235,17 +236,6 @@ public class RobotContainer {
                 drive.resetOdometry(
                     new Pose2d(drive.getPose().getTranslation(), new Rotation2d())); // zero gyro
     driver.resetOdometryButton().onTrue(Commands.runOnce(resetGyro, drive).ignoringDisable(true));
-
-    // driver
-    //     .autoAlignmentButton()
-    //     .whileTrue(
-    //         JoystickDriveAndAimAtTarget.driveAndAimAtTarget(
-    //             driveInput,
-    //             drive,
-    //             () -> FieldConstants.getHubPose(),
-    //             ShooterConstants.kShooterOptimization,
-    //             0.5,
-    //             false));
 
     driver.stopWithXButton().onTrue(Commands.runOnce(() -> drive.stopWithX()));
     driver
@@ -292,6 +282,7 @@ public class RobotContainer {
    */
   public Auto getAutonomousCommand() {
     return autoChooser.get();
+    // return DriveCommands.wheelRadiusCharacterization(drive);
   }
 
   public void resetSimulationField() {

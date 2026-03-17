@@ -81,11 +81,11 @@ public class ShooterConstants {
 
   // Shooting table: {distance (meters), hood (0-1 rotations), velocity (rad/s), time of flight (s)}
   public static final double[][] SHOOTING_TABLE_REAL = {
-    {3.0480, 0.2500, 342.7827, 1.515}, // 120in
-    {3.5560, 0.3000, 377.6892, 1.627}, // 140in
-    {4.0640, 0.4000, 403.8692, 1.690}, // 160in
-    {4.5720, 0.4300, 421.3225, 1.740}, // 180in
-    {5.0800, 0.4670, 447.5024, 1.817}, // 200in
+    {3.0480, 0.433, 342.7827, 1.515}, // 120in
+    {3.5560, 0.5, 377.6892, 1.627}, // 140in
+    {4.0640, 0.55, 410.15237, 1.690}, // 160in
+    {4.5720, 0.6, 418.87902, 1.740}, // 180in
+    {5.0800, 0.6, 436.332, 1.817}, // 200in
   };
 
   // Extract columns for MapleShooterOptimization

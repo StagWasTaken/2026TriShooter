@@ -80,7 +80,7 @@ public class DriveConstants {
   public static final double wheelRadiusMeters =
       Robot.CURRENT_ROBOT == RobotName.COMP_BOT
           ? Units.inchesToMeters(1.474)
-          : Units.inchesToMeters(1.4126);
+          : Units.inchesToMeters(1.463);
   public static final double driveMotorReduction =
       (45.0 * 22.0) / (12.0 * 15.0); // MAXSwerve with 12 pinion teeth and 22 spur teeth
   public static final DCMotor driveGearbox = DCMotor.getNeoVortex(1);

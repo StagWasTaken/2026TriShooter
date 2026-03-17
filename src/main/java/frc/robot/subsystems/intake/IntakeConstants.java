@@ -26,7 +26,7 @@ public class IntakeConstants {
   public static final double kMinOutput = -1;
   public static final double kMaxOutput = 1;
 
-  public static final double kOn = 10;
+  public static final double kOn = 8;
   public static final double kOff = 0;
 
   public static final double kGearRatio = 1;

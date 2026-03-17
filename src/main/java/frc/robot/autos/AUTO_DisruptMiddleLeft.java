@@ -9,7 +9,7 @@ import frc.robot.utils.constants.FieldConstants;
 import java.io.IOException;
 import org.json.simple.parser.ParseException;
 
-public class AUTO_DisruptMiddle implements Auto {
+public class AUTO_DisruptMiddleLeft implements Auto {
   @Override
   public Command getAutoCommand(RobotContainer robot) throws IOException, ParseException {
     return Commands.sequence(

@@ -261,7 +261,7 @@ public class ChassisHeadingController {
             robotPose.getTranslation(), Rotation2d.fromRadians(chassisRotationState.position)));
     final Rotation2d error = requestedRotation.minus(robotPose.getRotation());
     Logger.recordOutput("ChassisHeadingController/Error", error.getDegrees());
-    atSetPoint = Math.abs(error.getRadians()) < Math.toRadians(1);
+    atSetPoint = Math.abs(error.getRadians()) < Math.toRadians(3);
   }
 
   public boolean atSetPoint() {
