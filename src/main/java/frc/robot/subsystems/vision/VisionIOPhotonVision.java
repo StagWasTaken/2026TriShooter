@@ -1,6 +1,6 @@
 package frc.robot.subsystems.vision;
 
-import static frc.robot.subsystems.vision.Vision_Constants.aprilTagLayout;
+import static frc.robot.subsystems.vision.Vision_Constants.*;
 
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -13,11 +13,9 @@ import java.util.Set;
 import org.photonvision.PhotonCamera;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
-/** IO implementation for real PhotonVision hardware. */
 public class VisionIOPhotonVision implements VisionIO {
   protected final PhotonCamera camera;
   protected final Transform3d robotToCamera;
-  private static final double MAX_DISTANCE_METERS = 5.0;
 
   public VisionIOPhotonVision(String name, Transform3d robotToCamera) {
     camera = new PhotonCamera(name);
@@ -48,7 +46,7 @@ public class VisionIOPhotonVision implements VisionIO {
 
         for (var target : result.targets) {
           double dist = target.bestCameraToTarget.getTranslation().getNorm();
-          if (dist <= MAX_DISTANCE_METERS) {
+          if (dist <= maxDistanceMeters && APRIL_TAG_MAP.containsKey(target.fiducialId)) {
             validTargets.add(target);
             totalDistance += dist;
           }
@@ -70,17 +68,18 @@ public class VisionIOPhotonVision implements VisionIO {
                   totalDistance / validTargets.size(),
                   PoseObservationType.PHOTONVISION));
         }
-
       } else if (!result.targets.isEmpty()) {
         var target = result.targets.get(0);
         double distance = target.bestCameraToTarget.getTranslation().getNorm();
 
-        if (distance <= MAX_DISTANCE_METERS) {
-          var tagPose = aprilTagLayout.getTagPose(target.fiducialId);
-          if (tagPose.isPresent()) {
+        if (distance <= maxDistanceMeters) {
+          var tagPose = APRIL_TAG_MAP.get(target.fiducialId);
+
+          if (tagPose != null) {
             Transform3d fieldToTarget =
-                new Transform3d(tagPose.get().getTranslation(), tagPose.get().getRotation());
+                new Transform3d(tagPose.getTranslation(), tagPose.getRotation());
             Transform3d cameraToTarget = target.bestCameraToTarget;
+
             Transform3d fieldToCamera = fieldToTarget.plus(cameraToTarget.inverse());
             Transform3d fieldToRobot = fieldToCamera.plus(robotToCamera.inverse());
             Pose3d robotPose =

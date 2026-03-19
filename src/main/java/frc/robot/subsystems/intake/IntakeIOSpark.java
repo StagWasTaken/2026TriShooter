@@ -13,7 +13,6 @@ import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.config.SparkFlexConfig;
 import edu.wpi.first.math.util.Units;
 import frc.robot.subsystems.intake.IntakeConstants.ExtenderConstants;
 
@@ -166,25 +165,6 @@ public class IntakeIOSpark implements IntakeIO {
   public boolean getExtenderInPosition() {
     double positionError = Math.abs(getExtenderPosition() - getExtenderReference());
     return positionError < ExtenderConstants.kPositionTolerance;
-  }
-
-  @Override
-  public void setExtenderLowCurrentMode(boolean lowCurrentMode) {
-    if (lowCurrentMode) {
-      SparkFlexConfig newConfig = new SparkFlexConfig();
-      newConfig.apply(IntakeConfig.intakeExtenderConfig);
-      newConfig.smartCurrentLimit(2);
-
-      intakeExtenderMotor.configureAsync(
-          newConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
-    } else {
-      SparkFlexConfig newConfig = new SparkFlexConfig();
-      newConfig.apply(IntakeConfig.intakeExtenderConfig);
-      newConfig.smartCurrentLimit(40);
-
-      intakeExtenderMotor.configureAsync(
-          newConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
-    }
   }
 
   @Override

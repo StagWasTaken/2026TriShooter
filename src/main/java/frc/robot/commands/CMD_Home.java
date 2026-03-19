@@ -18,7 +18,6 @@ public class CMD_Home extends Command {
   public void initialize() {
     intake.setVoltage(IntakeConstants.kOff);
 
-    intake.setExtenderLowCurrentMode(false);
     intake.setExtenderReference(ExtenderConstants.kHome);
   }
 
@@ -30,7 +29,5 @@ public class CMD_Home extends Command {
   @Override
   public void end(boolean interrupted) {
     if (interrupted) return;
-
-    intake.setExtenderLowCurrentMode(true);
   }
 }

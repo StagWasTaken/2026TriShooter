@@ -1,0 +1,87 @@
+package frc.robot.commands;
+
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.subsystems.conveyor.Conveyor;
+import frc.robot.subsystems.conveyor.ConveyorConstants;
+import frc.robot.subsystems.hood.Hood;
+import frc.robot.subsystems.hood.HoodConstants;
+import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.intake.IntakeConstants.ExtenderConstants;
+import frc.robot.subsystems.kicker.Kicker;
+import frc.robot.subsystems.kicker.KickerConstants;
+import frc.robot.subsystems.shooter.Shooter;
+import java.util.function.DoubleSupplier;
+
+public class CMD_ShootNoVision extends Command {
+  private final Conveyor conveyor;
+  private final Hood hood;
+  private final Intake intake;
+  private final Kicker kicker;
+  private final Shooter shooter;
+
+  private boolean shooting;
+  private final Timer timer = new Timer();
+  private final DoubleSupplier hoodSupplier, shooterSupplier;
+
+  public CMD_ShootNoVision(
+      Conveyor conveyor, Hood hood, Intake intake, Kicker kicker, Shooter shooter) {
+    this(conveyor, hood, intake, kicker, shooter, () -> Math.toRadians(20000), () -> 0.4);
+  }
+
+  public CMD_ShootNoVision(
+      Conveyor conveyor,
+      Hood hood,
+      Intake intake,
+      Kicker kicker,
+      Shooter shooter,
+      DoubleSupplier shooterRPM,
+      DoubleSupplier hoodAngle) {
+    this.conveyor = conveyor;
+    this.hood = hood;
+    this.intake = intake;
+    this.kicker = kicker;
+    this.shooter = shooter;
+    this.shooterSupplier = shooterRPM;
+    this.hoodSupplier = hoodAngle;
+
+    addRequirements(conveyor, hood, intake, kicker, shooter);
+  }
+
+  @Override
+  public void initialize() {
+    shooting = false;
+    timer.stop();
+    timer.reset();
+  }
+
+  @Override
+  public void execute() {
+    shooter.setReference(shooterSupplier.getAsDouble());
+    hood.setReference(hoodSupplier.getAsDouble());
+
+    if (shooter.isReady() && hood.atReference() && !shooting) {
+      conveyor.setVoltage(ConveyorConstants.kConvey);
+      kicker.setVoltage(KickerConstants.kKick);
+      timer.restart();
+      shooting = true;
+    }
+
+    if (shooting && intake.getExtenderPosition() > ExtenderConstants.kStow) {
+      intake.setExtenderVoltage(-1.25);
+      intake.setVoltage(2);
+    } else {
+      intake.setExtenderVoltage(0);
+    }
+  }
+
+  @Override
+  public void end(boolean interrupted) {
+    shooter.setReference(0);
+    hood.setReference(HoodConstants.kMinPos);
+    conveyor.setVoltage(ConveyorConstants.kOff);
+    kicker.setVoltage(KickerConstants.kOff);
+    intake.setExtenderReference(intake.getExtenderPosition());
+    intake.setVoltage(0);
+  }
+}

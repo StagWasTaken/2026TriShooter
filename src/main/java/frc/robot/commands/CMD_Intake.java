@@ -14,7 +14,6 @@ public class CMD_Intake extends Command {
 
   @Override
   public void initialize() {
-    intake.setExtenderLowCurrentMode(false);
     intake.setExtenderReference(ExtenderConstants.kExtended);
   }
 
@@ -26,11 +25,10 @@ public class CMD_Intake extends Command {
   @Override
   public void end(boolean interrupted) {
     if (interrupted) {
-      intake.setExtenderLowCurrentMode(false);
       return;
     }
 
     intake.setVoltage(IntakeConstants.kOn);
-    intake.setExtenderLowCurrentMode(true);
+    intake.setExtenderVoltage(0.1);
   }
 }

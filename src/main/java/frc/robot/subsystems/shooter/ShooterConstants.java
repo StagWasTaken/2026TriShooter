@@ -3,9 +3,7 @@ package frc.robot.subsystems.shooter;
 import static edu.wpi.first.units.Units.Kilograms;
 import static edu.wpi.first.units.Units.Pounds;
 
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.util.Units;
-import frc.robot.subsystems.hood.HoodConstants;
 import frc.robot.utils.CustomPIDs.MapleShooterOptimization;
 
 public class ShooterConstants {
@@ -59,8 +57,6 @@ public class ShooterConstants {
     // Current exit angle in degrees
     double exitAngle = 85.0 - (40.0 * hoodRotations);
 
-    // Assuming entry is fixed at the "bottom" of the arc (e.g., 135 degrees)
-    // You'll need to check your CAD for the actual entry transition point
     double entryAngle = -90;
 
     double deltaThetaDegrees = exitAngle - entryAngle;
@@ -74,18 +70,22 @@ public class ShooterConstants {
 
   public static final double kStartOnTargetVel = Math.toRadians(720); // radians
 
-  // Shooting table: {distance (meters), angle (degrees), velocity (m/s), time of flight (s)}
+  // Shooting table: {distance (meters), angle (degrees), velocity (rpm), time of flight (s)}
   public static final double[][] SHOOTING_TABLE = {
-    {1.0, 85.00, 6.02, 0.7608},
-    {2.0, 65.43, 6.43, 0.7482},
-    {3.0, 56.90, 7.04, 0.7641},
-    {4.0, 58.75, 7.86, 0.9812},
-    {5.0, 48.88, 8.47, 0.8978},
-    {6.0, 42.88, 9.29, 0.8818},
-    {7.0, 41.60, 9.90, 0.9457},
-    {8.0, 40.16, 10.51, 0.9960},
-    {9.0, 38.67, 11.12, 1.0365},
-    {10.0, 37.20, 11.73, 1.0699}
+    {3.0480, 75.51, 3323.33, 1.532}, // 120in
+    {3.5560, 73.42, 3565.00, 1.608}, // 140in
+    {4.0640, 71.33, 3806.67, 1.681}, // 160in
+    {4.5720, 69.25, 4048.33, 1.751}, // 180in
+    {5.0800, 67.16, 4290.00, 1.816}, // 200in
+  };
+
+  // Shooting table: {distance (meters), hood (0-1 rotations), velocity (rad/s), time of flight (s)}
+  public static final double[][] SHOOTING_TABLE_REAL = {
+    {3.0480, 0.433, 342.7827, 1.515}, // 120in
+    {3.5560, 0.5, 377.6892, 1.627}, // 140in
+    {4.0640, 0.55, 410.15237, 1.690}, // 160in
+    {4.5720, 0.6, 418.87902, 1.740}, // 180in
+    {5.0800, 0.6, 436.332, 1.817}, // 200in
   };
 
   // Extract columns for MapleShooterOptimization
@@ -109,30 +109,38 @@ public class ShooterConstants {
   public static final record ShootingParams(
       double hoodReference, double shooterReference, double tofSeconds) {}
 
-  public static final ShootingParams getShootingParams(double distanceMeters) {
-    // linear regressions calculated from desmos
-    double hoodAngle = (0.123023 * distanceMeters) - 0.18125;
-    double shooterVelRad = (44.19548 * distanceMeters) + 186.99956;
-    shooterVelRad = MathUtil.clamp(shooterVelRad, 350, 450);
+  public static final ShootingParams getShootingParams(double distance) {
+    if (distance <= SHOOTING_TABLE_REAL[0][0]) {
+      return new ShootingParams(
+          SHOOTING_TABLE_REAL[0][1], SHOOTING_TABLE_REAL[0][2], SHOOTING_TABLE_REAL[0][3]);
+    }
+    if (distance >= SHOOTING_TABLE_REAL[SHOOTING_TABLE_REAL.length - 1][0]) {
+      int last = SHOOTING_TABLE_REAL.length - 1;
+      return new ShootingParams(
+          SHOOTING_TABLE_REAL[last][1], SHOOTING_TABLE_REAL[last][2], SHOOTING_TABLE_REAL[last][3]);
+    }
 
-    // 11m/s^2 gravity to match maple sim
-    double g = 11;
-    double targetHeightM = Units.feetToMeters(6.0);
+    for (int i = 0; i < SHOOTING_TABLE_REAL.length - 1; i++) {
+      if (distance >= SHOOTING_TABLE_REAL[i][0] && distance <= SHOOTING_TABLE_REAL[i + 1][0]) {
+        double d0 = SHOOTING_TABLE_REAL[i][0];
+        double d1 = SHOOTING_TABLE_REAL[i + 1][0];
+        double t = (distance - d0) / (d1 - d0);
 
-    // convert shooter flywheel angular speed in rad/s to linear speed meter/s, with a roughly
-    // 43.5% speed transfer to projectile
-    double projVelMps = shooterVelRad * Units.inchesToMeters(2) * 0.435;
-    // convert from 0 = 90 degress from horizontal to 0 = parralel to floor
-    double launchAngleRad =
-        HoodConstants.kMaxHoodAngle - (HoodConstants.kHoodAngleDelta * hoodAngle);
-    // hood angle is 1 rotation of the motor = 45 degrees of hood travel
-    double vy = (projVelMps) * Math.sin(launchAngleRad);
-    // shooter is mounted 21 inches from the floor, target height is 6 feet off the floor
-    double dy = Units.inchesToMeters(21) - targetHeightM;
+        double hood =
+            SHOOTING_TABLE_REAL[i][1]
+                + t * (SHOOTING_TABLE_REAL[i + 1][1] - SHOOTING_TABLE_REAL[i][1]);
+        double velocity =
+            SHOOTING_TABLE_REAL[i][2]
+                + t * (SHOOTING_TABLE_REAL[i + 1][2] - SHOOTING_TABLE_REAL[i][2]);
+        double tof =
+            SHOOTING_TABLE_REAL[i][3]
+                + t * (SHOOTING_TABLE_REAL[i + 1][3] - SHOOTING_TABLE_REAL[i][3]);
 
-    double tofSeconds = (vy + Math.sqrt(vy * vy + 2 * g * dy)) / g;
+        return new ShootingParams(hood, velocity, tof);
+      }
+    }
 
-    return new ShootingParams(launchAngleRad, shooterVelRad, tofSeconds);
+    return new ShootingParams(0.4, 349.0659, 1.515);
   }
 
   public static final ShootingParams getSimShootingParams(double distance) {

@@ -253,6 +253,29 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer, Holon
     stop();
   }
 
+  @Override
+  public void activeXLock() {
+    Rotation2d[] xAngles = new Rotation2d[4];
+    for (int i = 0; i < 4; i++) {
+      xAngles[i] = moduleTranslations[i].getAngle();
+    }
+
+    ChassisSpeeds halt = new ChassisSpeeds(0, 0, 0);
+
+    OptionalDouble angularVelocityOverride =
+        ChassisHeadingController.getInstance()
+            .calculate(getMeasuredChassisSpeedsFieldRelative(), getPose());
+
+    if (angularVelocityOverride.isPresent()
+        && Math.abs(angularVelocityOverride.getAsDouble()) > 0.05) {
+      runRobotCentricChassisSpeeds(halt);
+    } else {
+      for (int i = 0; i < 4; i++) {
+        modules[i].runSetpoint(new SwerveModuleState(0, xAngles[i]));
+      }
+    }
+  }
+
   /** Returns a command to run a quasistatic test in the specified direction. */
   public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
     return run(() -> runCharacterization(0.0))
@@ -439,13 +462,10 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer, Holon
 
   public Command alignToTarget(Supplier<Translation2d> targetSupplier) {
     return new FunctionalCommand(
-        // onInit
         () ->
             ChassisHeadingController.getInstance()
                 .setHeadingRequest(
                     new ChassisHeadingController.FaceToTargetRequest(targetSupplier, null)),
-
-        // onExecute
         () -> {
           ChassisSpeeds measured = getMeasuredChassisSpeedsFieldRelative();
           Pose2d pose = getPose();
@@ -457,13 +477,11 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer, Holon
 
           runRobotCentricChassisSpeeds(new ChassisSpeeds(0, 0, omega));
         },
-
-        // onEnd
-        interrupted ->
-            ChassisHeadingController.getInstance()
-                .setHeadingRequest(new ChassisHeadingController.NullRequest()),
-
-        // isFinished — custom tolerance check
+        interrupted -> {
+          ChassisHeadingController.getInstance()
+              .setHeadingRequest(new ChassisHeadingController.NullRequest());
+          stop();
+        },
         () -> {
           Translation2d target = targetSupplier.get();
           Pose2d robotPose = getPose();
@@ -472,10 +490,15 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer, Holon
           Rotation2d desiredHeading = delta.getAngle();
           Rotation2d currentHeading = robotPose.getRotation();
 
-          double error =
-              Math.abs(MathUtil.angleModulus(currentHeading.minus(desiredHeading).getRadians()));
+          double angularVelocity = getMeasuredChassisSpeedsRobotRelative().omegaRadiansPerSecond;
+          double overshootRad = Math.toRadians(3) * Math.signum(angularVelocity);
 
-          return error < Math.toRadians(5);
+          double error =
+              Math.abs(
+                  MathUtil.angleModulus(
+                      currentHeading.minus(desiredHeading).getRadians() + overshootRad));
+
+          return error < Math.toRadians(3);
         },
         this);
   }

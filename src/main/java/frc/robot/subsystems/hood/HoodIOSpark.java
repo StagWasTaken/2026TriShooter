@@ -48,6 +48,7 @@ public class HoodIOSpark implements HoodIO {
     inputs.hoodVelocity = getVelocity();
     inputs.hoodPos = getPosition();
     inputs.hoodTemp = Fahrenheit.convertFrom(hoodMotor.getMotorTemperature(), Celsius);
+    inputs.atReference = atReference();
   }
 
   @Override
