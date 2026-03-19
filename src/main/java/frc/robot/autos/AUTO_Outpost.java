@@ -10,17 +10,16 @@ import org.json.simple.parser.ParseException;
 
 public class AUTO_Outpost implements Auto {
   @Override
-  public Command getAutoCommand(RobotContainer robot, boolean mirrored)
-      throws IOException, ParseException {
+  public Command getAutoCommand(RobotContainer robot) throws IOException, ParseException {
     return Commands.sequence(
-        setAutoStartPose("IntakeOutpost", mirrored, robot.drive),
+        setAutoStartPose("IntakeOutpost", false, robot.drive),
         // run to outpost with hopper out
         new CMD_Extend(robot.intake),
-        followPath("IntakeOutpost", mirrored),
+        followPath("IntakeOutpost", false),
         // wait for HP to unload outpost into hopper
         new WaitCommand(1),
         // shoot until auto ends
-        followPath("ShootFromOutpost", mirrored),
+        followPath("ShootFromOutpost", false),
         robot.shootClose());
   }
 }

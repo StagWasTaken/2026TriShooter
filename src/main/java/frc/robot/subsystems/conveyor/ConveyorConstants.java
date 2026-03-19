@@ -25,7 +25,7 @@ public class ConveyorConstants {
   public static final double kMinOutput = -1;
   public static final double kMaxOutput = 1;
 
-  public static final double kConvey = 12;
+  public static final double kConvey = 11;
   public static final double kOff = 0;
 
   public static final double kGearRatio = 3;

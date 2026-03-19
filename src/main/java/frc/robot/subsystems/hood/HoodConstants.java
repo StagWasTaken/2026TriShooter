@@ -23,7 +23,7 @@ public class HoodConstants {
 
   public static final double kMinPos = 0.025;
   public static final double kMaxPos = 0.95;
-  public static final double kTolerance = Math.toRadians(1);
+  public static final double kTolerance = Math.toRadians(2);
 
   public static final double kMaxVel = 1;
   public static final double kMaxAccel = 3;

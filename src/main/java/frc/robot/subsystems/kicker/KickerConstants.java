@@ -27,8 +27,7 @@ public class KickerConstants {
 
   public static final double kTolerance = Math.PI * 2;
 
-  public static final double kKicking = Math.toRadians(10000);
-  public static final double kKick = 10;
+  public static final double kKick = 11;
   public static final double kOff = 0;
 
   public static final double kGearRatio = 2;

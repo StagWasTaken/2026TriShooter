@@ -6,10 +6,11 @@ import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.RobotContainer;
 import frc.robot.commands.*;
+import frc.robot.utils.constants.FieldConstants;
 import java.io.IOException;
 import org.json.simple.parser.ParseException;
 
-public class AUTO_TrenchAndOutpost implements Auto {
+public class AUTO_TrenchRight implements Auto {
   @Override
   public Command getAutoCommand(RobotContainer robot) throws IOException, ParseException {
     return Commands.sequence(
@@ -20,14 +21,17 @@ public class AUTO_TrenchAndOutpost implements Auto {
         // turn off intake and run back to our side to shoot
         new CMD_Extend(robot.intake),
         followPath("ShootTrench", false),
-        // shoot for 2 seconds and then run to outpost
-        robot.shootClose().withTimeout(4),
-        followPath("IntakeOutpostFromTrenchShoot", false),
+        new WaitCommand(0.25),
+        robot.drive.alignToTarget(() -> FieldConstants.getHubPose()).withTimeout(1),
+        // shoot for 2 seconds and then sweep middle again
+        robot.shootClose().withTimeout(3),
+        new ParallelCommandGroup(new CMD_Intake(robot.intake), followPath("SweepAgain", false)),
+        // turn of intake and run back to our side to shoot
         new CMD_Extend(robot.intake),
-        // wait a short time to let HP dump the outpost into our hopper
-        new WaitCommand(1),
-        // run back to the same shooting spot from earlier and unload until auto ends
-        followPath("ShootFromOutpostTrench", false),
+        followPath("ShootTrenchAgain", false),
+        new WaitCommand(0.25),
+        // robot.drive.alignToTarget(() -> FieldConstants.getHubPose()).withTimeout(1),
+        // shoot until auto ends
         robot.shootClose());
   }
 }

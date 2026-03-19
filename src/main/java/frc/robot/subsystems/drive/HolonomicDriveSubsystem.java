@@ -112,6 +112,12 @@ public interface HolonomicDriveSubsystem extends Subsystem {
     runRobotCentricChassisSpeeds(new ChassisSpeeds());
   }
 
+  default void stopWithX() {
+    stop();
+  }
+
+  default void activeXLock() {}
+
   default RobotConfig defaultPathPlannerRobotConfig() {
     return new RobotConfig(
         DriveConstants.ROBOT_MASS,

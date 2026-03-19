@@ -18,7 +18,6 @@ public class CMD_Stow extends Command {
   public void initialize() {
     intake.setVoltage(IntakeConstants.kOff);
 
-    intake.setExtenderLowCurrentMode(false);
     intake.setExtenderReference(ExtenderConstants.kStow);
   }
 
@@ -30,7 +29,5 @@ public class CMD_Stow extends Command {
   @Override
   public void end(boolean interrupted) {
     if (interrupted) return;
-
-    intake.setExtenderLowCurrentMode(true);
   }
 }

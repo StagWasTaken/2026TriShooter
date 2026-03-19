@@ -22,6 +22,7 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.Alert;
@@ -32,6 +33,7 @@ import frc.robot.subsystems.vision.VisionIO.PoseObservationType;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.function.Supplier;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 import org.littletonrobotics.junction.Logger;
 import org.photonvision.PhotonUtils;
@@ -42,9 +44,12 @@ public class Vision extends SubsystemBase {
   private final VisionIO[] io;
   private final VisionIOInputsAutoLogged[] inputs;
   private final Alert[] disconnectedAlerts;
+  private final Supplier<ChassisSpeeds> chassisSpeedsSupplier;
 
-  public Vision(VisionConsumer consumer, VisionIO... io) {
+  public Vision(
+      VisionConsumer consumer, Supplier<ChassisSpeeds> chassisSpeedsSupplier, VisionIO... io) {
     this.consumer = consumer;
+    this.chassisSpeedsSupplier = chassisSpeedsSupplier;
     this.io = io;
 
     // Initialize inputs
@@ -83,6 +88,13 @@ public class Vision extends SubsystemBase {
     List<Pose3d> allRobotPoses = new LinkedList<>();
     List<Pose3d> allRobotPosesAccepted = new LinkedList<>();
     List<Pose3d> allRobotPosesRejected = new LinkedList<>();
+
+    // Get current chassis speed for scaling trust
+    double chassisSpeed =
+        Math.abs(
+            Math.hypot(
+                chassisSpeedsSupplier.get().vxMetersPerSecond,
+                chassisSpeedsSupplier.get().vyMetersPerSecond));
 
     // Loop over cameras
     for (int cameraIndex = 0; cameraIndex < io.length; cameraIndex++) {
@@ -137,10 +149,17 @@ public class Vision extends SubsystemBase {
             Math.pow(observation.averageTagDistance(), 2.0)
                 * Vision_Constants.stdDevFactor
                 / observation.tagCount();
+
+        // Scale trust based on chassis velocity
+        // Higher speeds increase the standard deviation (trusting vision less)
+        double velocityMultiplier = 1.0 + (chassisSpeed);
+        stdDevFactor *= velocityMultiplier;
+
         double linearStdDev = linearStdDevBaseline * stdDevFactor;
         Logger.recordOutput("Vision/LinearStdDev", linearStdDev);
         double angularStdDev = angularStdDevBaseline * stdDevFactor;
         Logger.recordOutput("Vision/AngStdDev", angularStdDev);
+
         if (observation.type() == PoseObservationType.MEGATAG_2) {
           linearStdDev *= linearStdDevMegatag2Factor;
           angularStdDev *= angularStdDevMegatag2Factor;

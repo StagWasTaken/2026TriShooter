@@ -80,7 +80,5 @@ public interface IntakeIO {
 
   public default void setExtenderReference(double velocity) {}
 
-  public default void setExtenderLowCurrentMode(boolean lowCurrentMode) {}
-
   public default void periodic() {}
 }

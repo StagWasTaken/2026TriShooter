@@ -1,9 +1,13 @@
 package frc.robot.commands;
 
+import edu.wpi.first.math.filter.Debouncer;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.commands.drive.JoystickDriveAndAimAtTarget;
 import frc.robot.subsystems.conveyor.Conveyor;
 import frc.robot.subsystems.conveyor.ConveyorConstants;
+import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.hood.Hood;
 import frc.robot.subsystems.hood.HoodConstants;
 import frc.robot.subsystems.intake.Intake;
@@ -11,47 +15,91 @@ import frc.robot.subsystems.intake.IntakeConstants.ExtenderConstants;
 import frc.robot.subsystems.kicker.Kicker;
 import frc.robot.subsystems.kicker.KickerConstants;
 import frc.robot.subsystems.shooter.Shooter;
-import java.util.function.DoubleSupplier;
+import frc.robot.subsystems.shooter.ShooterConstants;
+import frc.robot.subsystems.shooter.ShooterConstants.ShootingParams;
+import frc.robot.utils.CustomPIDs.ChassisHeadingController;
+import frc.robot.utils.CustomPIDs.MapleJoystickDriveInput;
+import frc.robot.utils.constants.FieldConstants;
 
 public class CMD_Shoot extends Command {
+  private final Drive drive;
   private final Conveyor conveyor;
   private final Hood hood;
   private final Intake intake;
   private final Kicker kicker;
   private final Shooter shooter;
+  private final MapleJoystickDriveInput driveSupplier; // null when using auto constructor
 
   private boolean shooting;
   private final Timer timer = new Timer();
-  private final DoubleSupplier hoodSupplier, shooterSupplier;
+  private final Debouncer atSetpointDebouncer = new Debouncer(0.25);
+  private Command driveCommand;
 
+  // Original constructor — teleop with driver input and shoot-on-the-fly
   public CMD_Shoot(
+      Drive drive,
+      MapleJoystickDriveInput driveSupplier,
       Conveyor conveyor,
       Hood hood,
       Intake intake,
       Kicker kicker,
-      Shooter shooter,
-      double hoodAng,
-      double shooterVel) {
-    this(conveyor, hood, intake, kicker, shooter, () -> hoodAng, () -> shooterVel);
-  }
-
-  public CMD_Shoot(
-      Conveyor conveyor,
-      Hood hood,
-      Intake intake,
-      Kicker kicker,
-      Shooter shooter,
-      DoubleSupplier hoodSupplier,
-      DoubleSupplier shooterSupplier) {
+      Shooter shooter) {
+    this.drive = drive;
+    this.driveSupplier = driveSupplier;
     this.conveyor = conveyor;
     this.hood = hood;
     this.intake = intake;
     this.kicker = kicker;
     this.shooter = shooter;
-    this.hoodSupplier = hoodSupplier;
-    this.shooterSupplier = shooterSupplier;
 
-    addRequirements(conveyor, hood, intake, kicker, shooter);
+    addRequirements(drive, conveyor, hood, intake, kicker, shooter);
+  }
+
+  // Auto constructor — no driver input, no shoot-on-the-fly, just lookup table at current position
+  public CMD_Shoot(
+      Drive drive, Conveyor conveyor, Hood hood, Intake intake, Kicker kicker, Shooter shooter) {
+    this.drive = drive;
+    this.driveSupplier = null;
+    this.conveyor = conveyor;
+    this.hood = hood;
+    this.intake = intake;
+    this.kicker = kicker;
+    this.shooter = shooter;
+
+    addRequirements(drive, conveyor, hood, intake, kicker, shooter);
+  }
+
+  private Translation2d getPredictedPosition(double tofSeconds) {
+    var chassisSpeeds = drive.getMeasuredChassisSpeedsRobotRelative();
+    var robotAngle = drive.getPose().getRotation();
+
+    double vxField =
+        chassisSpeeds.vxMetersPerSecond * robotAngle.getCos()
+            - chassisSpeeds.vyMetersPerSecond * robotAngle.getSin();
+    double vyField =
+        chassisSpeeds.vxMetersPerSecond * robotAngle.getSin()
+            + chassisSpeeds.vyMetersPerSecond * robotAngle.getCos();
+
+    return drive
+        .getPose()
+        .getTranslation()
+        .plus(new Translation2d(vxField * tofSeconds, vyField * tofSeconds));
+  }
+
+  private ShootingParams getShootingParams() {
+    // Always uses current position — no prediction in auto
+    double distMeters = FieldConstants.getHubPose().getDistance(drive.getPose().getTranslation());
+    return ShooterConstants.getShootingParams(distMeters);
+  }
+
+  private ShootingParams getShootingParamsWithPrediction() {
+    double distMeters = FieldConstants.getHubPose().getDistance(drive.getPose().getTranslation());
+    ShootingParams initialParams = ShooterConstants.getShootingParams(distMeters);
+
+    Translation2d predictedPos = getPredictedPosition(initialParams.tofSeconds());
+    double predictedDist = FieldConstants.getHubPose().getDistance(predictedPos);
+
+    return ShooterConstants.getShootingParams(predictedDist);
   }
 
   @Override
@@ -59,34 +107,74 @@ public class CMD_Shoot extends Command {
     shooting = false;
     timer.stop();
     timer.reset();
+    atSetpointDebouncer.calculate(false); // flush debouncer state
 
-    shooter.setReference(shooterSupplier.getAsDouble());
-    hood.setReference(hoodSupplier.getAsDouble());
-  }
+    ChassisHeadingController.getInstance()
+        .setHeadingRequest(new ChassisHeadingController.NullRequest());
+    ChassisHeadingController.getInstance().resetToCurrentPose(drive.getPose());
 
-  @Override
-  public void end(boolean interrupted) {
-    shooter.setReference(0);
-    hood.setReference(HoodConstants.kMinPos);
-    conveyor.setVoltage(ConveyorConstants.kOff);
-    kicker.setVoltage(KickerConstants.kOff);
+    if (driveSupplier != null) {
+      driveCommand =
+          JoystickDriveAndAimAtTarget.driveAndAimAtTarget(
+              driveSupplier,
+              drive,
+              FieldConstants::getHubPose,
+              ShooterConstants.kShooterOptimization,
+              0.5,
+              false);
+    } else {
+      driveCommand =
+          JoystickDriveAndAimAtTarget.driveAndAimAtTarget(
+                  new MapleJoystickDriveInput(() -> 0.0, () -> 0.0, () -> 0.0),
+                  drive,
+                  FieldConstants::getHubPose,
+                  null,
+                  0.0,
+                  true)
+              .withTimeout(1);
+    }
+    driveCommand.initialize();
   }
 
   @Override
   public void execute() {
-    if (shooter.isReady() && hood.atReference() && !shooting) {
+    driveCommand.execute();
+
+    ShootingParams shootingParams =
+        driveSupplier != null ? getShootingParamsWithPrediction() : getShootingParams();
+
+    shooter.setReference(shootingParams.shooterReference());
+    hood.setReference(shootingParams.hoodReference());
+
+    boolean driveReady =
+        atSetpointDebouncer.calculate(ChassisHeadingController.getInstance().atSetPoint());
+
+    if (shooter.isReady() && hood.atReference() && driveReady && !shooting) {
       conveyor.setVoltage(ConveyorConstants.kConvey);
       kicker.setVoltage(KickerConstants.kKick);
-
-      intake.setExtenderLowCurrentMode(false);
-      intake.setExtenderReference(ExtenderConstants.kStow);
-
-      timer.start();
-    }
-
-    if (timer.get() > 0.25 && !shooting) {
+      timer.restart();
       shooting = true;
-      timer.reset();
     }
+
+    if (shooting && intake.getExtenderPosition() > ExtenderConstants.kStow) {
+      intake.setExtenderVoltage(-1.25);
+      intake.setVoltage(2);
+    } else {
+      intake.setExtenderVoltage(0);
+    }
+  }
+
+  @Override
+  public void end(boolean interrupted) {
+    if (driveCommand != null) {
+      driveCommand.end(interrupted);
+    }
+
+    shooter.setReference(0);
+    hood.setReference(HoodConstants.kMinPos);
+    conveyor.setVoltage(ConveyorConstants.kOff);
+    kicker.setVoltage(KickerConstants.kOff);
+    intake.setExtenderReference(intake.getExtenderPosition());
+    intake.setVoltage(0);
   }
 }

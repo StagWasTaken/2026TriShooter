@@ -6,6 +6,8 @@ import com.revrobotics.spark.config.MAXMotionConfig.MAXMotionPositionMode;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
+import frc.robot.Robot;
+import frc.robot.Robot.RobotName;
 import frc.robot.subsystems.intake.IntakeConstants.ExtenderConstants;
 
 public class IntakeConfig {
@@ -32,7 +34,8 @@ public class IntakeConfig {
         .smartCurrentLimit(40)
         .voltageCompensation(12)
         .idleMode(IdleMode.kCoast)
-        .follow(IntakeConstants.kIntakeCanId, true);
+        .follow(
+            IntakeConstants.kIntakeCanId, Robot.CURRENT_ROBOT == RobotName.COMP_BOT ? true : false);
 
     intakeExtenderConfig
         .disableFollowerMode()
@@ -51,6 +54,12 @@ public class IntakeConfig {
             ExtenderConstants.kP, ExtenderConstants.kI, ExtenderConstants.kD, ClosedLoopSlot.kSlot0)
         .outputRange(ExtenderConstants.kMinOutput, ExtenderConstants.kMaxOutput)
         .feedbackSensor(FeedbackSensor.kAbsoluteEncoder);
+    intakeExtenderConfig
+        .softLimit
+        .forwardSoftLimit(ExtenderConstants.kExtended + ExtenderConstants.kPositionTolerance)
+        .forwardSoftLimitEnabled(true)
+        .reverseSoftLimit(ExtenderConstants.kHome - ExtenderConstants.kPositionTolerance)
+        .reverseSoftLimitEnabled(true);
     intakeExtenderConfig
         .closedLoop
         .maxMotion

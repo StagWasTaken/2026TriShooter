@@ -15,12 +15,12 @@ import org.ironmaple.utils.FieldMirroringUtils;
 import org.json.simple.parser.ParseException;
 
 public interface Auto {
-  Command getAutoCommand(RobotContainer robot, boolean mirrored) throws IOException, ParseException;
+  Command getAutoCommand(RobotContainer robot) throws IOException, ParseException;
 
   static Auto none() {
     return new Auto() {
       @Override
-      public Command getAutoCommand(RobotContainer robot, boolean mirrored) {
+      public Command getAutoCommand(RobotContainer robot) {
         return Commands.none();
       }
     };

@@ -246,9 +246,9 @@ public class ShooterIOSpark implements ShooterIO {
       rightShooterController.setSetpoint(
           shooterReference, shooterType, ClosedLoopSlot.kSlot0, rightFF);
     } else {
-      leftShooterController.setSetpoint(0, ControlType.kVoltage);
-      middleShooterController.setSetpoint(0, ControlType.kVoltage);
-      rightShooterController.setSetpoint(0, ControlType.kVoltage);
+      leftShooterController.setSetpoint(ShooterConstants.kIdleVolts, ControlType.kVoltage);
+      middleShooterController.setSetpoint(ShooterConstants.kIdleVolts, ControlType.kVoltage);
+      rightShooterController.setSetpoint(ShooterConstants.kIdleVolts, ControlType.kVoltage);
     }
   }
 }
