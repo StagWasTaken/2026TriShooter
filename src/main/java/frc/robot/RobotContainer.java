@@ -24,7 +24,6 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.autos.*;
 import frc.robot.commands.*;
 import frc.robot.commands.drive.*;
@@ -184,17 +183,19 @@ public class RobotContainer {
 
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices");
-    autoChooser.addDefaultOption("Trench And Outpost", new AUTO_TrenchAndOutpost());
-    autoChooser.addOption("Trench Left", new AUTO_TrenchLeft());
-    autoChooser.addOption("Trench Right", new AUTO_TrenchRight());
-    autoChooser.addOption("Outpost", new AUTO_Outpost());
+    // autoChooser.addOption("Trench And Outpost", new AUTO_TrenchAndOutpost());
+    // autoChooser.addOption("Trench Left", new AUTO_TrenchLeft());
+    // autoChooser.addOption("Trench Right", new AUTO_TrenchRight());
+    // autoChooser.addOption("Outpost", new AUTO_Outpost());
     autoChooser.addOption("Disrupt Middle Left", new AUTO_DisruptMiddleLeft());
     autoChooser.addOption("Disrupt Middle Right", new AUTO_DisruptMiddleLeft());
+    autoChooser.addOption("Double Sweep Right", new AUTO_DoubleSweepRight());
+    autoChooser.addOption("Double Sweep Left", new AUTO_DoubleSweepLeft());
 
     // Wheel Radius Test, tell the bot to run in a straight line for 3 meters, measure actual
     // distance
     //   Multiply wheel radius by actual distance (in) / 118.11 inches
-    autoChooser.addOption("3MeterTest", new AUTO_3MeterTest());
+    // autoChooser.addOption("3MeterTest", new AUTO_3MeterTest());
 
     // Configure the button bindings
     configureButtonBindings();
@@ -222,7 +223,6 @@ public class RobotContainer {
             Robot.CURRENT_ROBOT_MODE == RobotMode.REAL
                 ? HoodConstants.kMinPos
                 : HoodConstants.kMinHoodAngle)); // sim uses radians, real uses rotations
-    kicker.setDefaultCommand(kicker.runVoltage(KickerConstants.kOff));
     conveyor.setDefaultCommand(conveyor.runVoltage(ConveyorConstants.kOff));
 
     ledStatusLight.setDefaultCommand(ledStatusLight.showHubStatus());
@@ -260,20 +260,6 @@ public class RobotContainer {
     }
   }
 
-  public void sysIDButtonBindings() {
-    driver.aButton().whileTrue(drive.sysIdQuasistatic(Direction.kForward));
-    driver.bButton().whileTrue(drive.sysIdQuasistatic(Direction.kReverse));
-    driver.stopWithXButton().whileTrue(drive.sysIdDynamic(Direction.kForward));
-    driver.yButton().whileTrue(drive.sysIdDynamic(Direction.kReverse));
-  }
-
-  // public void updateButtonBindings() {
-  //   if (Boolean.TRUE.equals(buttonBindingChooser.get())) {
-  //   } else {
-  //       // This triggers if the value is FALSE or NULL
-  //       sysIDButtonBindings();
-  //   }
-  // }
 
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
@@ -282,7 +268,6 @@ public class RobotContainer {
    */
   public Auto getAutonomousCommand() {
     return autoChooser.get();
-    // return DriveCommands.wheelRadiusCharacterization(drive);
   }
 
   public void resetSimulationField() {

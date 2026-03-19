@@ -28,13 +28,14 @@ public class CMD_Shoot extends Command {
   private final Intake intake;
   private final Kicker kicker;
   private final Shooter shooter;
-  private final MapleJoystickDriveInput driveSupplier;
+  private final MapleJoystickDriveInput driveSupplier; // null when using auto constructor
 
   private boolean shooting;
   private final Timer timer = new Timer();
   private final Debouncer atSetpointDebouncer = new Debouncer(0.25);
   private Command driveCommand;
 
+  // Original constructor — teleop with driver input and shoot-on-the-fly
   public CMD_Shoot(
       Drive drive,
       MapleJoystickDriveInput driveSupplier,
@@ -45,6 +46,20 @@ public class CMD_Shoot extends Command {
       Shooter shooter) {
     this.drive = drive;
     this.driveSupplier = driveSupplier;
+    this.conveyor = conveyor;
+    this.hood = hood;
+    this.intake = intake;
+    this.kicker = kicker;
+    this.shooter = shooter;
+
+    addRequirements(drive, conveyor, hood, intake, kicker, shooter);
+  }
+
+  // Auto constructor — no driver input, no shoot-on-the-fly, just lookup table at current position
+  public CMD_Shoot(
+      Drive drive, Conveyor conveyor, Hood hood, Intake intake, Kicker kicker, Shooter shooter) {
+    this.drive = drive;
+    this.driveSupplier = null;
     this.conveyor = conveyor;
     this.hood = hood;
     this.intake = intake;
@@ -71,6 +86,12 @@ public class CMD_Shoot extends Command {
         .plus(new Translation2d(vxField * tofSeconds, vyField * tofSeconds));
   }
 
+  private ShootingParams getShootingParams() {
+    // Always uses current position — no prediction in auto
+    double distMeters = FieldConstants.getHubPose().getDistance(drive.getPose().getTranslation());
+    return ShooterConstants.getShootingParams(distMeters);
+  }
+
   private ShootingParams getShootingParamsWithPrediction() {
     double distMeters = FieldConstants.getHubPose().getDistance(drive.getPose().getTranslation());
     ShootingParams initialParams = ShooterConstants.getShootingParams(distMeters);
@@ -86,15 +107,33 @@ public class CMD_Shoot extends Command {
     shooting = false;
     timer.stop();
     timer.reset();
+    atSetpointDebouncer.calculate(false); // flush debouncer state
 
-    driveCommand =
-        JoystickDriveAndAimAtTarget.driveAndAimAtTarget(
-            driveSupplier,
-            drive,
-            FieldConstants::getHubPose,
-            ShooterConstants.kShooterOptimization,
-            0.5,
-            false);
+
+    ChassisHeadingController.getInstance()
+      .setHeadingRequest(new ChassisHeadingController.NullRequest());
+    ChassisHeadingController.getInstance()
+      .resetToCurrentPose(drive.getPose());
+
+    if (driveSupplier != null) {
+      driveCommand =
+          JoystickDriveAndAimAtTarget.driveAndAimAtTarget(
+              driveSupplier,
+              drive,
+              FieldConstants::getHubPose,
+              ShooterConstants.kShooterOptimization,
+              0.5,
+              false);
+    } else {
+      driveCommand =
+          JoystickDriveAndAimAtTarget.driveAndAimAtTarget(
+              new MapleJoystickDriveInput(() -> 0.0, () -> 0.0, () -> 0.0),
+              drive,
+              FieldConstants::getHubPose,
+              null,
+              0.0,
+              true).withTimeout(1);
+    }
     driveCommand.initialize();
   }
 
@@ -102,7 +141,9 @@ public class CMD_Shoot extends Command {
   public void execute() {
     driveCommand.execute();
 
-    ShootingParams shootingParams = getShootingParamsWithPrediction();
+    ShootingParams shootingParams =
+        driveSupplier != null ? getShootingParamsWithPrediction() : getShootingParams();
+
     shooter.setReference(shootingParams.shooterReference());
     hood.setReference(shootingParams.hoodReference());
 

@@ -20,13 +20,18 @@ public class HoodConfig {
         .absoluteEncoder
         .positionConversionFactor(1)
         .velocityConversionFactor(1)
-        .averageDepth(16)
+        .averageDepth(4)
         .inverted(true);
     hoodConfig
         .closedLoop
         .pid(HoodConstants.kP, HoodConstants.kI, HoodConstants.kD, ClosedLoopSlot.kSlot0)
         .outputRange(HoodConstants.kMinOutput, HoodConstants.kMaxOutput)
         .feedbackSensor(FeedbackSensor.kAbsoluteEncoder);
+    hoodConfig.softLimit
+        .reverseSoftLimit(HoodConstants.kMinPos)
+        .reverseSoftLimitEnabled(true)
+        .forwardSoftLimit(HoodConstants.kMaxPos)
+        .forwardSoftLimitEnabled(true);
     hoodConfig
         .closedLoop
         .maxMotion

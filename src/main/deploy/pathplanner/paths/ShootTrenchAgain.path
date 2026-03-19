@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 8.27,
-        "y": 3.899144079885877
+        "x": 6.22545974925201,
+        "y": 3.9938570852155806
       },
       "prevControl": null,
       "nextControl": {
-        "x": 8.27,
-        "y": 1.1491440798858772
+        "x": 6.22545974925201,
+        "y": 1.2438570852155806
       },
       "isLocked": false,
       "linkedName": "SweepHalfMiddle"
@@ -32,12 +32,12 @@
     },
     {
       "anchor": {
-        "x": 3.224652763325538,
-        "y": 1.0661714862011298
+        "x": 3.0973265455487855,
+        "y": 0.9366858707900052
       },
       "prevControl": {
-        "x": 3.444681944165774,
-        "y": 0.8064429643723667
+        "x": 3.3173557263890214,
+        "y": 0.6769573489612422
       },
       "nextControl": null,
       "isLocked": false,
@@ -81,7 +81,7 @@
   "folder": "Trench",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -90.0
+    "rotation": -45.0
   },
   "useDefaultConstraints": true
 }

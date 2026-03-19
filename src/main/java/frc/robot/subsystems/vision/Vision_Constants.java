@@ -80,43 +80,43 @@ public class Vision_Constants {
   // filter out all tags except the tags front, left, and right of both hubs
   public static final Map<Integer, Pose3d> APRIL_TAG_MAP =
       Map.ofEntries(
-            entry(
-                1,
-                new Pose3d(
-                    new Translation3d(11.8779798, 7.4247756, 0.889),
-                    new Rotation3d(new Quaternion(6.123233995736766e-17, 0.0, 0.0, 1.0)))),
+          entry(
+              1,
+              new Pose3d(
+                  new Translation3d(11.8779798, 7.4247756, 0.889),
+                  new Rotation3d(new Quaternion(6.123233995736766e-17, 0.0, 0.0, 1.0)))),
           entry(
               2,
               new Pose3d(
                   new Translation3d(11.9154194, 4.63804, 1.12395),
                   new Rotation3d(
                       new Quaternion(0.7071067811865476, 0.0, 0.0, 0.7071067811865476)))),
-            entry(
-                3,
-                new Pose3d(
-                    new Translation3d(11.3118646, 4.3902376, 1.12395),
-                    new Rotation3d(new Quaternion(6.123233995736766e-17, 0.0, 0.0, 1.0)))),
-            entry(
-                4,
-                new Pose3d(
-                    new Translation3d(11.3118646, 4.0346376, 1.12395),
-                    new Rotation3d(new Quaternion(6.123233995736766e-17, 0.0, 0.0, 1.0)))),
+          entry(
+              3,
+              new Pose3d(
+                  new Translation3d(11.3118646, 4.3902376, 1.12395),
+                  new Rotation3d(new Quaternion(6.123233995736766e-17, 0.0, 0.0, 1.0)))),
+          entry(
+              4,
+              new Pose3d(
+                  new Translation3d(11.3118646, 4.0346376, 1.12395),
+                  new Rotation3d(new Quaternion(6.123233995736766e-17, 0.0, 0.0, 1.0)))),
           entry(
               5,
               new Pose3d(
                   new Translation3d(11.9154194, 3.4312352, 1.12395),
                   new Rotation3d(
                       new Quaternion(-0.7071067811865475, 0.0, 0.0, 0.7071067811865476)))),
-            entry(
-                6,
-                new Pose3d(
-                    new Translation3d(11.8779798, 0.6444996, 0.889),
-                    new Rotation3d(new Quaternion(6.123233995736766e-17, 0.0, 0.0, 1.0)))),
-            entry(
-                7,
-                new Pose3d(
-                    new Translation3d(11.9528844, 0.6444996, 0.889),
-                    new Rotation3d(new Quaternion(1.0, 0.0, 0.0, 0.0)))),
+          entry(
+              6,
+              new Pose3d(
+                  new Translation3d(11.8779798, 0.6444996, 0.889),
+                  new Rotation3d(new Quaternion(6.123233995736766e-17, 0.0, 0.0, 1.0)))),
+          entry(
+              7,
+              new Pose3d(
+                  new Translation3d(11.9528844, 0.6444996, 0.889),
+                  new Rotation3d(new Quaternion(1.0, 0.0, 0.0, 0.0)))),
           entry(
               8,
               new Pose3d(
@@ -139,11 +139,11 @@ public class Vision_Constants {
                   new Translation3d(12.2710194, 4.63804, 1.12395),
                   new Rotation3d(
                       new Quaternion(0.7071067811865476, 0.0, 0.0, 0.7071067811865476)))),
-            entry(
-                12,
-                new Pose3d(
-                    new Translation3d(11.9528844, 7.4247756, 0.889),
-                    new Rotation3d(new Quaternion(1.0, 0.0, 0.0, 0.0)))),
+          entry(
+              12,
+              new Pose3d(
+                  new Translation3d(11.9528844, 7.4247756, 0.889),
+                  new Rotation3d(new Quaternion(1.0, 0.0, 0.0, 0.0)))),
           //   entry(
           //       13,
           //       new Pose3d(
@@ -164,11 +164,11 @@ public class Vision_Constants {
           //       new Pose3d(
           //           new Translation3d(16.5329616, 3.8917626, 0.55245),
           //           new Rotation3d(new Quaternion(6.123233995736766e-17, 0.0, 0.0, 1.0)))),
-            entry(
-                17,
-                new Pose3d(
-                    new Translation3d(4.6630844, 0.6444996, 0.889),
-                    new Rotation3d(new Quaternion(1.0, 0.0, 0.0, 0.0)))),
+          entry(
+              17,
+              new Pose3d(
+                  new Translation3d(4.6630844, 0.6444996, 0.889),
+                  new Rotation3d(new Quaternion(1.0, 0.0, 0.0, 0.0)))),
           entry(
               18,
               new Pose3d(
@@ -191,43 +191,43 @@ public class Vision_Constants {
                   new Translation3d(4.6256194, 4.63804, 1.12395),
                   new Rotation3d(
                       new Quaternion(0.7071067811865476, 0.0, 0.0, 0.7071067811865476)))),
-            entry(
-                22,
-                new Pose3d(
-                    new Translation3d(4.6630844, 7.4247756, 0.889),
-                    new Rotation3d(new Quaternion(1.0, 0.0, 0.0, 0.0)))),
-            entry(
-                23,
-                new Pose3d(
-                    new Translation3d(4.5881798, 7.4247756, 0.889),
-                    new Rotation3d(new Quaternion(6.123233995736766e-17, 0.0, 0.0, 1.0)))),
+          entry(
+              22,
+              new Pose3d(
+                  new Translation3d(4.6630844, 7.4247756, 0.889),
+                  new Rotation3d(new Quaternion(1.0, 0.0, 0.0, 0.0)))),
+          entry(
+              23,
+              new Pose3d(
+                  new Translation3d(4.5881798, 7.4247756, 0.889),
+                  new Rotation3d(new Quaternion(6.123233995736766e-17, 0.0, 0.0, 1.0)))),
           entry(
               24,
               new Pose3d(
                   new Translation3d(4.2700194, 4.63804, 1.12395),
                   new Rotation3d(
                       new Quaternion(0.7071067811865476, 0.0, 0.0, 0.7071067811865476)))),
-            entry(
-                25,
-                new Pose3d(
-                    new Translation3d(4.0218614, 4.3902376, 1.12395),
-                    new Rotation3d(new Quaternion(6.123233995736766e-17, 0.0, 0.0, 1.0)))),
-            entry(
-                26,
-                new Pose3d(
-                    new Translation3d(4.0218614, 4.0346376, 1.12395),
-                    new Rotation3d(new Quaternion(6.123233995736766e-17, 0.0, 0.0, 1.0)))),
+          entry(
+              25,
+              new Pose3d(
+                  new Translation3d(4.0218614, 4.3902376, 1.12395),
+                  new Rotation3d(new Quaternion(6.123233995736766e-17, 0.0, 0.0, 1.0)))),
+          entry(
+              26,
+              new Pose3d(
+                  new Translation3d(4.0218614, 4.0346376, 1.12395),
+                  new Rotation3d(new Quaternion(6.123233995736766e-17, 0.0, 0.0, 1.0)))),
           entry(
               27,
               new Pose3d(
                   new Translation3d(4.2700194, 3.4312352, 1.12395),
                   new Rotation3d(
                       new Quaternion(-0.7071067811865475, 0.0, 0.0, 0.7071067811865476)))),
-            entry(
-                28,
-                new Pose3d(
-                    new Translation3d(4.5881798, 0.6444996, 0.889),
-                    new Rotation3d(new Quaternion(6.123233995736766e-17, 0.0, 0.0, 1.0))))
+          entry(
+              28,
+              new Pose3d(
+                  new Translation3d(4.5881798, 0.6444996, 0.889),
+                  new Rotation3d(new Quaternion(6.123233995736766e-17, 0.0, 0.0, 1.0))))
           //   entry(
           //       29,
           //       new Pose3d(
