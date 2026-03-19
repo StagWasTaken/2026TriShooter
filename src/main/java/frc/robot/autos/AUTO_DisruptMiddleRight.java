@@ -18,11 +18,14 @@ public class AUTO_DisruptMiddleRight implements Auto {
         // turn off intake and run back to our side to shoot
         new CMD_Extend(robot.intake),
         // shoot for 3 seconds and then sweep middle again
-        new CMD_Shoot(robot.drive, robot.conveyor, robot.hood, robot.intake, robot.kicker, robot.shooter).withTimeout(3),
+        new CMD_Shoot(
+                robot.drive, robot.conveyor, robot.hood, robot.intake, robot.kicker, robot.shooter)
+            .withTimeout(3),
         new ParallelCommandGroup(new CMD_Intake(robot.intake), followPath("SweepHub", true)),
         // // turn of intake and run back to our side to shoot
         new CMD_Extend(robot.intake),
         // // shoot until auto ends
-        new CMD_Shoot(robot.drive, robot.conveyor, robot.hood, robot.intake, robot.kicker, robot.shooter));
+        new CMD_Shoot(
+            robot.drive, robot.conveyor, robot.hood, robot.intake, robot.kicker, robot.shooter));
   }
 }

@@ -201,11 +201,10 @@ public class ChassisHeadingController {
   }
 
   public double getAbsoluteHeadingErrorDegrees() {
-      return Math.abs(chassisRotationCloseLoop.getError());
+    return Math.abs(chassisRotationCloseLoop.getError());
   }
-  
+
   public void resetToCurrentPose(Pose2d currentPose) {
-      chassisRotationState = new TrapezoidProfile.State(
-          currentPose.getRotation().getRadians(), 0);
+    chassisRotationState = new TrapezoidProfile.State(currentPose.getRotation().getRadians(), 0);
   }
 }

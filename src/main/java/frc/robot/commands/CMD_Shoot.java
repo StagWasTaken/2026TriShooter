@@ -109,11 +109,9 @@ public class CMD_Shoot extends Command {
     timer.reset();
     atSetpointDebouncer.calculate(false); // flush debouncer state
 
-
     ChassisHeadingController.getInstance()
-      .setHeadingRequest(new ChassisHeadingController.NullRequest());
-    ChassisHeadingController.getInstance()
-      .resetToCurrentPose(drive.getPose());
+        .setHeadingRequest(new ChassisHeadingController.NullRequest());
+    ChassisHeadingController.getInstance().resetToCurrentPose(drive.getPose());
 
     if (driveSupplier != null) {
       driveCommand =
@@ -127,12 +125,13 @@ public class CMD_Shoot extends Command {
     } else {
       driveCommand =
           JoystickDriveAndAimAtTarget.driveAndAimAtTarget(
-              new MapleJoystickDriveInput(() -> 0.0, () -> 0.0, () -> 0.0),
-              drive,
-              FieldConstants::getHubPose,
-              null,
-              0.0,
-              true).withTimeout(1);
+                  new MapleJoystickDriveInput(() -> 0.0, () -> 0.0, () -> 0.0),
+                  drive,
+                  FieldConstants::getHubPose,
+                  null,
+                  0.0,
+                  true)
+              .withTimeout(1);
     }
     driveCommand.initialize();
   }

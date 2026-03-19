@@ -20,9 +20,12 @@ public class AUTO_DoubleSweepRight implements Auto {
         robot.shooter.setTargetVelolcity(Math.toRadians(21000)),
         followPath("ShootTrench", false),
         new CMD_Extend(robot.intake),
-        new CMD_Shoot(robot.drive, robot.conveyor, robot.hood, robot.intake, robot.kicker, robot.shooter).withTimeout(4),
+        new CMD_Shoot(
+                robot.drive, robot.conveyor, robot.hood, robot.intake, robot.kicker, robot.shooter)
+            .withTimeout(4),
         robot.shooter.setTargetVelolcity(Math.toRadians(18000)),
         new ParallelCommandGroup(new CMD_Intake(robot.intake), followPath("SweepAgain", false)),
-        new CMD_Shoot(robot.drive, robot.conveyor, robot.hood, robot.intake, robot.kicker, robot.shooter));
+        new CMD_Shoot(
+            robot.drive, robot.conveyor, robot.hood, robot.intake, robot.kicker, robot.shooter));
   }
 }

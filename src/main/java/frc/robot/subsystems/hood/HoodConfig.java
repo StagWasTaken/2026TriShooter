@@ -27,7 +27,8 @@ public class HoodConfig {
         .pid(HoodConstants.kP, HoodConstants.kI, HoodConstants.kD, ClosedLoopSlot.kSlot0)
         .outputRange(HoodConstants.kMinOutput, HoodConstants.kMaxOutput)
         .feedbackSensor(FeedbackSensor.kAbsoluteEncoder);
-    hoodConfig.softLimit
+    hoodConfig
+        .softLimit
         .reverseSoftLimit(HoodConstants.kMinPos)
         .reverseSoftLimitEnabled(true)
         .forwardSoftLimit(HoodConstants.kMaxPos)
