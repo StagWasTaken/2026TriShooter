@@ -32,7 +32,7 @@ public class CMD_Shoot extends Command {
 
   private boolean shooting;
   private final Timer timer = new Timer();
-  private final Debouncer atSetpointDebouncer = new Debouncer(0.25);
+  private final Debouncer atSetpointDebouncer = new Debouncer(0.1);
   private Command driveCommand;
 
   // Original constructor — teleop with driver input and shoot-on-the-fly
@@ -157,7 +157,7 @@ public class CMD_Shoot extends Command {
     }
 
     if (shooting && intake.getExtenderPosition() > ExtenderConstants.kStow) {
-      intake.setExtenderVoltage(-1.25);
+      intake.setExtenderVoltage(-1.0);
       intake.setVoltage(2);
     } else {
       intake.setExtenderVoltage(0);

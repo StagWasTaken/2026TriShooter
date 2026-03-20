@@ -17,7 +17,7 @@ public class JoystickConfigs {
   public static final double DEAD_BAND_WHEN_OTHER_AXIS_EMPTY = 0.02;
 
   public static final double DEAD_BAND_WHEN_OTHER_AXIS_FULL = 0.1;
-  public static final double LINEAR_SPEED_INPUT_EXPONENT = 1.6;
+  public static final double LINEAR_SPEED_INPUT_EXPONENT = 1.25;
   public static final double ROTATION_SPEED_INPUT_EXPONENT = 2;
 
   /**
