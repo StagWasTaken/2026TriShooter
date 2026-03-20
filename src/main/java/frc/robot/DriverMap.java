@@ -23,7 +23,7 @@ public interface DriverMap extends Subsystem {
 
   Trigger stopWithXButton();
 
-  Trigger autoAlignmentButton();
+  Trigger leftBumper();
 
   Trigger rightBumper();
 
@@ -112,7 +112,7 @@ public interface DriverMap extends Subsystem {
     }
 
     @Override
-    public Trigger autoAlignmentButton() {
+    public Trigger leftBumper() {
       return xboxController.leftBumper();
     }
 

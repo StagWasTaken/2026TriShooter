@@ -3,10 +3,7 @@
   "robotLength": 0.838,
   "holonomicMode": true,
   "pathFolders": [
-    "New Folder",
-    "Outpost",
-    "Trench",
-    "TrenchV2"
+    "Trench"
   ],
   "autoFolders": [],
   "defaultMaxVel": 3.25,
