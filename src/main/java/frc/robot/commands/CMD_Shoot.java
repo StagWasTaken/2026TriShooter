@@ -17,9 +17,9 @@ import frc.robot.subsystems.kicker.KickerConstants;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.ShooterConstants;
 import frc.robot.subsystems.shooter.ShooterConstants.ShootingParams;
-import frc.robot.utils.CustomPIDs.ChassisHeadingController;
-import frc.robot.utils.CustomPIDs.MapleJoystickDriveInput;
 import frc.robot.utils.constants.FieldConstants;
+import frc.robot.utils.custompids.ChassisHeadingController;
+import frc.robot.utils.custompids.MapleJoystickDriveInput;
 
 public class CMD_Shoot extends Command {
   private final Drive drive;

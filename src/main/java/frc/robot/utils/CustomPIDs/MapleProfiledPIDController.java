@@ -1,4 +1,4 @@
-package frc.robot.utils.CustomPIDs;
+package frc.robot.utils.custompids;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
