@@ -6,8 +6,8 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import frc.robot.utils.CustomPIDs.ChassisHeadingController;
-import frc.robot.utils.CustomPIDs.MapleShooterOptimization;
+import frc.robot.utils.custom.pids.ChassisHeadingController;
+import frc.robot.utils.custom.pids.MapleShooterOptimization;
 import java.util.function.Supplier;
 
 public class FollowPathFaceToTarget {

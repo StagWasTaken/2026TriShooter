@@ -1,4 +1,4 @@
-package frc.robot.utils.CustomPIDs;
+package frc.robot.utils.custom.pids;
 
 import static frc.robot.utils.constants.JoystickConfigs.*;
 

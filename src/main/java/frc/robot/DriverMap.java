@@ -7,7 +7,7 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.utils.CustomPIDs.MapleJoystickDriveInput;
+import frc.robot.utils.custom.pids.MapleJoystickDriveInput;
 import java.util.function.DoubleSupplier;
 
 public interface DriverMap extends Subsystem {

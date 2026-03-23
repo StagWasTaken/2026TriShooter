@@ -15,7 +15,7 @@ package frc.robot.subsystems.drive;
 
 import static edu.wpi.first.units.Units.*;
 import static frc.robot.subsystems.drive.DriveConstants.*;
-import static frc.robot.utils.CustomPIDs.DriveControlLoops.SWERVE_VELOCITY_DEADBAND;
+import static frc.robot.utils.custom.pids.DriveControlLoops.SWERVE_VELOCITY_DEADBAND;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -24,8 +24,8 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.units.measure.Force;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
-import frc.robot.subsystems.drive.IO.ModuleIO;
-import frc.robot.subsystems.drive.IO.ModuleIOInputsAutoLogged;
+import frc.robot.subsystems.drive.io.ModuleIO;
+import frc.robot.subsystems.drive.io.ModuleIOInputsAutoLogged;
 import frc.robot.utils.AlertsManager;
 import org.littletonrobotics.junction.Logger;
 

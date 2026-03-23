@@ -1,4 +1,4 @@
-package frc.robot.utils.CustomPIDs;
+package frc.robot.utils.custom.pids;
 
 import com.pathplanner.lib.config.PIDConstants;
 import edu.wpi.first.math.MathUtil;

@@ -1,7 +1,7 @@
 package frc.robot.subsystems.vision.apriltags;
 
 import static edu.wpi.first.units.Units.Seconds;
-import static frc.robot.utils.PathPlanner.LogPaths.*;
+import static frc.robot.utils.pathplanner.LogPaths.*;
 import static frc.robot.utils.constants.VisionConstants.*;
 
 import edu.wpi.first.math.filter.Debouncer;

@@ -4,7 +4,7 @@ import static edu.wpi.first.units.Units.Kilograms;
 import static edu.wpi.first.units.Units.Pounds;
 
 import edu.wpi.first.math.util.Units;
-import frc.robot.utils.CustomPIDs.MapleShooterOptimization;
+import frc.robot.utils.custom.pids.MapleShooterOptimization;
 
 public class ShooterConstants {
   public static final int kLeftShooterCanId = 3;

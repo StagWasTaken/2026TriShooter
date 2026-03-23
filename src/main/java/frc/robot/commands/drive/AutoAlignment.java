@@ -1,7 +1,7 @@
 package frc.robot.commands.drive;
 
 import static edu.wpi.first.units.Units.*;
-import static frc.robot.utils.CustomPIDs.DriveControlLoops.*;
+import static frc.robot.utils.custom.pids.DriveControlLoops.*;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.*;
@@ -18,9 +18,9 @@ import frc.robot.subsystems.drive.HolonomicDriveSubsystem;
 import frc.robot.subsystems.led.LEDAnimation;
 import frc.robot.subsystems.led.LEDStatusLight;
 import frc.robot.subsystems.vision.apriltags.AprilTagVision;
-import frc.robot.utils.CustomPIDs.ChassisHeadingController;
-import frc.robot.utils.CustomPIDs.DriveControlLoops;
-import frc.robot.utils.PathPlanner.PathUtils;
+import frc.robot.utils.custom.pids.ChassisHeadingController;
+import frc.robot.utils.custom.pids.DriveControlLoops;
+import frc.robot.utils.pathplanner.PathUtils;
 import java.util.*;
 import java.util.function.Supplier;
 

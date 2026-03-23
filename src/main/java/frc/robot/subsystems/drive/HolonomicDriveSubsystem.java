@@ -1,7 +1,7 @@
 package frc.robot.subsystems.drive;
 
 import static edu.wpi.first.units.Units.Seconds;
-import static frc.robot.utils.CustomPIDs.DriveControlLoops.*;
+import static frc.robot.utils.custom.pids.DriveControlLoops.*;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathfindingCommand;
@@ -20,8 +20,8 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import frc.robot.utils.AlertsManager;
-import frc.robot.utils.PathPlanner.LocalADStarAK;
-import frc.robot.utils.PathPlanner.PPRobotConfigPrinter;
+import frc.robot.utils.pathplanner.LocalADStarAK;
+import frc.robot.utils.pathplanner.PPRobotConfigPrinter;
 import org.ironmaple.utils.FieldMirroringUtils;
 import org.littletonrobotics.junction.Logger;
 

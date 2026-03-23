@@ -1,7 +1,9 @@
 package frc.robot.utils.constants;
 
+import frc.robot.utils.custom.pids.MapleJoystickDriveInput;
+
 /**
- * Configs for the driver's joystick See {@link frc.robot.utils.CustomPIDs.MapleJoystickDriveInput}
+ * Configs for the driver's joystick See {@link MapleJoystickDriveInput}
  */
 public class JoystickConfigs {
   public static final double DEFAULT_TRANSLATIONAL_SENSITIVITY = 1;
