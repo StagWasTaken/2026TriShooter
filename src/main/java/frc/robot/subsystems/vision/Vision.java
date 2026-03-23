@@ -29,6 +29,7 @@ import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.drive.DriveConstants;
 import frc.robot.subsystems.vision.VisionIO.PoseObservationType;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -124,12 +125,14 @@ public class Vision extends SubsystemBase {
                     && observation.ambiguity() > maxAmbiguity) // Cannot be high ambiguity
                 || Math.abs(observation.pose().getZ())
                     > maxZError // Must have realistic Z coordinate
-
                 // Must be within the field boundaries
                 || observation.pose().getX() < 0.0
                 || observation.pose().getX() > aprilTagLayout.getFieldLength()
                 || observation.pose().getY() < 0.0
                 || observation.pose().getY() > aprilTagLayout.getFieldWidth();
+
+        // || chassisSpeed > 1
+        // || chassisRotSpeed > Math.toRadians(15);
 
         // Add pose to log
         robotPoses.add(observation.pose());
@@ -152,7 +155,7 @@ public class Vision extends SubsystemBase {
 
         // Scale trust based on chassis velocity
         // Higher speeds increase the standard deviation (trusting vision less)
-        double velocityMultiplier = 1.0 + (chassisSpeed);
+        double velocityMultiplier = 1.0 + (chassisSpeed / DriveConstants.maxSpeedMetersPerSec);
         stdDevFactor *= velocityMultiplier;
 
         double linearStdDev = linearStdDevBaseline * stdDevFactor;

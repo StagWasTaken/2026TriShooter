@@ -184,6 +184,8 @@ public class RobotContainer {
     // autoChooser.addOption("Outpost", new AUTO_Outpost());
     autoChooser.addOption("Double Sweep Right", new AUTO_DoubleSweepRight());
     autoChooser.addOption("Double Sweep Left", new AUTO_DoubleSweepLeft());
+    autoChooser.addOption("Double Sweep Right Close", new AUTO_DoubleSweepRightClose());
+    autoChooser.addOption("Double Sweep Left Close", new AUTO_DoubleSweepLeftClose());
 
     // Wheel Radius Test, tell the bot to run in a straight line for 3 meters, measure actual
     // distance
@@ -238,6 +240,10 @@ public class RobotContainer {
       driver.intakeButton().whileTrue(new CMD_Intake(intake)).onFalse(new CMD_Extend(intake));
 
       driver.yButton().onTrue(new CMD_Stow(intake));
+      driver
+          .stopWithXButton()
+          .whileTrue(intake.runVoltage(-IntakeConstants.kOn))
+          .whileFalse(new CMD_Extend(intake));
       driver.aButton().onTrue(new CMD_Home(intake));
       driver
           .bButton()

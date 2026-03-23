@@ -10,16 +10,16 @@ import frc.robot.commands.CMD_Extend;
 import frc.robot.commands.CMD_Intake;
 import frc.robot.commands.CMD_Shoot;
 
-public class AUTO_DoubleSweepRight implements Auto {
+public class AUTO_DoubleSweepLeftClose implements Auto {
   private final PathPlannerPath sweepHalfMiddle;
   private final PathPlannerPath shootTrench;
   private final PathPlannerPath sweepAgain;
 
-  public AUTO_DoubleSweepRight() {
+  public AUTO_DoubleSweepLeftClose() {
     try {
-      sweepHalfMiddle = Auto.getPath("SweepHalfMiddle", false);
-      shootTrench = Auto.getPath("ShootTrench", false);
-      sweepAgain = Auto.getPath("SweepAgain", false);
+      sweepHalfMiddle = Auto.getPath("SweepHalfMiddleClose", true);
+      shootTrench = Auto.getPath("ShootTrenchClose", true);
+      sweepAgain = Auto.getPath("SweepAgain", true);
     } catch (Exception e) {
       throw new RuntimeException("Failed to preload auto paths", e);
     }
@@ -28,7 +28,7 @@ public class AUTO_DoubleSweepRight implements Auto {
   @Override
   public Command getAutoCommand(RobotContainer robot) {
     return Commands.sequence(
-        setAutoStartPose("SweepHalfMiddle", false, robot.drive),
+        setAutoStartPose("SweepHalfMiddleClose", true, robot.drive),
         new ParallelCommandGroup(
             new CMD_Intake(robot.intake), AutoBuilder.followPath(sweepHalfMiddle)),
         robot.shooter.setTargetVelolcity(Math.toRadians(21000)),
