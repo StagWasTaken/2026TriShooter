@@ -20,6 +20,7 @@ public interface GyroIO {
   @AutoLog
   public static class GyroIOInputs {
     public boolean connected = false;
+    public boolean collisionDetected = false;
     public Rotation2d yawPosition = new Rotation2d();
     public double yawVelocityRadPerSec = 0.0;
     public double linearAcceleration = 0.0;
@@ -28,4 +29,8 @@ public interface GyroIO {
   }
 
   public default void updateInputs(GyroIOInputs inputs) {}
+
+  public default boolean collisionDetected() {
+    return false;
+  }
 }

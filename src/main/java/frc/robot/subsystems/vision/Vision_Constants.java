@@ -44,7 +44,7 @@ public class Vision_Constants {
               // camera is 13 inches forward, 7.75 inches left, and 12 inches up from the center of
               // the bot
               Units.inchesToMeters(13.5), Units.inchesToMeters(7.75), Units.inchesToMeters(12)),
-          new Rotation3d(0, Math.toRadians(-20), 0));
+          new Rotation3d(0, Math.toRadians(-15), 0));
 
   public static final Transform3d robotToCamera1 =
       new Transform3d(
@@ -52,7 +52,7 @@ public class Vision_Constants {
               // camera is 13 inches forward, 7.75 inches left, and 12 inches up from the center of
               // the bot
               Units.inchesToMeters(13.5), Units.inchesToMeters(-7.75), Units.inchesToMeters(12)),
-          new Rotation3d(0, Math.toRadians(-20), 0));
+          new Rotation3d(0, Math.toRadians(-15), 0));
 
   // Basic filtering thresholds
   public static double maxAmbiguity = 0.2;
@@ -144,26 +144,26 @@ public class Vision_Constants {
               new Pose3d(
                   new Translation3d(11.9528844, 7.4247756, 0.889),
                   new Rotation3d(new Quaternion(1.0, 0.0, 0.0, 0.0)))),
-          entry(
-              13,
-              new Pose3d(
-                  new Translation3d(16.5333172, 7.4033126, 0.55245),
-                  new Rotation3d(new Quaternion(6.123233995736766e-17, 0.0, 0.0, 1.0)))),
-          entry(
-              14,
-              new Pose3d(
-                  new Translation3d(16.5333172, 6.9715126, 0.55245),
-                  new Rotation3d(new Quaternion(6.123233995736766e-17, 0.0, 0.0, 1.0)))),
-          entry(
-              15,
-              new Pose3d(
-                  new Translation3d(16.5329616, 4.3235626, 0.55245),
-                  new Rotation3d(new Quaternion(6.123233995736766e-17, 0.0, 0.0, 1.0)))),
-          entry(
-              16,
-              new Pose3d(
-                  new Translation3d(16.5329616, 3.8917626, 0.55245),
-                  new Rotation3d(new Quaternion(6.123233995736766e-17, 0.0, 0.0, 1.0)))),
+          //   entry(
+          //       13,
+          //       new Pose3d(
+          //           new Translation3d(16.5333172, 7.4033126, 0.55245),
+          //           new Rotation3d(new Quaternion(6.123233995736766e-17, 0.0, 0.0, 1.0)))),
+          //   entry(
+          //       14,
+          //       new Pose3d(
+          //           new Translation3d(16.5333172, 6.9715126, 0.55245),
+          //           new Rotation3d(new Quaternion(6.123233995736766e-17, 0.0, 0.0, 1.0)))),
+          //   entry(
+          //       15,
+          //       new Pose3d(
+          //           new Translation3d(16.5329616, 4.3235626, 0.55245),
+          //           new Rotation3d(new Quaternion(6.123233995736766e-17, 0.0, 0.0, 1.0)))),
+          //   entry(
+          //       16,
+          //       new Pose3d(
+          //           new Translation3d(16.5329616, 3.8917626, 0.55245),
+          //           new Rotation3d(new Quaternion(6.123233995736766e-17, 0.0, 0.0, 1.0)))),
           entry(
               17,
               new Pose3d(
@@ -227,25 +227,26 @@ public class Vision_Constants {
               28,
               new Pose3d(
                   new Translation3d(4.5881798, 0.6444996, 0.889),
-                  new Rotation3d(new Quaternion(6.123233995736766e-17, 0.0, 0.0, 1.0)))),
-          entry(
-              29,
-              new Pose3d(
-                  new Translation3d(0.007747, 0.6659626, 0.55245),
-                  new Rotation3d(new Quaternion(1.0, 0.0, 0.0, 0.0)))),
-          entry(
-              30,
-              new Pose3d(
-                  new Translation3d(0.007747, 1.0977626, 0.55245),
-                  new Rotation3d(new Quaternion(1.0, 0.0, 0.0, 0.0)))),
-          entry(
-              31,
-              new Pose3d(
-                  new Translation3d(0.0080772, 3.7457126, 0.55245),
-                  new Rotation3d(new Quaternion(1.0, 0.0, 0.0, 0.0)))),
-          entry(
-              32,
-              new Pose3d(
-                  new Translation3d(0.0080772, 4.1775126, 0.55245),
-                  new Rotation3d(new Quaternion(1.0, 0.0, 0.0, 0.0)))));
+                  new Rotation3d(new Quaternion(6.123233995736766e-17, 0.0, 0.0, 1.0))))
+          //   entry(
+          //       29,
+          //       new Pose3d(
+          //           new Translation3d(0.007747, 0.6659626, 0.55245),
+          //           new Rotation3d(new Quaternion(1.0, 0.0, 0.0, 0.0)))),
+          //   entry(
+          //       30,
+          //       new Pose3d(
+          //           new Translation3d(0.007747, 1.0977626, 0.55245),
+          //           new Rotation3d(new Quaternion(1.0, 0.0, 0.0, 0.0)))),
+          //   entry(
+          //       31,
+          //       new Pose3d(
+          //           new Translation3d(0.0080772, 3.7457126, 0.55245),
+          //           new Rotation3d(new Quaternion(1.0, 0.0, 0.0, 0.0)))),
+          //   entry(
+          //       32,
+          //       new Pose3d(
+          //           new Translation3d(0.0080772, 4.1775126, 0.55245),
+          //           new Rotation3d(new Quaternion(1.0, 0.0, 0.0, 0.0))))
+          );
 }

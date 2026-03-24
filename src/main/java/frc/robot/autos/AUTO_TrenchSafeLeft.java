@@ -10,15 +10,13 @@ import frc.robot.commands.CMD_Extend;
 import frc.robot.commands.CMD_Intake;
 import frc.robot.commands.CMD_Shoot;
 
-public class AUTO_DoubleSweepLeftClose implements Auto {
+public class AUTO_TrenchSafeLeft implements Auto {
   private final PathPlannerPath sweepHalfMiddle;
-  private final PathPlannerPath shootTrench;
   private final PathPlannerPath sweepAgain;
 
-  public AUTO_DoubleSweepLeftClose() {
+  public AUTO_TrenchSafeLeft() {
     try {
-      sweepHalfMiddle = Auto.getPath("SweepHalfMiddleClose", true);
-      shootTrench = Auto.getPath("ShootTrenchClose", true);
+      sweepHalfMiddle = Auto.getPath("SweepMiddleSafe", true);
       sweepAgain = Auto.getPath("SweepAgain", true);
     } catch (Exception e) {
       throw new RuntimeException("Failed to preload auto paths", e);
@@ -28,18 +26,19 @@ public class AUTO_DoubleSweepLeftClose implements Auto {
   @Override
   public Command getAutoCommand(RobotContainer robot) {
     return Commands.sequence(
-        setAutoStartPose("SweepHalfMiddleClose", true, robot.drive),
+        setAutoStartPose("SweepMiddleSafe", true, robot.drive),
         new ParallelCommandGroup(
             new CMD_Intake(robot.intake), AutoBuilder.followPath(sweepHalfMiddle)),
         robot.shooter.setTargetVelolcity(Math.toRadians(21000)),
-        AutoBuilder.followPath(shootTrench),
         new CMD_Extend(robot.intake),
         new CMD_Shoot(
                 robot.drive, robot.conveyor, robot.hood, robot.intake, robot.kicker, robot.shooter)
             .withTimeout(3),
-        robot.shooter.setTargetVelolcity(Math.toRadians(18000)),
         new ParallelCommandGroup(new CMD_Intake(robot.intake), AutoBuilder.followPath(sweepAgain)),
+        robot.shooter.setTargetVelolcity(Math.toRadians(21000)),
+        new CMD_Extend(robot.intake),
         new CMD_Shoot(
-            robot.drive, robot.conveyor, robot.hood, robot.intake, robot.kicker, robot.shooter));
+                robot.drive, robot.conveyor, robot.hood, robot.intake, robot.kicker, robot.shooter)
+            .withTimeout(3));
   }
 }

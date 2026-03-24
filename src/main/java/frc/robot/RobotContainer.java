@@ -178,14 +178,10 @@ public class RobotContainer {
 
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices");
-    // autoChooser.addOption("Trench And Outpost", new AUTO_TrenchAndOutpost());
-    // autoChooser.addOption("Trench Left", new AUTO_TrenchLeft());
-    // autoChooser.addOption("Trench Right", new AUTO_TrenchRight());
-    // autoChooser.addOption("Outpost", new AUTO_Outpost());
     autoChooser.addOption("Double Sweep Right", new AUTO_DoubleSweepRight());
     autoChooser.addOption("Double Sweep Left", new AUTO_DoubleSweepLeft());
-    autoChooser.addOption("Double Sweep Right Close", new AUTO_DoubleSweepRightClose());
-    autoChooser.addOption("Double Sweep Left Close", new AUTO_DoubleSweepLeftClose());
+    autoChooser.addOption("Trench Right Safe", new AUTO_TrenchSafeRight());
+    autoChooser.addOption("Trench Left Safe", new AUTO_TrenchSafeLeft());
 
     // Wheel Radius Test, tell the bot to run in a straight line for 3 meters, measure actual
     // distance

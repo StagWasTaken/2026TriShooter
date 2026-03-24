@@ -24,8 +24,8 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.units.measure.Force;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
-import frc.robot.subsystems.drive.IO.ModuleIOInputsAutoLogged;
 import frc.robot.subsystems.drive.io.ModuleIO;
+import frc.robot.subsystems.drive.io.ModuleIOInputsAutoLogged;
 import frc.robot.utils.AlertsManager;
 import org.littletonrobotics.junction.Logger;
 
