@@ -119,7 +119,11 @@ public class ModuleIOSpark implements ModuleIO {
         .closedLoop
         .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
         .pid(driveKp, 0.0, driveKd);
-    driveConfig.closedLoop.feedForward.sva(driveKs, driveKv, driveKa);
+
+    // We only put Ks and Kv into the Spark config.
+    // Ka is handled manually in setDriveVelocity.
+    driveConfig.closedLoop.feedForward.sv(driveKs, driveKv);
+
     driveConfig
         .signals
         .primaryEncoderPositionAlwaysOn(true)

@@ -64,8 +64,6 @@ public class DriveConstants {
   public static final Rotation2d backLeftZeroRotation = new Rotation2d(Math.PI);
   public static final Rotation2d backRightZeroRotation = new Rotation2d(Math.PI / 2);
 
-  public static final double kMaxMeasuredAccelMetersPerSecPerSec = 12.75;
-
   // Device CAN IDs
   public static final int frontLeftDriveCanId = 62;
   public static final int frontRightDriveCanId = 15;
