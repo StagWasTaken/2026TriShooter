@@ -64,6 +64,8 @@ public class DriveConstants {
   public static final Rotation2d backLeftZeroRotation = new Rotation2d(Math.PI);
   public static final Rotation2d backRightZeroRotation = new Rotation2d(Math.PI / 2);
 
+  public static final double kMaxMeasuredAccelMetersPerSecPerSec = 12.75;
+
   // Device CAN IDs
   public static final int frontLeftDriveCanId = 62;
   public static final int frontRightDriveCanId = 15;
@@ -94,9 +96,9 @@ public class DriveConstants {
   // Drive PID configuration
   public static final double driveKp = 0.0;
   public static final double driveKd = 0.0;
-  public static final double driveKs = Robot.CURRENT_ROBOT == RobotName.COMP_BOT ? 0.06 : 0.09815;
-  public static final double driveKv = Robot.CURRENT_ROBOT == RobotName.COMP_BOT ? 0.92 : 0.093236;
-  public static final double driveKa = 0.0;
+  public static final double driveKs = 0.09815;
+  public static final double driveKv = 0.093236;
+  public static final double driveKa = 0.013717;
   public static final double driveSimP = 0.05;
   public static final double driveSimD = 0.0;
   public static final double driveSimKs = 0.0;

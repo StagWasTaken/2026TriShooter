@@ -13,12 +13,17 @@
 
 package frc.robot.subsystems.drive.io;
 
+import static edu.wpi.first.units.Units.Gs;
+import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
 import static frc.robot.subsystems.drive.DriveConstants.*;
 
 import com.studica.frc.AHRS;
 import com.studica.frc.AHRS.NavXComType;
+import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.measure.LinearAcceleration;
+import frc.robot.subsystems.drive.DriveConstants;
 import frc.robot.subsystems.drive.SparkOdometryThread;
 import java.util.Queue;
 
@@ -27,6 +32,7 @@ public class GyroIONavX implements GyroIO {
   private final AHRS navX = new AHRS(NavXComType.kMXP_SPI, (byte) odometryFrequency);
   private final Queue<Double> yawPositionQueue;
   private final Queue<Double> yawTimestampQueue;
+  private final Debouncer collisionDebouncer = new Debouncer(.04);
 
   public GyroIONavX() {
     yawTimestampQueue = SparkOdometryThread.getInstance().makeTimestampQueue();
@@ -38,8 +44,7 @@ public class GyroIONavX implements GyroIO {
     inputs.connected = navX.isConnected();
     inputs.yawPosition = Rotation2d.fromDegrees(-navX.getAngle());
     inputs.yawVelocityRadPerSec = Units.degreesToRadians(-navX.getRawGyroZ());
-    inputs.linearAcceleration = Math.hypot(navX.getRawAccelX(), navX.getRawAccelY());
-
+    inputs.linearAcceleration = getLinearAccelerationMeterPerSecPerSec();
     inputs.odometryYawTimestamps =
         yawTimestampQueue.stream().mapToDouble((Double value) -> value).toArray();
     inputs.odometryYawPositions =
@@ -48,5 +53,17 @@ public class GyroIONavX implements GyroIO {
             .toArray(Rotation2d[]::new);
     yawTimestampQueue.clear();
     yawPositionQueue.clear();
+  }
+
+  @Override
+  public boolean collisionDetected() {
+    return collisionDebouncer.calculate(
+        getLinearAccelerationMeterPerSecPerSec()
+            > DriveConstants.kMaxMeasuredAccelMetersPerSecPerSec);
+  }
+
+  private double getLinearAccelerationMeterPerSecPerSec() {
+    double gyroAccelG = Math.hypot(navX.getWorldLinearAccelX(), navX.getWorldLinearAccelY());
+    return LinearAcceleration.ofBaseUnits(gyroAccelG, Gs).in(MetersPerSecondPerSecond);
   }
 }

@@ -119,7 +119,11 @@ public class ModuleIOSpark implements ModuleIO {
         .closedLoop
         .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
         .pid(driveKp, 0.0, driveKd);
-    driveConfig.closedLoop.feedForward.sva(driveKs, driveKv, driveKa);
+
+    // We only put Ks and Kv into the Spark config.
+    // Ka is handled manually in setDriveVelocity.
+    driveConfig.closedLoop.feedForward.sv(driveKs, driveKv);
+
     driveConfig
         .signals
         .primaryEncoderPositionAlwaysOn(true)
@@ -242,7 +246,21 @@ public class ModuleIOSpark implements ModuleIO {
 
   @Override
   public void setDriveVelocity(double velocityRadPerSec) {
-    driveController.setSetpoint(velocityRadPerSec, ControlType.kVelocity, ClosedLoopSlot.kSlot0);
+    setDriveVelocity(velocityRadPerSec, 0.0);
+  }
+
+  @Override
+  public void setDriveVelocity(double velocityRadPerSec, double accelRadPerSecSq) {
+    // Calculate FF voltage: kA * acceleration
+    double ffVolts = driveKa * accelRadPerSecSq;
+
+    // Apply setpoint with Arbitrary Feedforward as Volts
+    driveController.setSetpoint(
+        velocityRadPerSec,
+        ControlType.kVelocity,
+        ClosedLoopSlot.kSlot0,
+        ffVolts,
+        SparkClosedLoopController.ArbFFUnits.kVoltage);
   }
 
   @Override

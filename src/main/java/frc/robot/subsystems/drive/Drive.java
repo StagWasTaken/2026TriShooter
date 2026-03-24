@@ -29,6 +29,7 @@ import edu.wpi.first.hal.HAL;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -88,6 +89,9 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer, Holon
   private SwerveSetpoint setpoint;
   public static Pose2d staticRobotPose;
 
+  private final SlewRateLimiter xLimiter = new SlewRateLimiter(kMaxMeasuredAccelMetersPerSecPerSec);
+  private final SlewRateLimiter yLimiter = new SlewRateLimiter(kMaxMeasuredAccelMetersPerSecPerSec);
+
   public Drive(
       GyroIO gyroIO,
       ModuleIO flModuleIO,
@@ -113,7 +117,7 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer, Holon
         this::getPose,
         this::resetOdometry,
         this::getChassisSpeeds,
-        this::runVelocity,
+        this::runRobotCentricChassisSpeeds,
         new PPHolonomicDriveController(
             new PIDConstants(5.0, 0.0, 0.0), new PIDConstants(5.0, 0.0, 0.0)),
         ppConfig,
@@ -201,6 +205,8 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer, Holon
 
     // Update gyro alert
     gyroDisconnectedAlert.set(!gyroInputs.connected && Robot.CURRENT_ROBOT_MODE != RobotMode.SIM);
+
+    Logger.recordOutput("Drive/CollisionDetected", gyroIO.collisionDetected());
   }
 
   /**
@@ -371,7 +377,27 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer, Holon
 
   @Override
   public void runRobotCentricChassisSpeeds(ChassisSpeeds speeds) {
-    this.setpoint = new SwerveSetpoint(speeds, getModuleStates(), null);
+    double prevVX = xLimiter.lastValue();
+    double prevVY = yLimiter.lastValue();
+
+    double limitedVX = xLimiter.calculate(speeds.vxMetersPerSecond);
+    double limitedVY = yLimiter.calculate(speeds.vyMetersPerSecond);
+
+    double accelX = (limitedVX - prevVX) / 0.02;
+    double accelY = (limitedVY - prevVY) / 0.02;
+
+    ChassisSpeeds limitedSpeeds =
+        new ChassisSpeeds(limitedVX, limitedVY, speeds.omegaRadiansPerSecond);
+
+    double[] accelXArray = new double[] {accelX, accelX, accelX, accelX};
+    double[] accelYArray = new double[] {accelY, accelY, accelY, accelY};
+
+    this.setpoint =
+        new SwerveSetpoint(
+            limitedSpeeds,
+            getModuleStates(),
+            new DriveFeedforwards(
+                accelXArray, new double[4], new double[4], accelXArray, accelYArray));
     executeSetpoint();
   }
 
@@ -397,14 +423,14 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer, Holon
       speeds = ChassisSpeeds.discretize(speeds, Robot.defaultPeriodSecs);
     }
 
-    SwerveModuleState[] setPointStates = DRIVE_KINEMATICS.toSwerveModuleStates(speeds);
-    SwerveDriveKinematics.desaturateWheelSpeeds(setPointStates, CHASSIS_MAX_VELOCITY);
+    SwerveModuleState[] setPointStates = kinematics.toSwerveModuleStates(speeds);
+    SwerveDriveKinematics.desaturateWheelSpeeds(setPointStates, maxSpeedMetersPerSec);
 
-    // Send setpoints to modules
     for (int i = 0; i < 4; i++) {
       if (setpoint.feedforwards() == null) {
         modules[i].runSetpoint(setPointStates[i]);
       } else {
+        // Matches the runSetPoint signature in your Module class
         modules[i].runSetPoint(
             setPointStates[i],
             setpoint.feedforwards().robotRelativeForcesX()[i],
@@ -428,22 +454,22 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer, Holon
 
   @Override
   public double getChassisMaxLinearVelocityMetersPerSec() {
-    return DriveConstants.CHASSIS_MAX_VELOCITY.baseUnitMagnitude();
+    return DriveConstants.maxSpeedMetersPerSec;
   }
 
   @Override
   public double getChassisMaxAccelerationMetersPerSecSq() {
-    return DriveConstants.CHASSIS_MAX_ACCELERATION.baseUnitMagnitude();
+    return DriveConstants.kMaxMeasuredAccelMetersPerSecPerSec;
   }
 
   @Override
   public double getChassisMaxAngularVelocity() {
-    return DriveConstants.CHASSIS_MAX_ANGULAR_VELOCITY.baseUnitMagnitude();
+    return getMaxAngularSpeedRadPerSec();
   }
 
   @Override
   public double getChassisMaxAngularAccelerationRadPerSecSq() {
-    return DriveConstants.CHASSIS_MAX_ANGULAR_ACCELERATION.baseUnitMagnitude();
+    return getMaxAngularSpeedRadPerSec() * 2.0;
   }
 
   public void setMotorBrake(boolean motorBrakeEnabled) {
@@ -523,14 +549,8 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer, Holon
   public void applySimPose(Pose2d simPose) {
     odometryLock.lock();
     try {
-      // Update internal gyro angle to match the sim
       rawGyroRotation = simPose.getRotation();
-
-      // Reset the pose estimator to the sim pose
-      poseEstimator.resetPosition(
-          rawGyroRotation,
-          getModulePositions(), // your real module positions
-          simPose);
+      poseEstimator.resetPosition(rawGyroRotation, getModulePositions(), simPose);
     } finally {
       odometryLock.unlock();
     }
