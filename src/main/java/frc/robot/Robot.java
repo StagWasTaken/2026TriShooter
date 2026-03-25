@@ -115,7 +115,8 @@ public class Robot extends LoggedRobot {
                 put(ShooterConstants.kMiddleShooterCanId, "middle shooter");
                 put(ShooterConstants.kRightShooterCanId, "right shooter");
                 put(ConveyorConstants.kConveyorCanId, "conveyor");
-                put(KickerConstants.kKickerCanId, "kicker");
+                put(KickerConstants.kKickerLeadCanId, "kicker lead");
+                put(KickerConstants.kKickerFollowerCanId, "kicker follower");
                 put(HoodConstants.kHoodCanId, "hood");
               }
             }));

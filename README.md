@@ -44,7 +44,8 @@ This repository contains the official robot code for FRC Team 6002, "ZooBOTix", 
 | Shooter   | Right Shooter     | 17     | NEO V1     |
 | Hood      | Hood              | 2      | NEO 550    |
 | Conveyor  | Conveyor          | 13     | NEO V1     |
-| Kicker    | Kicker            | 16     | NEO V1     |
+| Kicker    | Kicker Leader     | 16     | NEO V1     |
+| Kicker    | Kicker Follower   | 18     | NEO V1     |
 
 **Note:** All motor controllers use a CAN ID matching their PDH slot. The only exception is PDH slot 0, which uses CAN ID 62 because motor controllers cannot be assigned CAN ID 0.
 
