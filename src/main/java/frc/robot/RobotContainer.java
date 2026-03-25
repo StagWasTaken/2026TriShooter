@@ -215,7 +215,6 @@ public class RobotContainer {
             Robot.CURRENT_ROBOT_MODE == RobotMode.REAL
                 ? HoodConstants.kMinPos
                 : HoodConstants.kMinHoodAngle)); // sim uses radians, real uses rotations
-    conveyor.setDefaultCommand(conveyor.runVoltage(ConveyorConstants.kOff));
 
     ledStatusLight.setDefaultCommand(ledStatusLight.showHubStatus());
 
@@ -233,13 +232,16 @@ public class RobotContainer {
         .scoreButton()
         .whileTrue(new CMD_Shoot(drive, driveInput, conveyor, hood, intake, kicker, shooter));
     if (Robot.CURRENT_ROBOT_MODE == RobotMode.REAL) {
-      driver.intakeButton().whileTrue(new CMD_Intake(intake)).onFalse(new CMD_Extend(intake));
+      driver
+          .intakeButton()
+          .whileTrue(new CMD_Intake(conveyor, intake))
+          .onFalse(new CMD_Extend(conveyor, intake));
 
       driver.yButton().onTrue(new CMD_Stow(intake));
       driver
           .stopWithXButton()
           .whileTrue(intake.runVoltage(-IntakeConstants.kOn))
-          .whileFalse(new CMD_Extend(intake));
+          .whileFalse(new CMD_Extend(conveyor, intake));
       driver.aButton().onTrue(new CMD_Home(intake));
       driver
           .bButton()
