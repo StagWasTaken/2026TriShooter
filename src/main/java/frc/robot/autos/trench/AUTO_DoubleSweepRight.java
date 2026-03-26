@@ -1,4 +1,4 @@
-package frc.robot.autos;
+package frc.robot.autos.trench;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathPlannerPath;
@@ -6,18 +6,19 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import frc.robot.RobotContainer;
+import frc.robot.autos.Auto;
 import frc.robot.commands.CMD_Extend;
 import frc.robot.commands.CMD_Intake;
 import frc.robot.commands.CMD_Shoot;
 
-public class AUTO_DoubleSweepPartnerSideRight implements Auto {
+public class AUTO_DoubleSweepRight implements Auto {
   private final PathPlannerPath sweepHalfMiddle;
   private final PathPlannerPath sweepAgain;
 
-  public AUTO_DoubleSweepPartnerSideRight() {
+  public AUTO_DoubleSweepRight() {
     try {
       sweepHalfMiddle = Auto.getPath("SweepMiddle", false);
-      sweepAgain = Auto.getPath("SweepAgainPartnerSide", false);
+      sweepAgain = Auto.getPath("SweepAgain", false);
     } catch (Exception e) {
       throw new RuntimeException("Failed to preload auto paths", e);
     }

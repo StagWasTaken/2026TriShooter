@@ -80,7 +80,9 @@ public class ShooterConstants {
   };
 
   public static final double[][] SHOOTING_TABLE_REAL = {
+    {2.54, 0.3, 314.15927, 0.456}, // 100in
     {3.0480, 0.433, 342.7827, 0.481}, // 120in
+    {3.3, 0.4, 357.7925, 0.464}, // 130in
     {3.5560, 0.5, 377.6892, 0.468}, // 140in
     {4.0640, 0.55, 410.15237, 0.468}, // 160in
     {4.5720, 0.6, 418.87902, 0.495}, // 180in
@@ -89,7 +91,7 @@ public class ShooterConstants {
 
   // Extract columns for MapleShooterOptimization
   private static double[] extractColumn(int col) {
-    double[] result = new double[SHOOTING_TABLE.length];
+    double[] result = new double[SHOOTING_TABLE_REAL.length];
     for (int i = 0; i < SHOOTING_TABLE_REAL.length; i++) {
       result[i] = SHOOTING_TABLE_REAL[i][col];
     }

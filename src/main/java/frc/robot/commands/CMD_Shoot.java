@@ -151,7 +151,7 @@ public class CMD_Shoot extends Command {
       shooting = true;
     }
 
-    if (shooting && intake.getExtenderPosition() > ExtenderConstants.kStow) {
+    if (shooting && intake.getExtenderPosition() > ExtenderConstants.kHome) {
       intake.setExtenderVoltage(-1.5);
       intake.setVoltage(2);
     } else {

@@ -1,4 +1,4 @@
-package frc.robot.autos;
+package frc.robot.autos.bump;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathPlannerPath;
@@ -6,18 +6,19 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import frc.robot.RobotContainer;
+import frc.robot.autos.Auto;
 import frc.robot.commands.CMD_Extend;
 import frc.robot.commands.CMD_Intake;
 import frc.robot.commands.CMD_Shoot;
 
-public class AUTO_DoubleSweepPartnerSideLeft implements Auto {
+public class AUTO_DoubleSweepBumpOpponentRight implements Auto {
   private final PathPlannerPath sweepHalfMiddle;
   private final PathPlannerPath sweepAgain;
 
-  public AUTO_DoubleSweepPartnerSideLeft() {
+  public AUTO_DoubleSweepBumpOpponentRight() {
     try {
-      sweepHalfMiddle = Auto.getPath("SweepMiddle", true);
-      sweepAgain = Auto.getPath("SweepAgainPartnerSide", true);
+      sweepHalfMiddle = Auto.getPath("SweepMiddleBump", false);
+      sweepAgain = Auto.getPath("SweepAgainOpponentSideBump", false);
     } catch (Exception e) {
       throw new RuntimeException("Failed to preload auto paths", e);
     }
@@ -26,17 +27,16 @@ public class AUTO_DoubleSweepPartnerSideLeft implements Auto {
   @Override
   public Command getAutoCommand(RobotContainer robot) {
     return Commands.sequence(
-        setAutoStartPose("SweepMiddle", true, robot.drive),
+        setAutoStartPose("SweepMiddleBump", false, robot.drive),
         new ParallelCommandGroup(
             new CMD_Intake(robot.conveyor, robot.intake), AutoBuilder.followPath(sweepHalfMiddle)),
-        robot.shooter.setTargetVelolcity(Math.toRadians(21000)),
         new CMD_Extend(robot.conveyor, robot.intake),
         new CMD_Shoot(
                 robot.drive, robot.conveyor, robot.hood, robot.intake, robot.kicker, robot.shooter)
-            .withTimeout(3),
-        robot.shooter.setTargetVelolcity(Math.toRadians(21000)),
+            .withTimeout(3.5),
         new ParallelCommandGroup(
             new CMD_Intake(robot.conveyor, robot.intake), AutoBuilder.followPath(sweepAgain)),
+        new CMD_Extend(robot.conveyor, robot.intake),
         new CMD_Shoot(
             robot.drive, robot.conveyor, robot.hood, robot.intake, robot.kicker, robot.shooter));
   }

@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.0756002291226907,
-        "y": 1.005135922044243
+        "x": 2.69350436111181,
+        "y": 1.909725538883853
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.6731465807608696,
-        "y": 0.39331759709580183
+        "x": 2.642228915665681,
+        "y": -0.37979518072599827
       },
       "isLocked": false,
-      "linkedName": "ShootTrench"
+      "linkedName": "ShootBump"
     },
     {
       "anchor": {
-        "x": 8.761746987958192,
-        "y": 3.32469879517864
+        "x": 8.758613475365273,
+        "y": 2.7594485149168873
       },
       "prevControl": {
-        "x": 9.130410005592001,
-        "y": 0.03411761349589959
+        "x": 9.53761445783416,
+        "y": 0.3086506024046378
       },
       "nextControl": {
-        "x": 8.64506347863852,
-        "y": 4.366182593701114
+        "x": 8.458082762587338,
+        "y": 3.7049416017005097
       },
       "isLocked": false,
       "linkedName": null
@@ -36,44 +36,44 @@
         "y": 2.6256313540617224
       },
       "prevControl": {
-        "x": 7.003568000604622,
-        "y": 3.30487086221368
+        "x": 7.523773007233423,
+        "y": 2.7953482422240654
       },
       "nextControl": {
-        "x": 6.709908668014686,
-        "y": 2.023448320003043
+        "x": 6.237445783128184,
+        "y": 2.4723373494030954
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 6.248373493975908,
-        "y": 0.9643132530088099
+        "x": 3.8552048192727613,
+        "y": 2.6256313540617224
       },
       "prevControl": {
-        "x": 6.643506492130451,
-        "y": 1.3135798169241921
+        "x": 4.373475850350757,
+        "y": 2.6546771478686124
       },
       "nextControl": {
-        "x": 5.599706779567985,
-        "y": 0.3909427789515516
+        "x": 3.6055965079891306,
+        "y": 2.6116423963402187
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 3.0756002291226907,
-        "y": 1.005135922044243
+        "x": 2.69350436111181,
+        "y": 1.909725538883853
       },
       "prevControl": {
-        "x": 3.959084159784891,
-        "y": 0.6223085480782857
+        "x": 3.023404284203597,
+        "y": 2.469642086114103
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "ShootTrench"
+      "linkedName": "ShootBump"
     }
   ],
   "rotationTargets": [
@@ -82,30 +82,47 @@
       "rotationDegrees": 180.0
     },
     {
+      "waypointRelativePos": 0.5,
+      "rotationDegrees": 180.0
+    },
+    {
       "waypointRelativePos": 0.75,
       "rotationDegrees": -135.0
     },
     {
       "waypointRelativePos": 1.0,
-      "rotationDegrees": -90.0
+      "rotationDegrees": -54.03922091722824
     },
     {
-      "waypointRelativePos": 2.997510373443923,
-      "rotationDegrees": 180.0
+      "waypointRelativePos": 2.300414937759332,
+      "rotationDegrees": 55.0
     },
     {
-      "waypointRelativePos": 3.75,
-      "rotationDegrees": 180.0
+      "waypointRelativePos": 3.1966804979253,
+      "rotationDegrees": 55.0
     }
   ],
   "constraintZones": [
     {
       "name": "Constraints Zone",
       "minWaypointRelativePos": 0.75,
-      "maxWaypointRelativePos": 1.5047146401984752,
+      "maxWaypointRelativePos": 1.75,
       "constraints": {
         "maxVelocity": 2.0,
         "maxAcceleration": 3.25,
+        "maxAngularVelocity": 360.0,
+        "maxAngularAcceleration": 360.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
+    },
+    {
+      "name": "Constraints Zone",
+      "minWaypointRelativePos": 1.75,
+      "maxWaypointRelativePos": 3.25,
+      "constraints": {
+        "maxVelocity": 2.25,
+        "maxAcceleration": 1.75,
         "maxAngularVelocity": 360.0,
         "maxAngularAcceleration": 360.0,
         "nominalVoltage": 12.0,
@@ -125,13 +142,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 62.722917247393845
+    "rotation": 47.67734862374211
   },
   "reversed": false,
-  "folder": "Trench",
+  "folder": "Bump",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 62.722917247393845
+    "rotation": 47.67734862374211
   },
   "useDefaultConstraints": true
 }

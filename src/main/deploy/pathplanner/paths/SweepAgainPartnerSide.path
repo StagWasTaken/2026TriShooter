@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.0973265455487855,
-        "y": 0.9366858707900052
+        "x": 3.0756002291226907,
+        "y": 1.005135922044243
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.030048192771085,
-        "y": 0.505349397590362
+        "x": 4.093661368867592,
+        "y": 0.7125935889626354
       },
       "isLocked": false,
       "linkedName": "ShootTrench"
@@ -80,12 +80,12 @@
     },
     {
       "anchor": {
-        "x": 3.0973265455487855,
-        "y": 0.9366858707900052
+        "x": 3.0756002291226907,
+        "y": 1.005135922044243
       },
       "prevControl": {
-        "x": 4.390357145729882,
-        "y": 0.4045759037769392
+        "x": 4.271583532475233,
+        "y": 0.606960785257302
       },
       "nextControl": null,
       "isLocked": false,
@@ -149,13 +149,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 64.66609909453904
+    "rotation": 62.722917247393845
   },
   "reversed": false,
-  "folder": null,
+  "folder": "Trench",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 64.66609909453904
+    "rotation": 62.722917247393845
   },
   "useDefaultConstraints": true
 }

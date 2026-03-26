@@ -25,6 +25,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.autos.*;
+import frc.robot.autos.bump.*;
+import frc.robot.autos.trench.*;
 import frc.robot.commands.*;
 import frc.robot.commands.drive.*;
 import frc.robot.subsystems.conveyor.*;
@@ -178,18 +180,36 @@ public class RobotContainer {
 
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices");
+
+    // trench
     autoChooser.addOption("Double Sweep Right", new AUTO_DoubleSweepRight());
     autoChooser.addOption("Double Sweep Left", new AUTO_DoubleSweepLeft());
+
     autoChooser.addOption("Double Sweep Partner Right", new AUTO_DoubleSweepPartnerSideRight());
     autoChooser.addOption("Double Sweep Partner Left", new AUTO_DoubleSweepPartnerSideLeft());
+
     autoChooser.addOption("Double Sweep Opponent Right", new AUTO_DoubleSweepOpponentSideRight());
     autoChooser.addOption("Double Sweep Opponent Left", new AUTO_DoubleSweepOpponentSideLeft());
 
+    // bump
+    autoChooser.addOption(
+        "Double Sweep Bump Opponent Left", new AUTO_DoubleSweepBumpOpponentLeft());
+    autoChooser.addOption(
+        "Double Sweep Bump Opponent Right", new AUTO_DoubleSweepBumpOpponentRight());
+
+    autoChooser.addOption("Double Sweep Bump Partner Left", new AUTO_DoubleSweepBumpPartnerLeft());
+    autoChooser.addOption(
+        "Double Sweep Bump Partner Right", new AUTO_DoubleSweepBumpPartnerRight());
+
+    autoChooser.addOption("Double Sweep Bump Middle Left", new AUTO_DoubleSweepBumpMiddleLeft());
+    autoChooser.addOption("Double Sweep Bump Middle Right", new AUTO_DoubleSweepBumpMiddleRight());
+
     // Wheel Radius Test, tell the bot to run in a straight line for 3 meters, measure actual
     // distance
-    //   Multiply wheel radius by actual distance (in) / 118.11 inches
+    // Multiply wheel radius by actual distance (in) / 118.11 inches (3 meters)
     // autoChooser.addOption("3MeterTest", new AUTO_3MeterTest());
-    autoChooser.addOption("Wheel Radius Characterization", new AUTO_WheelRadiusCharacterization());
+    // autoChooser.addOption("Wheel Radius Characterization", new
+    // AUTO_WheelRadiusCharacterization());
 
     // Configure the button bindings
     configureButtonBindings();
