@@ -1,6 +1,5 @@
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.conveyor.Conveyor;
 import frc.robot.subsystems.conveyor.ConveyorConstants;
@@ -21,12 +20,11 @@ public class CMD_ShootNoVision extends Command {
   private final Shooter shooter;
 
   private boolean shooting;
-  private final Timer timer = new Timer();
   private final DoubleSupplier hoodSupplier, shooterSupplier;
 
   public CMD_ShootNoVision(
       Conveyor conveyor, Hood hood, Intake intake, Kicker kicker, Shooter shooter) {
-    this(conveyor, hood, intake, kicker, shooter, () -> Math.toRadians(20000), () -> 0.4);
+    this(conveyor, hood, intake, kicker, shooter, () -> Math.toRadians(20000), () -> 0.433);
   }
 
   public CMD_ShootNoVision(
@@ -51,8 +49,6 @@ public class CMD_ShootNoVision extends Command {
   @Override
   public void initialize() {
     shooting = false;
-    timer.stop();
-    timer.reset();
   }
 
   @Override
@@ -63,12 +59,11 @@ public class CMD_ShootNoVision extends Command {
     if (shooter.isReady() && hood.atReference() && !shooting) {
       conveyor.setVoltage(ConveyorConstants.kConvey);
       kicker.setVoltage(KickerConstants.kKick);
-      timer.restart();
       shooting = true;
     }
 
     if (shooting && intake.getExtenderPosition() > ExtenderConstants.kStow) {
-      intake.setExtenderVoltage(-1.25);
+      intake.setExtenderVoltage(-1.5);
       intake.setVoltage(2);
     } else {
       intake.setExtenderVoltage(0);

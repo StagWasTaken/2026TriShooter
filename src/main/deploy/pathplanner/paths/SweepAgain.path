@@ -113,8 +113,8 @@
   "constraintZones": [
     {
       "name": "Constraints Zone",
-      "minWaypointRelativePos": 1.33,
-      "maxWaypointRelativePos": 2.0,
+      "minWaypointRelativePos": 1.9676840215439855,
+      "maxWaypointRelativePos": 2.714542190305205,
       "constraints": {
         "maxVelocity": 2.0,
         "maxAcceleration": 3.25,
@@ -140,7 +140,7 @@
     "rotation": 64.66609909453904
   },
   "reversed": false,
-  "folder": "Trench",
+  "folder": null,
   "idealStartingState": {
     "velocity": 0,
     "rotation": 64.66609909453904

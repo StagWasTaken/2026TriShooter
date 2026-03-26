@@ -2,9 +2,7 @@
   "robotWidth": 0.838,
   "robotLength": 0.838,
   "holonomicMode": true,
-  "pathFolders": [
-    "Trench"
-  ],
+  "pathFolders": [],
   "autoFolders": [],
   "defaultMaxVel": 3.25,
   "defaultMaxAccel": 3.25,
@@ -18,7 +16,7 @@
   "driveGearing": 5.5,
   "maxDriveSpeed": 4.0,
   "driveMotorType": "vortex",
-  "driveCurrentLimit": 60.0,
+  "driveCurrentLimit": 80.0,
   "wheelCOF": 1.2,
   "flModuleX": 0.3,
   "flModuleY": 0.3,

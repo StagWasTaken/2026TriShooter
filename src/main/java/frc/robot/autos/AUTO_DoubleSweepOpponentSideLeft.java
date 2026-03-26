@@ -10,14 +10,14 @@ import frc.robot.commands.CMD_Extend;
 import frc.robot.commands.CMD_Intake;
 import frc.robot.commands.CMD_Shoot;
 
-public class AUTO_DoubleSweepLeft implements Auto {
+public class AUTO_DoubleSweepOpponentSideLeft implements Auto {
   private final PathPlannerPath sweepHalfMiddle;
   private final PathPlannerPath sweepAgain;
 
-  public AUTO_DoubleSweepLeft() {
+  public AUTO_DoubleSweepOpponentSideLeft() {
     try {
       sweepHalfMiddle = Auto.getPath("SweepMiddle", true);
-      sweepAgain = Auto.getPath("SweepAgain", true);
+      sweepAgain = Auto.getPath("SweepAgainOpponentSide", true);
     } catch (Exception e) {
       throw new RuntimeException("Failed to preload auto paths", e);
     }

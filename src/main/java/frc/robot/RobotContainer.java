@@ -180,8 +180,10 @@ public class RobotContainer {
     autoChooser = new LoggedDashboardChooser<>("Auto Choices");
     autoChooser.addOption("Double Sweep Right", new AUTO_DoubleSweepRight());
     autoChooser.addOption("Double Sweep Left", new AUTO_DoubleSweepLeft());
-    autoChooser.addOption("Trench Right Safe", new AUTO_TrenchSafeRight());
-    autoChooser.addOption("Trench Left Safe", new AUTO_TrenchSafeLeft());
+    autoChooser.addOption("Double Sweep Partner Right", new AUTO_DoubleSweepPartnerSideRight());
+    autoChooser.addOption("Double Sweep Partner Left", new AUTO_DoubleSweepPartnerSideLeft());
+    autoChooser.addOption("Double Sweep Opponent Right", new AUTO_DoubleSweepOpponentSideRight());
+    autoChooser.addOption("Double Sweep Opponent Left", new AUTO_DoubleSweepOpponentSideLeft());
 
     // Wheel Radius Test, tell the bot to run in a straight line for 3 meters, measure actual
     // distance
@@ -260,7 +262,8 @@ public class RobotContainer {
           .whileTrue(
               conveyor
                   .runVoltage(-ConveyorConstants.kConvey)
-                  .alongWith(intake.setExtenderTargetAngle(ExtenderConstants.kExtended)));
+                  .alongWith(intake.setExtenderTargetAngle(ExtenderConstants.kExtended)))
+          .onFalse(conveyor.runVoltage(ConveyorConstants.kOff));
 
     } else if (Robot.CURRENT_ROBOT_MODE == RobotMode.SIM) {
       driver.scoreButton().whileTrue(new CMD_ShootFuelSim(driveSimulation));

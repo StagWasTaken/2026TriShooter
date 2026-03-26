@@ -10,14 +10,14 @@ import frc.robot.commands.CMD_Extend;
 import frc.robot.commands.CMD_Intake;
 import frc.robot.commands.CMD_Shoot;
 
-public class AUTO_TrenchSafeLeft implements Auto {
+public class AUTO_DoubleSweepPartnerSideLeft implements Auto {
   private final PathPlannerPath sweepHalfMiddle;
   private final PathPlannerPath sweepAgain;
 
-  public AUTO_TrenchSafeLeft() {
+  public AUTO_DoubleSweepPartnerSideLeft() {
     try {
-      sweepHalfMiddle = Auto.getPath("SweepMiddleSafe", true);
-      sweepAgain = Auto.getPath("SweepAgain", true);
+      sweepHalfMiddle = Auto.getPath("SweepMiddle", true);
+      sweepAgain = Auto.getPath("SweepAgainPartnerSide", true);
     } catch (Exception e) {
       throw new RuntimeException("Failed to preload auto paths", e);
     }
@@ -26,7 +26,7 @@ public class AUTO_TrenchSafeLeft implements Auto {
   @Override
   public Command getAutoCommand(RobotContainer robot) {
     return Commands.sequence(
-        setAutoStartPose("SweepMiddleSafe", true, robot.drive),
+        setAutoStartPose("SweepMiddle", true, robot.drive),
         new ParallelCommandGroup(
             new CMD_Intake(robot.conveyor, robot.intake), AutoBuilder.followPath(sweepHalfMiddle)),
         robot.shooter.setTargetVelolcity(Math.toRadians(21000)),
@@ -34,12 +34,10 @@ public class AUTO_TrenchSafeLeft implements Auto {
         new CMD_Shoot(
                 robot.drive, robot.conveyor, robot.hood, robot.intake, robot.kicker, robot.shooter)
             .withTimeout(3),
+        robot.shooter.setTargetVelolcity(Math.toRadians(21000)),
         new ParallelCommandGroup(
             new CMD_Intake(robot.conveyor, robot.intake), AutoBuilder.followPath(sweepAgain)),
-        robot.shooter.setTargetVelolcity(Math.toRadians(21000)),
-        new CMD_Extend(robot.conveyor, robot.intake),
         new CMD_Shoot(
-                robot.drive, robot.conveyor, robot.hood, robot.intake, robot.kicker, robot.shooter)
-            .withTimeout(3));
+            robot.drive, robot.conveyor, robot.hood, robot.intake, robot.kicker, robot.shooter));
   }
 }

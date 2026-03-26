@@ -2,7 +2,6 @@ package frc.robot.commands;
 
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.commands.drive.JoystickDriveAndAimAtTarget;
 import frc.robot.subsystems.conveyor.Conveyor;
@@ -31,7 +30,6 @@ public class CMD_Shoot extends Command {
   private final MapleJoystickDriveInput driveSupplier; // null when using auto constructor
 
   private boolean shooting;
-  private final Timer timer = new Timer();
   private final Debouncer atSetpointDebouncer = new Debouncer(0.1);
   private Command driveCommand;
 
@@ -105,8 +103,6 @@ public class CMD_Shoot extends Command {
   @Override
   public void initialize() {
     shooting = false;
-    timer.stop();
-    timer.reset();
     atSetpointDebouncer.calculate(false); // flush debouncer state
 
     ChassisHeadingController.getInstance()
@@ -152,12 +148,11 @@ public class CMD_Shoot extends Command {
     if (shooter.isReady() && hood.atReference() && driveReady && !shooting) {
       conveyor.setVoltage(ConveyorConstants.kConvey);
       kicker.setVoltage(KickerConstants.kKick);
-      timer.restart();
       shooting = true;
     }
 
     if (shooting && intake.getExtenderPosition() > ExtenderConstants.kStow) {
-      intake.setExtenderVoltage(-1.0);
+      intake.setExtenderVoltage(-1.5);
       intake.setVoltage(2);
     } else {
       intake.setExtenderVoltage(0);
