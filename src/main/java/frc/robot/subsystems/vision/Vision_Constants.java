@@ -42,19 +42,17 @@ public class Vision_Constants {
       new Transform3d(
           new Translation3d(
               // camera is 13.25 inches forward, 7.75 inches left, and 12 inches up from the center
-              // of
-              // the bot
+              // of the bot
               Units.inchesToMeters(13.25), Units.inchesToMeters(7.75), Units.inchesToMeters(12)),
-          new Rotation3d(0, Math.toRadians(-15), 0));
+          new Rotation3d(0, Math.toRadians(-17), 0));
 
   public static final Transform3d robotToCamera1 =
       new Transform3d(
           new Translation3d(
               // camera is 13.25 inches forward, 7.75 inches left, and 12 inches up from the center
-              // of
-              // the bot
+              // of the bot
               Units.inchesToMeters(13.25), Units.inchesToMeters(-7.75), Units.inchesToMeters(12)),
-          new Rotation3d(0, Math.toRadians(-15), 0));
+          new Rotation3d(0, Math.toRadians(-17.75), 0));
 
   // Basic filtering thresholds
   public static double maxAmbiguity = 0.2;
