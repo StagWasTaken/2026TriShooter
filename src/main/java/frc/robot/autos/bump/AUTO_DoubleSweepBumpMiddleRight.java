@@ -7,9 +7,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import frc.robot.RobotContainer;
 import frc.robot.autos.Auto;
-import frc.robot.commands.CMD_Extend;
-import frc.robot.commands.CMD_Intake;
-import frc.robot.commands.CMD_Shoot;
+import frc.robot.commands.*;
 
 public class AUTO_DoubleSweepBumpMiddleRight implements Auto {
   private final PathPlannerPath sweepHalfMiddle;
@@ -24,20 +22,28 @@ public class AUTO_DoubleSweepBumpMiddleRight implements Auto {
     }
   }
 
+  private Command sweepPath(PathPlannerPath path, RobotContainer robot) {
+    return new ParallelCommandGroup(
+        AutoBuilder.followPath(path),
+        new CMD_Intake(robot.conveyor, robot.intake),
+        Commands.sequence(Commands.waitSeconds(3), robot.shooter.runVoltage(6)));
+  }
+
+  private Command shootCycle(RobotContainer robot, double timeout) {
+    return Commands.sequence(
+        new CMD_Extend(robot.conveyor, robot.intake),
+        new CMD_Shoot(
+                robot.drive, robot.conveyor, robot.hood, robot.intake, robot.kicker, robot.shooter)
+            .withTimeout(timeout));
+  }
+
   @Override
   public Command getAutoCommand(RobotContainer robot) {
     return Commands.sequence(
         setAutoStartPose("SweepMiddleBump", false, robot.drive),
-        new ParallelCommandGroup(
-            new CMD_Intake(robot.conveyor, robot.intake), AutoBuilder.followPath(sweepHalfMiddle)),
-        new CMD_Extend(robot.conveyor, robot.intake),
-        new CMD_Shoot(
-                robot.drive, robot.conveyor, robot.hood, robot.intake, robot.kicker, robot.shooter)
-            .withTimeout(3.5),
-        new ParallelCommandGroup(
-            new CMD_Intake(robot.conveyor, robot.intake), AutoBuilder.followPath(sweepAgain)),
-        new CMD_Extend(robot.conveyor, robot.intake),
-        new CMD_Shoot(
-            robot.drive, robot.conveyor, robot.hood, robot.intake, robot.kicker, robot.shooter));
+        sweepPath(sweepHalfMiddle, robot),
+        shootCycle(robot, 3.5),
+        sweepPath(sweepAgain, robot),
+        shootCycle(robot, 5));
   }
 }

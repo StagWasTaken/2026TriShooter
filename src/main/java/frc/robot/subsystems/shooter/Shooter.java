@@ -72,6 +72,10 @@ public class Shooter extends SubsystemBase {
     io.setVoltage(voltage);
   }
 
+  public Command runVoltage(double voltage) {
+    return Commands.runOnce(() -> setVoltage(voltage), this);
+  }
+
   public void setReference(double velocity) {
     io.setReference(velocity);
   }
