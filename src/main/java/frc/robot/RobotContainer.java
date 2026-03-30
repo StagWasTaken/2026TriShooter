@@ -182,27 +182,24 @@ public class RobotContainer {
     autoChooser = new LoggedDashboardChooser<>("Auto Choices");
 
     // trench
-    autoChooser.addOption("Double Sweep Right", new AUTO_DoubleSweepRight());
-    autoChooser.addOption("Double Sweep Left", new AUTO_DoubleSweepLeft());
+    autoChooser.addOption("Right Trench Middle", new AUTO_DoubleSweepRight());
+    autoChooser.addOption("Left Trench  Middle", new AUTO_DoubleSweepLeft());
 
-    autoChooser.addOption("Double Sweep Partner Right", new AUTO_DoubleSweepPartnerSideRight());
-    autoChooser.addOption("Double Sweep Partner Left", new AUTO_DoubleSweepPartnerSideLeft());
+    autoChooser.addOption("Right Trench Partner", new AUTO_DoubleSweepPartnerSideRight());
+    autoChooser.addOption("Left Trench Partner", new AUTO_DoubleSweepPartnerSideLeft());
 
-    autoChooser.addOption("Double Sweep Opponent Right", new AUTO_DoubleSweepOpponentSideRight());
-    autoChooser.addOption("Double Sweep Opponent Left", new AUTO_DoubleSweepOpponentSideLeft());
+    autoChooser.addOption("Right Trench Opponent", new AUTO_DoubleSweepOpponentSideRight());
+    autoChooser.addOption("Left Trench Opponent", new AUTO_DoubleSweepOpponentSideLeft());
 
     // bump
-    autoChooser.addOption(
-        "Double Sweep Bump Opponent Left", new AUTO_DoubleSweepBumpOpponentLeft());
-    autoChooser.addOption(
-        "Double Sweep Bump Opponent Right", new AUTO_DoubleSweepBumpOpponentRight());
+    autoChooser.addOption("Left Bump Opponent", new AUTO_DoubleSweepBumpOpponentLeft());
+    autoChooser.addOption("Right Bump Opponent", new AUTO_DoubleSweepBumpOpponentRight());
 
-    autoChooser.addOption("Double Sweep Bump Partner Left", new AUTO_DoubleSweepBumpPartnerLeft());
-    autoChooser.addOption(
-        "Double Sweep Bump Partner Right", new AUTO_DoubleSweepBumpPartnerRight());
+    autoChooser.addOption("Left Bump Partner", new AUTO_DoubleSweepBumpPartnerLeft());
+    autoChooser.addOption("Right Bump Partner", new AUTO_DoubleSweepBumpPartnerRight());
 
-    autoChooser.addOption("Double Sweep Bump Middle Left", new AUTO_DoubleSweepBumpMiddleLeft());
-    autoChooser.addOption("Double Sweep Bump Middle Right", new AUTO_DoubleSweepBumpMiddleRight());
+    autoChooser.addOption("Left Bump Middle", new AUTO_DoubleSweepBumpMiddleLeft());
+    autoChooser.addOption("Right Bump Middle", new AUTO_DoubleSweepBumpMiddleRight());
 
     // Wheel Radius Test, tell the bot to run in a straight line for 3 meters, measure actual
     // distance
@@ -372,6 +369,6 @@ public class RobotContainer {
 
   public Command pass() {
     return new CMD_ShootNoVision(
-        conveyor, hood, intake, kicker, shooter, () -> Math.toRadians(30000), () -> 0.8);
+        conveyor, hood, intake, kicker, shooter, () -> Math.toRadians(25000), () -> 0.8);
   }
 }

@@ -14,7 +14,7 @@ public class HoodConfig {
         .disableFollowerMode()
         .idleMode(IdleMode.kBrake)
         .inverted(HoodConstants.kInverted)
-        .smartCurrentLimit(40)
+        .smartCurrentLimit(20)
         .voltageCompensation(12.0);
     hoodConfig
         .absoluteEncoder
