@@ -74,6 +74,7 @@ public class RobotContainer {
   private final Field2d field = new Field2d();
   // Controller
   public final DriverMap driver = new DriverMap.LeftHandedXbox(0);
+  public final DriverMap operator = new DriverMap.LeftHandedXbox(1);
 
   public Pose2d resetPose;
 
@@ -258,7 +259,8 @@ public class RobotContainer {
                   hood,
                   intake,
                   kicker,
-                  shooter));
+                  shooter,
+                  () -> !operator.scoreButton().getAsBoolean()));
       // intake button, puts OTB intake down and turns on rollers once in position
       driver
           .intakeButton()
@@ -365,6 +367,7 @@ public class RobotContainer {
   public Command pass() {
     return new CMD_Shoot(
         drive,
+        driver.getDriveInput(),
         () -> {
           Translation2d target =
               FieldMirroringUtils.toCurrentAllianceTranslation(FieldConstants.PassingTarget);
@@ -376,7 +379,8 @@ public class RobotContainer {
         hood,
         intake,
         kicker,
-        shooter);
+        shooter,
+        () -> !operator.scoreButton().getAsBoolean());
   }
 
   public Translation2d flipLeftRight(Translation2d translation) {
