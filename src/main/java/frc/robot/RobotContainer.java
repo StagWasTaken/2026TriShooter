@@ -260,7 +260,8 @@ public class RobotContainer {
                   intake,
                   kicker,
                   shooter,
-                  () -> !operator.scoreButton().getAsBoolean()));
+                  () -> !operator.intakeButton().getAsBoolean(),
+                  () -> operator.scoreButton().getAsBoolean()));
       // intake button, puts OTB intake down and turns on rollers once in position
       driver
           .intakeButton()
@@ -380,7 +381,8 @@ public class RobotContainer {
         intake,
         kicker,
         shooter,
-        () -> !operator.scoreButton().getAsBoolean());
+        () -> !operator.intakeButton().getAsBoolean(),
+        () -> operator.scoreButton().getAsBoolean());
   }
 
   public Translation2d flipLeftRight(Translation2d translation) {

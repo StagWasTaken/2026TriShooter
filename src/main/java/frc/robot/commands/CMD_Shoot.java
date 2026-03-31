@@ -38,6 +38,13 @@ public class CMD_Shoot extends Command {
   // Evaluated dynamically each loop so the operator can change their mind mid-shot.
   private final BooleanSupplier stowIntakeOnShoot;
 
+  // When true, the intake is lifted more slowly to avoid squishing balls in a large hopper.
+  // Evaluated dynamically each loop so the operator can change their mind mid-shot.
+  private final BooleanSupplier slowStow;
+
+  private static final double kStowVoltage = -1.33;
+  private static final double kSlowStowVoltage = -0.75; // tune as needed
+
   private boolean shooting;
   private final Debouncer atSetpointDebouncer = new Debouncer(0.1);
   private Command driveCommand;
@@ -52,7 +59,8 @@ public class CMD_Shoot extends Command {
       Intake intake,
       Kicker kicker,
       Shooter shooter,
-      BooleanSupplier stowIntakeOnShoot) {
+      BooleanSupplier stowIntakeOnShoot,
+      BooleanSupplier slowStow) {
     this.drive = drive;
     this.driveSupplier = driveSupplier;
     this.targetSupplier = targetSupplier;
@@ -62,11 +70,12 @@ public class CMD_Shoot extends Command {
     this.kicker = kicker;
     this.shooter = shooter;
     this.stowIntakeOnShoot = stowIntakeOnShoot;
+    this.slowStow = slowStow;
 
     addRequirements(drive, conveyor, hood, intake, kicker, shooter);
   }
 
-  // Auto constructor — no driver input, always stows intake
+  // Auto constructor — no driver input, always stows intake at normal speed
   public CMD_Shoot(
       Drive drive,
       Supplier<Translation2d> targetSupplier,
@@ -84,6 +93,7 @@ public class CMD_Shoot extends Command {
     this.kicker = kicker;
     this.shooter = shooter;
     this.stowIntakeOnShoot = () -> true;
+    this.slowStow = () -> false;
 
     addRequirements(drive, conveyor, hood, intake, kicker, shooter);
   }
@@ -107,7 +117,7 @@ public class CMD_Shoot extends Command {
         .plus(new Translation2d(vxField * tofSeconds, vyField * tofSeconds));
   }
 
-  // does two lookups: one at current position to get tof, then
+  // Does two lookups: one at current position to get tof, then
   // a second at the predicted position to get the final shooting params
   private ShootingParams getShootingParamsWithPrediction() {
     double distMeters = targetSupplier.get().getDistance(drive.getPose().getTranslation());
@@ -175,8 +185,8 @@ public class CMD_Shoot extends Command {
     if (shooting
         && stowIntakeOnShoot.getAsBoolean()
         && intake.getExtenderPosition() > ExtenderConstants.kStow) {
-      // Actively lift the intake out of the shot path
-      intake.setExtenderVoltage(-1.33);
+      // Lift the intake out of the shot path — slowly if the hopper is full to avoid squishing
+      intake.setExtenderVoltage(slowStow.getAsBoolean() ? kSlowStowVoltage : kStowVoltage);
       intake.setVoltage(2);
     } else if (!stowIntakeOnShoot.getAsBoolean()) {
       if (!intake.getExtenderInPosition()) {
