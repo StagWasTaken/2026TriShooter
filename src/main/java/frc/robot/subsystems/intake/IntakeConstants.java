@@ -28,6 +28,7 @@ public class IntakeConstants {
 
   public static final double kOn = 8;
   public static final double kOff = 0;
+  public static final double kExtake = -kOn;
 
   public static final double kGearRatio = 1;
 

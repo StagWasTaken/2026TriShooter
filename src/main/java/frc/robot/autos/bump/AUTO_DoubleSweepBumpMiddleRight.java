@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import frc.robot.RobotContainer;
 import frc.robot.autos.Auto;
 import frc.robot.commands.*;
+import frc.robot.utils.constants.FieldConstants;
 
 public class AUTO_DoubleSweepBumpMiddleRight implements Auto {
   private final PathPlannerPath sweepHalfMiddle;
@@ -33,7 +34,13 @@ public class AUTO_DoubleSweepBumpMiddleRight implements Auto {
     return Commands.sequence(
         new CMD_Extend(robot.conveyor, robot.intake),
         new CMD_Shoot(
-                robot.drive, robot.conveyor, robot.hood, robot.intake, robot.kicker, robot.shooter)
+                robot.drive,
+                () -> FieldConstants.getHubPose(),
+                robot.conveyor,
+                robot.hood,
+                robot.intake,
+                robot.kicker,
+                robot.shooter)
             .withTimeout(timeout));
   }
 

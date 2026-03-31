@@ -16,9 +16,9 @@ import frc.robot.subsystems.kicker.KickerConstants;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.ShooterConstants;
 import frc.robot.subsystems.shooter.ShooterConstants.ShootingParams;
-import frc.robot.utils.constants.FieldConstants;
 import frc.robot.utils.custompids.ChassisHeadingController;
 import frc.robot.utils.custompids.MapleJoystickDriveInput;
+import java.util.function.Supplier;
 
 public class CMD_Shoot extends Command {
   private final Drive drive;
@@ -28,6 +28,7 @@ public class CMD_Shoot extends Command {
   private final Kicker kicker;
   private final Shooter shooter;
   private final MapleJoystickDriveInput driveSupplier; // null when using auto constructor
+  private final Supplier<Translation2d> targetSupplier;
 
   private boolean shooting;
   private final Debouncer atSetpointDebouncer = new Debouncer(0.1);
@@ -37,6 +38,7 @@ public class CMD_Shoot extends Command {
   public CMD_Shoot(
       Drive drive,
       MapleJoystickDriveInput driveSupplier,
+      Supplier<Translation2d> targetSupplier,
       Conveyor conveyor,
       Hood hood,
       Intake intake,
@@ -44,6 +46,7 @@ public class CMD_Shoot extends Command {
       Shooter shooter) {
     this.drive = drive;
     this.driveSupplier = driveSupplier;
+    this.targetSupplier = targetSupplier;
     this.conveyor = conveyor;
     this.hood = hood;
     this.intake = intake;
@@ -55,9 +58,16 @@ public class CMD_Shoot extends Command {
 
   // Auto constructor — no driver input, no shoot-on-the-fly, just lookup table at current position
   public CMD_Shoot(
-      Drive drive, Conveyor conveyor, Hood hood, Intake intake, Kicker kicker, Shooter shooter) {
+      Drive drive,
+      Supplier<Translation2d> targetSupplier,
+      Conveyor conveyor,
+      Hood hood,
+      Intake intake,
+      Kicker kicker,
+      Shooter shooter) {
     this.drive = drive;
     this.driveSupplier = null;
+    this.targetSupplier = targetSupplier;
     this.conveyor = conveyor;
     this.hood = hood;
     this.intake = intake;
@@ -85,17 +95,16 @@ public class CMD_Shoot extends Command {
   }
 
   private ShootingParams getShootingParams() {
-    // Always uses current position — no prediction in auto
-    double distMeters = FieldConstants.getHubPose().getDistance(drive.getPose().getTranslation());
+    double distMeters = targetSupplier.get().getDistance(drive.getPose().getTranslation());
     return ShooterConstants.getShootingParams(distMeters);
   }
 
   private ShootingParams getShootingParamsWithPrediction() {
-    double distMeters = FieldConstants.getHubPose().getDistance(drive.getPose().getTranslation());
+    double distMeters = targetSupplier.get().getDistance(drive.getPose().getTranslation());
     ShootingParams initialParams = ShooterConstants.getShootingParams(distMeters);
 
     Translation2d predictedPos = getPredictedPosition(initialParams.tofSeconds());
-    double predictedDist = FieldConstants.getHubPose().getDistance(predictedPos);
+    double predictedDist = targetSupplier.get().getDistance(predictedPos);
 
     return ShooterConstants.getShootingParams(predictedDist);
   }
@@ -103,7 +112,7 @@ public class CMD_Shoot extends Command {
   @Override
   public void initialize() {
     shooting = false;
-    atSetpointDebouncer.calculate(false); // flush debouncer state
+    atSetpointDebouncer.calculate(false);
 
     ChassisHeadingController.getInstance()
         .setHeadingRequest(new ChassisHeadingController.NullRequest());
@@ -114,7 +123,7 @@ public class CMD_Shoot extends Command {
           JoystickDriveAndAimAtTarget.driveAndAimAtTarget(
               driveSupplier,
               drive,
-              FieldConstants::getHubPose,
+              targetSupplier::get,
               ShooterConstants.kShooterOptimization,
               0.5,
               false);
@@ -123,7 +132,7 @@ public class CMD_Shoot extends Command {
           JoystickDriveAndAimAtTarget.driveAndAimAtTarget(
                   new MapleJoystickDriveInput(() -> 0.0, () -> 0.0, () -> 0.0),
                   drive,
-                  FieldConstants::getHubPose,
+                  targetSupplier::get,
                   null,
                   0.0,
                   true)

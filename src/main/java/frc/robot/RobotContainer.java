@@ -15,6 +15,7 @@ package frc.robot;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -47,9 +48,9 @@ import frc.robot.utils.hubcounter.HubShiftUtil;
 import java.util.function.IntSupplier;
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
+import org.ironmaple.utils.FieldMirroringUtils;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
-import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -67,10 +68,6 @@ public class RobotContainer {
   public final Hood hood;
   public final Vision vision;
   public final LEDStatusLight ledStatusLight;
-
-  private final LoggedNetworkNumber shooterRef =
-      new LoggedNetworkNumber("/Tuning/shooterRef", 19500);
-  private final LoggedNetworkNumber hoodRef = new LoggedNetworkNumber("/Tuning/hoodRef", 0.433);
 
   public SwerveDriveSimulation driveSimulation = null;
 
@@ -247,43 +244,52 @@ public class RobotContainer {
                     new Pose2d(drive.getPose().getTranslation(), new Rotation2d())); // zero gyro
     driver.resetOdometryButton().onTrue(Commands.runOnce(resetGyro, drive).ignoringDisable(true));
 
-    driver
-        .scoreButton()
-        .whileTrue(new CMD_Shoot(drive, driveInput, conveyor, hood, intake, kicker, shooter));
     if (Robot.CURRENT_ROBOT_MODE == RobotMode.REAL) {
+      // main shooting button, handles aiming, hood angle, shooter velocity, and locking wheels with
+      // x when aligned
+      driver
+          .scoreButton()
+          .whileTrue(
+              new CMD_Shoot(
+                  drive,
+                  driveInput,
+                  () -> FieldConstants.getHubPose(),
+                  conveyor,
+                  hood,
+                  intake,
+                  kicker,
+                  shooter));
+      // intake button, puts OTB intake down and turns on rollers once in position
       driver
           .intakeButton()
           .whileTrue(new CMD_Intake(conveyor, intake))
           .onFalse(new CMD_Extend(conveyor, intake));
-
-      driver.yButton().onTrue(new CMD_Stow(intake));
-      driver
-          .stopWithXButton()
-          .whileTrue(intake.runVoltage(-IntakeConstants.kOn))
-          .whileFalse(new CMD_Extend(conveyor, intake));
-      driver.aButton().onTrue(new CMD_Home(intake));
-      driver
-          .bButton()
-          .whileTrue(
-              JoystickDriveAndAimAtTarget.driveAndAimAtTarget(
-                  driveInput,
-                  drive,
-                  () -> FieldConstants.getHubPose(),
-                  ShooterConstants.kShooterOptimization,
-                  0.5,
-                  false));
-      driver.leftBumper().whileTrue(shootClose());
+      // shooting override in case vision is dead, only from 120in and must manually aim
+      driver.leftBumper().whileTrue(new CMD_ShootNoVision(conveyor, hood, intake, kicker, shooter));
+      // pass-on-fly, aims and ranges automatically
       driver.rightBumper().whileTrue(pass());
+      // stows intake
+      driver.aButton().onTrue(new CMD_Home(intake));
+      // passing override, shoots from midfield, must manually aim
       driver
-          .povDown()
+          .yButton()
           .whileTrue(
-              conveyor
-                  .runVoltage(-ConveyorConstants.kConvey)
-                  .alongWith(intake.setExtenderTargetAngle(ExtenderConstants.kExtended)))
-          .onFalse(conveyor.runVoltage(ConveyorConstants.kOff));
+              new CMD_ShootNoVision(
+                  conveyor, hood, intake, kicker, shooter, () -> Math.toRadians(25000), () -> 0.8));
+      // spits anything in the hopper out the intake
+      driver
+          .xButton()
+          .whileTrue(
+              intake
+                  .runVoltage(IntakeConstants.kExtake)
+                  .alongWith(
+                      conveyor
+                          .runVoltage(ConveyorConstants.kExtake)
+                          .alongWith(intake.setExtenderTargetAngle(ExtenderConstants.kExtended))))
+          .onFalse(new CMD_Extend(conveyor, intake));
 
     } else if (Robot.CURRENT_ROBOT_MODE == RobotMode.SIM) {
-      driver.scoreButton().whileTrue(new CMD_ShootFuelSim(driveSimulation));
+      driver.scoreButton().whileTrue(new CMD_ShootFuelSim(drive, driveSimulation, driveInput));
     }
   }
 
@@ -356,19 +362,25 @@ public class RobotContainer {
             FieldConstants.getHubPose().getDistance(drive.getPose().getTranslation())));
   }
 
-  public Command shootClose() {
-    return new CMD_ShootNoVision(
+  public Command pass() {
+    return new CMD_Shoot(
+        drive,
+        () -> {
+          Translation2d target =
+              FieldMirroringUtils.toCurrentAllianceTranslation(FieldConstants.PassingTarget);
+          return drive.getPose().getTranslation().getY() > (FieldMirroringUtils.FIELD_HEIGHT / 2)
+              ? flipLeftRight(target)
+              : target;
+        },
         conveyor,
         hood,
         intake,
         kicker,
-        shooter,
-        () -> Math.toRadians(shooterRef.get()),
-        () -> hoodRef.get());
+        shooter);
   }
 
-  public Command pass() {
-    return new CMD_ShootNoVision(
-        conveyor, hood, intake, kicker, shooter, () -> Math.toRadians(25000), () -> 0.8);
+  public Translation2d flipLeftRight(Translation2d translation) {
+    return new Translation2d(
+        translation.getX(), FieldMirroringUtils.FIELD_HEIGHT - translation.getY());
   }
 }
