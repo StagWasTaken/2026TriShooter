@@ -57,6 +57,10 @@ public class KickerIOSpark implements KickerIO {
     inputs.kickerVelocity = Units.radiansToDegrees(getVelocity());
     inputs.atVelocity = atVelocity();
     inputs.kickerTemp = Fahrenheit.convertFrom(kickerMotorLeader.getMotorTemperature(), Celsius);
+
+    inputs.kickerFollowerCurrent = kickerMotorFollower.getOutputCurrent();
+    inputs.kickerFollowerTemp =
+        Fahrenheit.convertFrom(kickerMotorFollower.getMotorTemperature(), Celsius);
   }
 
   @Override

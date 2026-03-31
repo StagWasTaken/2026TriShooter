@@ -43,7 +43,7 @@ public class CMD_Shoot extends Command {
   private final BooleanSupplier slowStow;
 
   private static final double kStowVoltage = -1.33;
-  private static final double kSlowStowVoltage = -0.75; // tune as needed
+  private static final double kSlowStowVoltage = -0.75;
 
   private boolean shooting;
   private final Debouncer atSetpointDebouncer = new Debouncer(0.1);
