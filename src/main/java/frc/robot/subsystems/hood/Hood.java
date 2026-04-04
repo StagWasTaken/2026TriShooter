@@ -64,6 +64,10 @@ public class Hood extends SubsystemBase {
     return io.atReference();
   }
 
+  public void resetEncoder() {
+    io.resetEncoder();
+  }
+
   @Override
   public void periodic() {
     io.periodic();

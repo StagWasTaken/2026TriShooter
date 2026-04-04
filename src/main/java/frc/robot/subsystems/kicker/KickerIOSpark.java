@@ -12,6 +12,8 @@ import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import edu.wpi.first.math.util.Units;
+import frc.robot.Robot;
+import frc.robot.Robot.RobotName;
 
 public class KickerIOSpark implements KickerIO {
   private final SparkMax kickerMotorLeader;
@@ -23,28 +25,27 @@ public class KickerIOSpark implements KickerIO {
   private ControlType kickerType;
 
   public KickerIOSpark() {
-    // initialize motor
     kickerMotorLeader = new SparkMax(KickerConstants.kKickerLeadCanId, MotorType.kBrushless);
-    kickerMotorFollower = new SparkMax(KickerConstants.kKickerFollowerCanId, MotorType.kBrushless);
 
-    // initialize PID controller
-    kickerController = kickerMotorLeader.getClosedLoopController();
-
-    // initalize encoder
-    kickerEncoder = kickerMotorLeader.getEncoder();
-
-    // apply config
     kickerMotorLeader.configure(
         KickerConfig.kickerLeaderConfig,
         ResetMode.kResetSafeParameters,
         PersistMode.kPersistParameters);
 
-    kickerMotorFollower.configure(
-        KickerConfig.kickerFollowerConfig,
-        ResetMode.kResetSafeParameters,
-        PersistMode.kPersistParameters);
+    if (Robot.CURRENT_ROBOT != RobotName.DRUM_BOT) {
+      kickerMotorFollower =
+          new SparkMax(KickerConstants.kKickerFollowerCanId, MotorType.kBrushless);
+      kickerMotorFollower.configure(
+          KickerConfig.kickerFollowerConfig,
+          ResetMode.kResetSafeParameters,
+          PersistMode.kPersistParameters);
+    } else {
+      kickerMotorFollower = null;
+    }
 
-    // reset target speed in init
+    kickerController = kickerMotorLeader.getClosedLoopController();
+    kickerEncoder = kickerMotorLeader.getEncoder();
+
     kickerReference = 0;
     kickerType = ControlType.kVoltage;
   }
@@ -58,9 +59,15 @@ public class KickerIOSpark implements KickerIO {
     inputs.atVelocity = atVelocity();
     inputs.kickerTemp = Fahrenheit.convertFrom(kickerMotorLeader.getMotorTemperature(), Celsius);
 
-    inputs.kickerFollowerCurrent = kickerMotorFollower.getOutputCurrent();
-    inputs.kickerFollowerTemp =
-        Fahrenheit.convertFrom(kickerMotorFollower.getMotorTemperature(), Celsius);
+    // Only log follower data if it exists
+    if (kickerMotorFollower != null) {
+      inputs.kickerFollowerCurrent = kickerMotorFollower.getOutputCurrent();
+      inputs.kickerFollowerTemp =
+          Fahrenheit.convertFrom(kickerMotorFollower.getMotorTemperature(), Celsius);
+    } else {
+      inputs.kickerFollowerCurrent = 0;
+      inputs.kickerFollowerTemp = 0;
+    }
   }
 
   @Override

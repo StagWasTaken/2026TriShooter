@@ -1,15 +1,16 @@
-package frc.robot.subsystems.shooter;
+package frc.robot.subsystems.drum;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.subsystems.shooter.Shootable;
 import org.littletonrobotics.junction.Logger;
 
-public class Shooter extends SubsystemBase implements Shootable {
-  private final ShooterIO io;
-  private final ShooterIOInputsAutoLogged inputs = new ShooterIOInputsAutoLogged();
+public class Drum extends SubsystemBase implements Shootable {
+  private final DrumIO io;
+  private final DrumIOInputsAutoLogged inputs = new DrumIOInputsAutoLogged();
 
-  public Shooter(ShooterIO io) {
+  public Drum(DrumIO io) {
     this.io = io;
   }
 

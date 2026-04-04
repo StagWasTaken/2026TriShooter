@@ -201,16 +201,6 @@ public class ShooterIOSim implements ShooterIO {
   }
 
   @Override
-  public void spawnSimulatedBall(int index) {
-    switch (index) {
-      case 0 -> spawnLeftBall();
-      case 1 -> spawnMiddleBall();
-      case 2 -> spawnRightBall();
-      default -> {}
-    }
-  }
-
-  @Override
   public void periodic() {
     double exitDist = ShooterConstants.getExitDistMeters(hoodRotations);
 

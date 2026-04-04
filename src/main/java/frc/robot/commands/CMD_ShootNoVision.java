@@ -9,7 +9,7 @@ import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeConstants.ExtenderConstants;
 import frc.robot.subsystems.kicker.Kicker;
 import frc.robot.subsystems.kicker.KickerConstants;
-import frc.robot.subsystems.shooter.Shooter;
+import frc.robot.subsystems.shooter.Shootable;
 import java.util.function.DoubleSupplier;
 
 public class CMD_ShootNoVision extends Command {
@@ -17,13 +17,13 @@ public class CMD_ShootNoVision extends Command {
   private final Hood hood;
   private final Intake intake;
   private final Kicker kicker;
-  private final Shooter shooter;
+  private final Shootable shooter;
 
   private boolean shooting;
   private final DoubleSupplier hoodSupplier, shooterSupplier;
 
   public CMD_ShootNoVision(
-      Conveyor conveyor, Hood hood, Intake intake, Kicker kicker, Shooter shooter) {
+      Conveyor conveyor, Hood hood, Intake intake, Kicker kicker, Shootable shooter) {
     this(conveyor, hood, intake, kicker, shooter, () -> Math.toRadians(20000), () -> 0.433);
   }
 
@@ -32,7 +32,7 @@ public class CMD_ShootNoVision extends Command {
       Hood hood,
       Intake intake,
       Kicker kicker,
-      Shooter shooter,
+      Shootable shooter,
       DoubleSupplier shooterRPM,
       DoubleSupplier hoodAngle) {
     this.conveyor = conveyor;

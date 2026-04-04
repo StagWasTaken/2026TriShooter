@@ -33,8 +33,6 @@ import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.Mass;
 import edu.wpi.first.units.measure.MomentOfInertia;
 import edu.wpi.first.units.measure.Time;
-import frc.robot.Robot;
-import frc.robot.Robot.RobotName;
 import org.ironmaple.simulation.drivesims.COTS;
 import org.ironmaple.simulation.drivesims.configs.DriveTrainSimulationConfig;
 import org.ironmaple.simulation.drivesims.configs.SwerveModuleSimulationConfig;
@@ -77,10 +75,7 @@ public class DriveConstants {
 
   // Drive motor configuration
   public static final int driveMotorCurrentLimit = 80;
-  public static final double wheelRadiusMeters =
-      Robot.CURRENT_ROBOT == RobotName.COMP_BOT
-          ? Units.inchesToMeters(1.474)
-          : Units.inchesToMeters(1.463);
+  public static final double wheelRadiusMeters = Units.inchesToMeters(1.463);
   public static final double driveMotorReduction =
       (45.0 * 22.0) / (12.0 * 15.0); // MAXSwerve with 12 pinion teeth and 22 spur teeth
   public static final DCMotor driveGearbox = DCMotor.getNeoVortex(1);

@@ -1,11 +1,13 @@
 package frc.robot.subsystems.hood;
 
 import edu.wpi.first.math.util.Units;
+import frc.robot.Robot;
+import frc.robot.Robot.RobotName;
 
 public class HoodConstants {
   public static final int kHoodCanId = 2;
 
-  public static final double kP = 5;
+  public static final double kP = Robot.CURRENT_ROBOT == RobotName.COMP_BOT ? 5 : 0;
   public static final double kI = 0.0;
   public static final double kD = 0.0;
 
@@ -21,14 +23,22 @@ public class HoodConstants {
   public static final double kMinOutput = -1;
   public static final double kMaxOutput = 1;
 
-  public static final double kMinPos = 0.025;
-  public static final double kMaxPos = 0.95;
+  public static final double kMinPos =
+      Robot.CURRENT_ROBOT == RobotName.COMP_BOT ? 0.025 : Math.toRadians(0);
+  public static final double kMaxPos =
+      Robot.CURRENT_ROBOT == RobotName.COMP_BOT ? 0.95 : Math.toRadians(0);
+  ;
   public static final double kTolerance = Math.toRadians(2);
 
-  public static final double kMaxVel = 1;
-  public static final double kMaxAccel = 3;
+  public static final double kMaxVel =
+      Robot.CURRENT_ROBOT == RobotName.COMP_BOT ? 1 : Math.toRadians(360);
+  public static final double kMaxAccel =
+      Robot.CURRENT_ROBOT == RobotName.COMP_BOT ? 3 : Math.toRadians(1080);
 
   public static final double kGearRatio = 25;
+
+  public static final double kHomingVoltage = -1.0;
+  public static final double kHomingVelocityThreshold = 0.01;
 
   // sim
   public static final double kHoodMOI = 0.0145;

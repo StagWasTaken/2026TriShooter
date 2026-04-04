@@ -79,7 +79,5 @@ public interface ShooterIO {
 
   public default void stopShooting() {}
 
-  public default void spawnSimulatedBall(int index) {}
-
   public default void periodic() {}
 }

@@ -14,7 +14,7 @@ import frc.robot.subsystems.intake.IntakeConstants;
 import frc.robot.subsystems.intake.IntakeConstants.ExtenderConstants;
 import frc.robot.subsystems.kicker.Kicker;
 import frc.robot.subsystems.kicker.KickerConstants;
-import frc.robot.subsystems.shooter.Shooter;
+import frc.robot.subsystems.shooter.Shootable;
 import frc.robot.subsystems.shooter.ShooterConstants;
 import frc.robot.subsystems.shooter.ShooterConstants.ShootingParams;
 import frc.robot.utils.custompids.ChassisHeadingController;
@@ -28,7 +28,7 @@ public class CMD_Shoot extends Command {
   private final Hood hood;
   private final Intake intake;
   private final Kicker kicker;
-  private final Shooter shooter;
+  private final Shootable shooter;
   private final MapleJoystickDriveInput driveSupplier; // null when using auto constructor
   private final Supplier<Translation2d> targetSupplier;
 
@@ -58,7 +58,7 @@ public class CMD_Shoot extends Command {
       Hood hood,
       Intake intake,
       Kicker kicker,
-      Shooter shooter,
+      Shootable shooter,
       BooleanSupplier stowIntakeOnShoot,
       BooleanSupplier slowStow) {
     this.drive = drive;
@@ -83,7 +83,7 @@ public class CMD_Shoot extends Command {
       Hood hood,
       Intake intake,
       Kicker kicker,
-      Shooter shooter) {
+      Shootable shooter) {
     this.drive = drive;
     this.driveSupplier = null;
     this.targetSupplier = targetSupplier;

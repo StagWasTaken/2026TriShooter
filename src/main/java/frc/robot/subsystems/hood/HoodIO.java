@@ -45,5 +45,7 @@ public interface HoodIO {
     return false;
   }
 
+  public default void resetEncoder() {}
+
   public default void periodic() {}
 }
