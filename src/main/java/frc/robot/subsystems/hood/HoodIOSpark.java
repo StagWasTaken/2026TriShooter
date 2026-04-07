@@ -12,7 +12,6 @@ import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
-import edu.wpi.first.math.MathUtil;
 import frc.robot.Robot;
 import frc.robot.Robot.RobotName;
 
@@ -26,6 +25,10 @@ public class HoodIOSpark implements HoodIO {
   private double hoodReference;
   private ControlType hoodType;
 
+  // tuning
+  //   private final LoggedNetworkNumber kP, reference;
+  //   private double lastP = Double.NaN;
+
   public HoodIOSpark() {
     hoodMotor = new SparkMax(HoodConstants.kHoodCanId, MotorType.kBrushless);
     hoodController = hoodMotor.getClosedLoopController();
@@ -33,14 +36,21 @@ public class HoodIOSpark implements HoodIO {
     if (Robot.CURRENT_ROBOT == RobotName.DRUM_BOT) {
       relativeEncoder = hoodMotor.getEncoder();
       absoluteEncoder = null;
-      hoodMotor.configure(
-          HoodConfig.hoodConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     } else {
       absoluteEncoder = hoodMotor.getAbsoluteEncoder();
       relativeEncoder = null;
-      hoodMotor.configure(
-          HoodConfig.hoodConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }
+
+    hoodMotor.configure(
+        Robot.CURRENT_ROBOT == RobotName.COMP_BOT
+            ? HoodConfig.hoodConfig
+            : HoodConfig.hoodDrumConfig,
+        ResetMode.kResetSafeParameters,
+        PersistMode.kPersistParameters);
+
+    // tuning
+    // kP = new LoggedNetworkNumber("/Tuning/Hood/kP", HoodConstants.kP);
+    // reference = new LoggedNetworkNumber("/Tuning/Hood/Reference", 0.0);
 
     hoodReference = HoodConstants.kMinPos;
     hoodType = ControlType.kPosition;
@@ -90,7 +100,8 @@ public class HoodIOSpark implements HoodIO {
 
   @Override
   public void setReference(double reference) {
-    hoodReference = MathUtil.clamp(reference, HoodConstants.kMinPos, HoodConstants.kMaxPos);
+    // MathUtil.clamp(reference, HoodConstants.kMinPos, HoodConstants.kMaxPos)
+    hoodReference = reference;
     hoodType = ControlType.kPosition;
   }
 
@@ -108,6 +119,18 @@ public class HoodIOSpark implements HoodIO {
 
   @Override
   public void periodic() {
+    // double p = kP.get();
+    // if (lastP != p) {
+    //   setVoltage(0);
+    //   SparkMaxConfig newConfig = new SparkMaxConfig();
+    //   newConfig.apply(Robot.CURRENT_ROBOT == RobotName.COMP_BOT ? HoodConfig.hoodConfig :
+    // HoodConfig.hoodDrumConfig);
+    //   newConfig.closedLoop.p(p);
+    //   hoodMotor.configure(
+    //       newConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
+    // }
+    // lastP = p;
+
     hoodController.setSetpoint(hoodReference, hoodType, ClosedLoopSlot.kSlot0);
   }
 }

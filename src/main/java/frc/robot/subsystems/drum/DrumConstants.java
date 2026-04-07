@@ -7,23 +7,23 @@ import edu.wpi.first.math.util.Units;
 import frc.robot.utils.custompids.MapleShooterOptimization;
 
 public class DrumConstants {
-  public static final int kLeaderCanId = 3;
-  public static final int kFollowerACanId = 4;
-  public static final int kFollowerBCanId = 17;
-  public static final int kFollowerCCanId = 18;
+  public static final int kTopLeftLeaderCanId = 3;
+  public static final int kBottomLeftFollowerCanId = 4;
+  public static final int kTopRightFollowerCanId = 17;
+  public static final int kBottomRightFollowerCanId = 18;
 
-  public static final double kS = 0.13;
-  public static final double kV = 0.0194;
-  public static final double kP = 0.0165;
-  public static final double kD = 0.00075;
+  public static final double kS = 0.22;
+  public static final double kV = 0.0205;
+  public static final double kP = 0.0025;
+  public static final double kD = 0.0003;
 
-  public static final double kPSim = 0.3;
+  public static final double kPSim = 0.0;
   public static final double kDSim = 0.0;
 
   public static final double kSSim = 0.0;
-  public static final double kVSim = 0.0198425;
+  public static final double kVSim = 0.0;
 
-  public static final boolean kInverted = true;
+  public static final boolean kInverted = false;
   public static final boolean kFollowerAInverted = false;
   public static final boolean kFollowerBInverted = true;
   public static final boolean kFollowerCInverted = true;
@@ -31,7 +31,7 @@ public class DrumConstants {
   public static final double kMinOutput = -1;
   public static final double kMaxOutput = 1;
 
-  public static final double kIdleVolts = 0.33;
+  public static final double kIdleVolts = 0.5; // .33
 
   // sim
   public static final double kGearRatio = 1;

@@ -1,5 +1,8 @@
 package frc.robot.subsystems.conveyor;
 
+import frc.robot.Robot;
+import frc.robot.Robot.RobotName;
+
 public class ConveyorConstants {
   public static final int kConveyorCanId = 13;
 
@@ -25,7 +28,7 @@ public class ConveyorConstants {
   public static final double kMinOutput = -1;
   public static final double kMaxOutput = 1;
 
-  public static final double kConvey = 10;
+  public static final double kConvey = Robot.CURRENT_ROBOT == RobotName.COMP_BOT ? 10 : 5;
   public static final double kOff = 0;
   public static final double kExtake = -kConvey;
 

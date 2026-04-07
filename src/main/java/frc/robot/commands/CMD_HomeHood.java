@@ -17,6 +17,7 @@ public class CMD_HomeHood extends Command {
   @Override
   public void initialize() {
     stalledDebouncer.calculate(false); // flush debouncer state
+    hood.setVoltage(0);
   }
 
   @Override

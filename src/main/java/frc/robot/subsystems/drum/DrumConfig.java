@@ -6,26 +6,26 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
 public class DrumConfig {
-  public static final SparkMaxConfig leaderConfig = new SparkMaxConfig();
-  public static final SparkMaxConfig followerConfigA = new SparkMaxConfig();
-  public static final SparkMaxConfig followerConfigB = new SparkMaxConfig();
-  public static final SparkMaxConfig followerConfigC = new SparkMaxConfig();
+  public static final SparkMaxConfig topLeftLeaderConfig = new SparkMaxConfig();
+  public static final SparkMaxConfig bottomLeftFollowerConfig = new SparkMaxConfig();
+  public static final SparkMaxConfig topRightFollowerConfig = new SparkMaxConfig();
+  public static final SparkMaxConfig bottomRightFollowerConfig = new SparkMaxConfig();
 
   static {
     // Leader — full PID/FF config, all other motors follow this one
-    leaderConfig
+    topLeftLeaderConfig
         .disableFollowerMode()
         .idleMode(IdleMode.kCoast)
         .inverted(DrumConstants.kInverted)
         .smartCurrentLimit(40)
         .voltageCompensation(12.0);
-    leaderConfig
+    topLeftLeaderConfig
         .encoder
         .positionConversionFactor(Math.PI * 2)
         .velocityConversionFactor((Math.PI * 2) / 60)
-        .uvwAverageDepth(4)
-        .uvwMeasurementPeriod(10);
-    leaderConfig
+        .uvwAverageDepth(2)
+        .uvwMeasurementPeriod(8);
+    topLeftLeaderConfig
         .closedLoop
         .pid(DrumConstants.kP, 0.0, DrumConstants.kD, ClosedLoopSlot.kSlot0)
         .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
@@ -33,20 +33,20 @@ public class DrumConfig {
         .positionWrappingEnabled(false);
 
     // Followers — just set follow relationship and inversion, PID/FF is handled by leader
-    followerConfigA
-        .follow(DrumConstants.kLeaderCanId, DrumConstants.kFollowerAInverted)
+    bottomLeftFollowerConfig
+        .follow(DrumConstants.kTopLeftLeaderCanId, DrumConstants.kFollowerAInverted)
         .idleMode(IdleMode.kCoast)
         .smartCurrentLimit(40)
         .voltageCompensation(12.0);
 
-    followerConfigB
-        .follow(DrumConstants.kLeaderCanId, DrumConstants.kFollowerBInverted)
+    topRightFollowerConfig
+        .follow(DrumConstants.kTopLeftLeaderCanId, DrumConstants.kFollowerBInverted)
         .idleMode(IdleMode.kCoast)
         .smartCurrentLimit(40)
         .voltageCompensation(12.0);
 
-    followerConfigC
-        .follow(DrumConstants.kLeaderCanId, DrumConstants.kFollowerCInverted)
+    bottomRightFollowerConfig
+        .follow(DrumConstants.kTopLeftLeaderCanId, DrumConstants.kFollowerCInverted)
         .idleMode(IdleMode.kCoast)
         .smartCurrentLimit(40)
         .voltageCompensation(12.0);

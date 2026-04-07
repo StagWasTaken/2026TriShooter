@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.Robot.RobotName;
 import frc.robot.autos.*;
 import frc.robot.autos.bump.*;
 import frc.robot.autos.trench.*;
@@ -50,6 +51,7 @@ import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 import org.ironmaple.utils.FieldMirroringUtils;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
 public class RobotContainer {
   // Subsystems
@@ -71,6 +73,7 @@ public class RobotContainer {
   public Pose2d resetPose;
 
   private final LoggedDashboardChooser<Auto> autoChooser;
+  private final LoggedNetworkNumber hoodRef, shooterRef;
 
   public RobotContainer() {
     switch (Robot.CURRENT_ROBOT_MODE) {
@@ -173,6 +176,8 @@ public class RobotContainer {
     }
 
     this.ledStatusLight = new LEDStatusLight(0, 155, true, false);
+    hoodRef = new LoggedNetworkNumber("HoodRef", 18);
+    shooterRef = new LoggedNetworkNumber("ShooterRef", 14000);
 
     autoChooser = new LoggedDashboardChooser<>("Auto Choices");
 
@@ -240,7 +245,19 @@ public class RobotContainer {
           .whileTrue(new CMD_Intake(conveyor, intake))
           .onFalse(new CMD_Extend(conveyor, intake));
 
-      driver.leftBumper().whileTrue(new CMD_ShootNoVision(conveyor, hood, intake, kicker, shooter));
+      driver
+          .leftBumper()
+          .whileTrue(
+              new CMD_ShootNoVision(
+                  conveyor,
+                  hood,
+                  intake,
+                  kicker,
+                  shooter,
+                  () -> Math.toRadians(shooterRef.get()),
+                  () -> Robot.CURRENT_ROBOT == RobotName.COMP_BOT ? 0.25 : hoodRef.get(),
+                  () -> !operator.intakeButton().getAsBoolean(),
+                  () -> operator.scoreButton().getAsBoolean()));
 
       driver.rightBumper().whileTrue(pass());
 
@@ -250,7 +267,15 @@ public class RobotContainer {
           .yButton()
           .whileTrue(
               new CMD_ShootNoVision(
-                  conveyor, hood, intake, kicker, shooter, () -> Math.toRadians(25000), () -> 0.8));
+                  conveyor,
+                  hood,
+                  intake,
+                  kicker,
+                  shooter,
+                  () -> Math.toRadians(25000),
+                  () -> Robot.CURRENT_ROBOT == RobotName.COMP_BOT ? 0.8 : 50,
+                  () -> !operator.intakeButton().getAsBoolean(),
+                  () -> operator.scoreButton().getAsBoolean()));
 
       driver
           .xButton()
@@ -262,6 +287,8 @@ public class RobotContainer {
                           .runVoltage(ConveyorConstants.kExtake)
                           .alongWith(intake.setExtenderTargetAngle(ExtenderConstants.kExtended))))
           .onFalse(new CMD_Extend(conveyor, intake));
+
+      driver.bButton().onTrue(new CMD_HomeHood(hood));
 
     } else if (Robot.CURRENT_ROBOT_MODE == RobotMode.SIM) {
       driver.scoreButton().whileTrue(new CMD_ShootFuelSim(drive, driveSimulation, driveInput));
