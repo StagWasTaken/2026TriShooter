@@ -190,6 +190,8 @@ public class RobotContainer {
     autoChooser.addOption("Left Trench Opponent", new AUTO_DoubleSweepOpponentSideLeft());
 
     // bump
+    autoChooser.addOption("27 Left", new AUTO_27Left());
+    autoChooser.addOption("27 Right", new AUTO_27Right());
     autoChooser.addOption("Left Bump Opponent", new AUTO_DoubleSweepBumpOpponentLeft());
     autoChooser.addOption("Right Bump Opponent", new AUTO_DoubleSweepBumpOpponentRight());
     autoChooser.addOption("Left Bump Partner", new AUTO_DoubleSweepBumpPartnerLeft());

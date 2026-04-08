@@ -13,7 +13,6 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.util.Units;
-import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
 public class DrumIOSpark implements DrumIO {
   // Leader — all PID/FF runs here
@@ -26,13 +25,8 @@ public class DrumIOSpark implements DrumIO {
 
   private double shooterReference;
   private ControlType shooterType;
-  private boolean shooting;
 
   private final Debouncer drumDebouncer = new Debouncer(0.05);
-
-  // tuning
-  private final LoggedNetworkNumber kS, kV, kP, reference;
-  double lastP = Double.NaN;
 
   public DrumIOSpark() {
     topLeftLeader = new SparkMax(DrumConstants.kTopLeftLeaderCanId, MotorType.kBrushless);
@@ -61,14 +55,7 @@ public class DrumIOSpark implements DrumIO {
         ResetMode.kResetSafeParameters,
         PersistMode.kPersistParameters);
 
-    // tuning
-    kS = new LoggedNetworkNumber("/Tuning/Drum/kS", DrumConstants.kS);
-    kV = new LoggedNetworkNumber("/Tuning/Drum/kV", DrumConstants.kV);
-    kP = new LoggedNetworkNumber("/Tuning/Drum/kP", DrumConstants.kP);
-    reference = new LoggedNetworkNumber("/Tuning/Drum/reference", 0.0);
-
     shooterType = ControlType.kVelocity;
-    shooting = false;
   }
 
   @Override
@@ -125,17 +112,6 @@ public class DrumIOSpark implements DrumIO {
   }
 
   @Override
-  public void startShooting() {
-    shooting = true;
-  }
-
-  @Override
-  public void stopShooting() {
-    shooting = false;
-    setReference(0.0);
-  }
-
-  @Override
   public void periodic() {
     double ff = 0;
 
@@ -166,10 +142,6 @@ public class DrumIOSpark implements DrumIO {
     if (shooterType == ControlType.kVelocity) {
       ff = DrumConstants.kS + (DrumConstants.kV * getReference());
     }
-
-    // if (shooting) {
-    //   ff += 0.2;
-    // }
 
     // Followers mirror the leader automatically — only need to command the leader
     if (shooterReference > 0) {

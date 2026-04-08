@@ -7,6 +7,7 @@ import frc.robot.subsystems.conveyor.ConveyorConstants;
 import frc.robot.subsystems.hood.Hood;
 import frc.robot.subsystems.hood.HoodConstants;
 import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.intake.IntakeConstants;
 import frc.robot.subsystems.intake.IntakeConstants.ExtenderConstants;
 import frc.robot.subsystems.kicker.Kicker;
 import frc.robot.subsystems.kicker.KickerConstants;
@@ -24,15 +25,13 @@ public class CMD_ShootNoVision extends Command {
   private boolean shooting;
   private final DoubleSupplier hoodSupplier, shooterSupplier;
 
+  // When true, intake collapses after 2 seconds (default behavior).
+  // When false, intake stays down and running — operator keeps it extended.
   private final BooleanSupplier stowIntakeOnShoot;
-  private final BooleanSupplier slowStow;
-
-  private static final double kStowVoltage = -0.85;
-  private static final double kSlowStowVoltage = -0.75;
 
   private final Timer timer = new Timer();
 
-  // Default constructor — always stows at normal speed
+  // Default constructor — always stows after 2 seconds
   public CMD_ShootNoVision(
       Conveyor conveyor, Hood hood, Intake intake, Kicker kicker, Shootable shooter) {
     this(
@@ -47,7 +46,7 @@ public class CMD_ShootNoVision extends Command {
         () -> false);
   }
 
-  // Constructor with custom hood/shooter suppliers — always stows at normal speed
+  // Constructor with custom hood/shooter suppliers — always stows after 2 seconds
   public CMD_ShootNoVision(
       Conveyor conveyor,
       Hood hood,
@@ -78,7 +77,6 @@ public class CMD_ShootNoVision extends Command {
     this.shooterSupplier = shooterRPM;
     this.hoodSupplier = hoodAngle;
     this.stowIntakeOnShoot = stowIntakeOnShoot;
-    this.slowStow = slowStow;
 
     addRequirements(conveyor, hood, intake, kicker, shooter);
   }
@@ -103,29 +101,21 @@ public class CMD_ShootNoVision extends Command {
       timer.start();
     }
 
-    if (shooting && timer.hasElapsed(2)) {
-      intake.setExtenderReference(ExtenderConstants.kHome);
+    if (shooting) {
+      if (!stowIntakeOnShoot.getAsBoolean()) {
+        // Operator wants intake to stay down and running
+        if (!intake.getExtenderInPosition()) {
+          intake.setExtenderReference(ExtenderConstants.kExtended);
+        } else {
+          // Once down, cut extender voltage so it can fold back if bumped
+          intake.setExtenderVoltage(0);
+          intake.setVoltage(IntakeConstants.kOn);
+        }
+      } else if (timer.hasElapsed(2)) {
+        // Stow mode — fully collapse intake after 2 seconds
+        intake.setExtenderReference(ExtenderConstants.kHome);
+      }
     }
-
-    // if (shooting
-    //     && stowIntakeOnShoot.getAsBoolean()
-    //     && intake.getExtenderPosition() > ExtenderConstants.kStow) {
-    //   // Lift the intake out of the shot path — slowly if the hopper is full to avoid squishing
-    // //   intake.setExtenderVoltage(slowStow.getAsBoolean() ? kSlowStowVoltage : kStowVoltage);
-    // //   intake.setVoltage(2);
-    // } else if (!stowIntakeOnShoot.getAsBoolean()) {
-    //   if (!intake.getExtenderInPosition()) {
-    //     // Drive extender down to extended position
-    //     intake.setExtenderReference(ExtenderConstants.kExtended);
-    //   } else {
-    //     // Once down, cut extender voltage so it can fold back if bumped,
-    //     // and run the roller so we're ready to intake immediately after the shot
-    //     intake.setExtenderVoltage(0);
-    //     intake.setVoltage(IntakeConstants.kOn);
-    //   }
-    // } else {
-    //   intake.setExtenderVoltage(0);
-    // }
   }
 
   @Override

@@ -2,6 +2,7 @@ package frc.robot.commands;
 
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.commands.drive.JoystickDriveAndAimAtTarget;
 import frc.robot.subsystems.conveyor.Conveyor;
@@ -32,21 +33,15 @@ public class CMD_Shoot extends Command {
   private final MapleJoystickDriveInput driveSupplier; // null when using auto constructor
   private final Supplier<Translation2d> targetSupplier;
 
-  // When true, the intake is actively lifted during and after the shot (default behavior).
+  // When true, intake fully collapses after shot (default behavior).
   // When false, the intake is driven to the extended position and held there with the
   // roller running — useful for shooting while staying ready to intake (e.g. passing).
   // Evaluated dynamically each loop so the operator can change their mind mid-shot.
   private final BooleanSupplier stowIntakeOnShoot;
 
-  // When true, the intake is lifted more slowly to avoid squishing balls in a large hopper.
-  // Evaluated dynamically each loop so the operator can change their mind mid-shot.
-  private final BooleanSupplier slowStow;
-
-  private static final double kStowVoltage = -1.33;
-  private static final double kSlowStowVoltage = -0.75;
-
   private boolean shooting;
-  private final Debouncer atSetpointDebouncer = new Debouncer(0.1);
+  private final Debouncer atSetpointDebouncer = new Debouncer(0.02);
+  private final Timer shootTimer = new Timer();
   private Command driveCommand;
 
   // Teleop constructor — includes driver joystick input and shoot-on-the-fly prediction
@@ -60,7 +55,7 @@ public class CMD_Shoot extends Command {
       Kicker kicker,
       Shootable shooter,
       BooleanSupplier stowIntakeOnShoot,
-      BooleanSupplier slowStow) {
+      BooleanSupplier slowStow) { // slowStow kept for API compatibility, no longer used
     this.drive = drive;
     this.driveSupplier = driveSupplier;
     this.targetSupplier = targetSupplier;
@@ -70,12 +65,11 @@ public class CMD_Shoot extends Command {
     this.kicker = kicker;
     this.shooter = shooter;
     this.stowIntakeOnShoot = stowIntakeOnShoot;
-    this.slowStow = slowStow;
 
     addRequirements(drive, conveyor, hood, intake, kicker, shooter);
   }
 
-  // Auto constructor — no driver input, always stows intake at normal speed
+  // Auto constructor — no driver input, always stows intake
   public CMD_Shoot(
       Drive drive,
       Supplier<Translation2d> targetSupplier,
@@ -93,7 +87,6 @@ public class CMD_Shoot extends Command {
     this.kicker = kicker;
     this.shooter = shooter;
     this.stowIntakeOnShoot = () -> true;
-    this.slowStow = () -> false;
 
     addRequirements(drive, conveyor, hood, intake, kicker, shooter);
   }
@@ -133,6 +126,8 @@ public class CMD_Shoot extends Command {
   public void initialize() {
     shooting = false;
     atSetpointDebouncer.calculate(false); // flush debouncer state
+    shootTimer.reset();
+    shootTimer.stop();
 
     ChassisHeadingController.getInstance()
         .setHeadingRequest(new ChassisHeadingController.NullRequest());
@@ -180,26 +175,25 @@ public class CMD_Shoot extends Command {
       conveyor.setVoltage(ConveyorConstants.kConvey);
       kicker.setVoltage(KickerConstants.kKick);
       shooting = true;
+      shooter.startShooting();
+      shootTimer.start();
     }
 
-    if (shooting
-        && stowIntakeOnShoot.getAsBoolean()
-        && intake.getExtenderPosition() > ExtenderConstants.kStow) {
-      // Lift the intake out of the shot path — slowly if the hopper is full to avoid squishing
-      intake.setExtenderVoltage(slowStow.getAsBoolean() ? kSlowStowVoltage : kStowVoltage);
-      intake.setVoltage(2);
-    } else if (!stowIntakeOnShoot.getAsBoolean()) {
-      if (!intake.getExtenderInPosition()) {
-        // Drive extender down to extended position
-        intake.setExtenderReference(ExtenderConstants.kExtended);
-      } else {
-        // Once down, cut extender voltage so it can fold back if bumped,
-        // and run the roller so we're ready to intake immediately after the shot
-        intake.setExtenderVoltage(0);
-        intake.setVoltage(IntakeConstants.kOn);
+    if (shooting) {
+      if (!stowIntakeOnShoot.getAsBoolean()) {
+        // Operator wants intake to stay down and running
+        if (!intake.getExtenderInPosition()) {
+          intake.setExtenderReference(ExtenderConstants.kExtended);
+        } else {
+          // Once down, cut extender voltage so it can fold back if bumped,
+          // and run the roller so we're ready to intake immediately after the shot
+          intake.setExtenderVoltage(0);
+          intake.setVoltage(IntakeConstants.kOn);
+        }
+      } else if (shootTimer.hasElapsed(2)) {
+        // Stow mode — fully collapse intake after 2 seconds
+        intake.setExtenderReference(ExtenderConstants.kHome);
       }
-    } else {
-      intake.setExtenderVoltage(0);
     }
   }
 
@@ -210,6 +204,7 @@ public class CMD_Shoot extends Command {
     }
 
     shooter.setReference(0);
+    shooter.stopShooting();
     hood.setReference(HoodConstants.kMinPos);
     conveyor.setVoltage(ConveyorConstants.kOff);
     kicker.setVoltage(KickerConstants.kOff);
