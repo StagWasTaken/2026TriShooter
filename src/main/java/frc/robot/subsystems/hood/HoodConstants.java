@@ -23,7 +23,7 @@ public class HoodConstants {
   public static final double kMinOutput = -1;
   public static final double kMaxOutput = 1;
 
-  public static final double kMinPos = Robot.CURRENT_ROBOT == RobotName.COMP_BOT ? 0.025 : 5;
+  public static final double kMinPos = Robot.CURRENT_ROBOT == RobotName.COMP_BOT ? 0.025 : 8;
   public static final double kMaxPos = Robot.CURRENT_ROBOT == RobotName.COMP_BOT ? 0.95 : 50;
   ;
   public static final double kTolerance = 1;

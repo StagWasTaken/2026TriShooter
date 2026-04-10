@@ -17,12 +17,15 @@ public interface DrumIO {
     // Followers — logged for diagnostics only
     public double followerACurrent;
     public double followerATemp;
+    public double followerAVel;
 
     public double followerBCurrent;
     public double followerBTemp;
+    public double followerBVel;
 
     public double followerCCurrent;
     public double followerCTemp;
+    public double followerCVel;
   }
 
   public default void updateInputs(DrumIOInputs inputs) {}

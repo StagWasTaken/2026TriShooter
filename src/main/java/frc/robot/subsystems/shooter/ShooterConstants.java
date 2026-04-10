@@ -110,7 +110,8 @@ public class ShooterConstants {
           );
 
   public static final record ShootingParams(
-      double hoodReference, double shooterReference, double tofSeconds) {}
+      double hoodReference, double shooterReference, double tofSeconds)
+      implements frc.robot.subsystems.shooter.ShootingParams {}
 
   public static final ShootingParams getShootingParams(double distance) {
     if (distance <= SHOOTING_TABLE_REAL[0][0]) {

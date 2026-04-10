@@ -14,8 +14,8 @@ public class DrumConstants {
 
   public static final double kS = 0.22;
   public static final double kV = 0.0205;
-  public static final double kP = 0.0025;
-  public static final double kD = 0.0003;
+  public static final double kP = 0.003;
+  public static final double kD = 0.00;
 
   public static final double kPSim = 0.0;
   public static final double kDSim = 0.0;
@@ -66,13 +66,9 @@ public class DrumConstants {
   };
 
   public static final double[][] SHOOTING_TABLE_REAL = {
-    {2.54, 0.3, 314.15927, 0.456}, // 100in
-    {3.0480, 0.433, 342.7827, 0.481}, // 120in
-    {3.3, 0.4, 357.7925, 0.464}, // 130in
-    {3.5560, 0.5, 377.6892, 0.468}, // 140in
-    {4.0640, 0.55, 410.15237, 0.468}, // 160in
-    {4.5720, 0.6, 418.87902, 0.495}, // 180in
-    {5.0800, 0.6, 436.332, 0.482}, // 200in
+    {3.0480, 18.0, 240.0, 0.386}, // 120in
+    {3.5560, 18.0, 253.1, 0.336}, // 140in
+    {4.0640, 20.0, 261.8, 0.313}, // 160in
   };
 
   private static double[] extractColumn(int col) {
@@ -92,7 +88,8 @@ public class DrumConstants {
           extractColumn(3));
 
   public static final record ShootingParams(
-      double hoodReference, double shooterReference, double tofSeconds) {}
+      double hoodReference, double shooterReference, double tofSeconds)
+      implements frc.robot.subsystems.shooter.ShootingParams {}
 
   public static final ShootingParams getShootingParams(double distance) {
     if (distance <= SHOOTING_TABLE_REAL[0][0]) {
@@ -125,7 +122,7 @@ public class DrumConstants {
       }
     }
 
-    return new ShootingParams(0.4, 349.0659, 1.515);
+    return new ShootingParams(18, 253.1, 0.336);
   }
 
   public static final ShootingParams getSimShootingParams(double distance) {

@@ -17,7 +17,7 @@ public class DrumConfig {
         .disableFollowerMode()
         .idleMode(IdleMode.kCoast)
         .inverted(DrumConstants.kInverted)
-        .smartCurrentLimit(40)
+        .smartCurrentLimit(50)
         .voltageCompensation(12.0);
     topLeftLeaderConfig
         .encoder
@@ -36,19 +36,37 @@ public class DrumConfig {
     bottomLeftFollowerConfig
         .follow(DrumConstants.kTopLeftLeaderCanId, DrumConstants.kFollowerAInverted)
         .idleMode(IdleMode.kCoast)
-        .smartCurrentLimit(40)
+        .smartCurrentLimit(50)
         .voltageCompensation(12.0);
+    bottomLeftFollowerConfig
+        .encoder
+        .positionConversionFactor(Math.PI * 2)
+        .velocityConversionFactor((Math.PI * 2) / 60)
+        .uvwAverageDepth(2)
+        .uvwMeasurementPeriod(8);
 
     topRightFollowerConfig
         .follow(DrumConstants.kTopLeftLeaderCanId, DrumConstants.kFollowerBInverted)
         .idleMode(IdleMode.kCoast)
-        .smartCurrentLimit(40)
+        .smartCurrentLimit(50)
         .voltageCompensation(12.0);
+    topRightFollowerConfig
+        .encoder
+        .positionConversionFactor(Math.PI * 2)
+        .velocityConversionFactor((Math.PI * 2) / 60)
+        .uvwAverageDepth(2)
+        .uvwMeasurementPeriod(8);
 
     bottomRightFollowerConfig
         .follow(DrumConstants.kTopLeftLeaderCanId, DrumConstants.kFollowerCInverted)
         .idleMode(IdleMode.kCoast)
-        .smartCurrentLimit(40)
+        .smartCurrentLimit(50)
         .voltageCompensation(12.0);
+    bottomRightFollowerConfig
+        .encoder
+        .positionConversionFactor(Math.PI * 2)
+        .velocityConversionFactor((Math.PI * 2) / 60)
+        .uvwAverageDepth(2)
+        .uvwMeasurementPeriod(8);
   }
 }

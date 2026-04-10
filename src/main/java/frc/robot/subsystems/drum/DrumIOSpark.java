@@ -12,7 +12,6 @@ import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import edu.wpi.first.math.filter.Debouncer;
-import edu.wpi.first.math.util.Units;
 
 public class DrumIOSpark implements DrumIO {
   // Leader — all PID/FF runs here
@@ -22,11 +21,15 @@ public class DrumIOSpark implements DrumIO {
 
   // Followers — configured via DrumConfig to follow topLeftLeader
   private final SparkMax bottomLeftFollower, topRightFollower, bottomRightFollower;
+  private final RelativeEncoder bottomLeftFollowerEncoder;
+  private final RelativeEncoder topRightFollowerEncoder;
+  private final RelativeEncoder bottomRightFollowerEncoder;
 
   private double shooterReference;
   private ControlType shooterType;
 
   private final Debouncer drumDebouncer = new Debouncer(0.05);
+  public boolean shooting;
 
   public DrumIOSpark() {
     topLeftLeader = new SparkMax(DrumConstants.kTopLeftLeaderCanId, MotorType.kBrushless);
@@ -37,6 +40,10 @@ public class DrumIOSpark implements DrumIO {
 
     topLeftLeaderEncoder = topLeftLeader.getEncoder();
     topLeftLeaderController = topLeftLeader.getClosedLoopController();
+
+    bottomLeftFollowerEncoder = bottomLeftFollower.getEncoder();
+    topRightFollowerEncoder = topRightFollower.getEncoder();
+    bottomRightFollowerEncoder = bottomRightFollower.getEncoder();
 
     topLeftLeader.configure(
         DrumConfig.topLeftLeaderConfig,
@@ -56,30 +63,34 @@ public class DrumIOSpark implements DrumIO {
         PersistMode.kPersistParameters);
 
     shooterType = ControlType.kVelocity;
+    shooting = false;
   }
 
   @Override
   public void updateInputs(DrumIOInputs inputs) {
-    inputs.shooterReference = Units.radiansToDegrees(getReference());
+    inputs.shooterReference = getReference();
     inputs.readyToShoot = isReady();
 
     // Leader — used for control and logging
     inputs.leaderCurrent = topLeftLeader.getOutputCurrent();
     inputs.leaderVoltage = topLeftLeader.getBusVoltage() * topLeftLeader.getAppliedOutput();
-    inputs.leaderVelocity = Units.radiansToDegrees(topLeftLeaderEncoder.getVelocity());
+    inputs.leaderVelocity = topLeftLeaderEncoder.getVelocity() / ((Math.PI * 2) / 60);
     inputs.leaderTemp = Fahrenheit.convertFrom(topLeftLeader.getMotorTemperature(), Celsius);
 
     // Followers — current and temp only for diagnostics
     inputs.followerACurrent = bottomLeftFollower.getOutputCurrent();
     inputs.followerATemp =
         Fahrenheit.convertFrom(bottomLeftFollower.getMotorTemperature(), Celsius);
+    inputs.followerAVel = bottomLeftFollowerEncoder.getVelocity() / ((Math.PI * 2) / 60);
 
     inputs.followerBCurrent = topRightFollower.getOutputCurrent();
     inputs.followerBTemp = Fahrenheit.convertFrom(topRightFollower.getMotorTemperature(), Celsius);
+    inputs.followerBVel = topRightFollowerEncoder.getVelocity() / ((Math.PI * 2) / 60);
 
     inputs.followerCCurrent = bottomRightFollower.getOutputCurrent();
     inputs.followerCTemp =
         Fahrenheit.convertFrom(bottomRightFollower.getMotorTemperature(), Celsius);
+    inputs.followerCVel = bottomRightFollowerEncoder.getVelocity() / ((Math.PI * 2) / 60);
   }
 
   @Override
@@ -109,6 +120,16 @@ public class DrumIOSpark implements DrumIO {
     return drumDebouncer.calculate(
         Math.abs(topLeftLeaderEncoder.getVelocity() - getReference())
             < DrumConstants.kStartOnTargetVel);
+  }
+
+  @Override
+  public void startShooting() {
+    shooting = true;
+  }
+
+  @Override
+  public void stopShooting() {
+    shooting = false;
   }
 
   @Override
@@ -142,6 +163,10 @@ public class DrumIOSpark implements DrumIO {
     if (shooterType == ControlType.kVelocity) {
       ff = DrumConstants.kS + (DrumConstants.kV * getReference());
     }
+
+    // if (shooting) {
+    //     ff += 0.25;
+    // }
 
     // Followers mirror the leader automatically — only need to command the leader
     if (shooterReference > 0) {

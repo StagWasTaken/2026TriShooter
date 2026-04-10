@@ -23,6 +23,7 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
+import frc.robot.Robot;
 import java.util.Map;
 
 public class Vision_Constants {
@@ -38,21 +39,44 @@ public class Vision_Constants {
 
   // Robot to camera transforms
   // (Not used by Limelight, configure in web UI instead)
-  public static final Transform3d robotToCamera0 =
-      new Transform3d(
-          new Translation3d(
-              // camera is 13.25 inches forward, 7.75 inches left, and 12 inches up from the center
-              // of the bot
-              Units.inchesToMeters(13.25), Units.inchesToMeters(7.75), Units.inchesToMeters(12)),
-          new Rotation3d(0, Math.toRadians(-17), 0));
+  public static final Transform3d robotToCamera0;
+  public static final Transform3d robotToCamera1;
 
-  public static final Transform3d robotToCamera1 =
-      new Transform3d(
-          new Translation3d(
-              // camera is 13.25 inches forward, 7.75 inches left, and 12 inches up from the center
-              // of the bot
-              Units.inchesToMeters(13.25), Units.inchesToMeters(-7.75), Units.inchesToMeters(12)),
-          new Rotation3d(0, Math.toRadians(-17.75), 0));
+  static {
+    if (Robot.CURRENT_ROBOT == Robot.RobotName.COMP_BOT) {
+      robotToCamera0 =
+          new Transform3d(
+              new Translation3d(
+                  Units.inchesToMeters(13.25),
+                  Units.inchesToMeters(7.75),
+                  Units.inchesToMeters(12)),
+              new Rotation3d(0, Math.toRadians(-17), 0));
+
+      robotToCamera1 =
+          new Transform3d(
+              new Translation3d(
+                  Units.inchesToMeters(13.25),
+                  Units.inchesToMeters(-7.75),
+                  Units.inchesToMeters(12)),
+              new Rotation3d(0, Math.toRadians(-17.75), 0));
+    } else {
+      robotToCamera0 =
+          new Transform3d(
+              new Translation3d(
+                  Units.inchesToMeters(12.5),
+                  Units.inchesToMeters(5.25),
+                  Units.inchesToMeters(9.5)),
+              new Rotation3d(0, Math.toRadians(-17), 0));
+
+      robotToCamera1 =
+          new Transform3d(
+              new Translation3d(
+                  Units.inchesToMeters(12.5),
+                  Units.inchesToMeters(-5.25),
+                  Units.inchesToMeters(9.5)),
+              new Rotation3d(0, Math.toRadians(-17.75), 0));
+    }
+  }
 
   // Basic filtering thresholds
   public static double maxAmbiguity = 0.2;

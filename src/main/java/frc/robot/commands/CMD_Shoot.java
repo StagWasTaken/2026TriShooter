@@ -4,10 +4,13 @@ import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Robot;
+import frc.robot.Robot.RobotName;
 import frc.robot.commands.drive.JoystickDriveAndAimAtTarget;
 import frc.robot.subsystems.conveyor.Conveyor;
 import frc.robot.subsystems.conveyor.ConveyorConstants;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.drum.DrumConstants;
 import frc.robot.subsystems.hood.Hood;
 import frc.robot.subsystems.hood.HoodConstants;
 import frc.robot.subsystems.intake.Intake;
@@ -17,7 +20,7 @@ import frc.robot.subsystems.kicker.Kicker;
 import frc.robot.subsystems.kicker.KickerConstants;
 import frc.robot.subsystems.shooter.Shootable;
 import frc.robot.subsystems.shooter.ShooterConstants;
-import frc.robot.subsystems.shooter.ShooterConstants.ShootingParams;
+import frc.robot.subsystems.shooter.ShootingParams;
 import frc.robot.utils.custompids.ChassisHeadingController;
 import frc.robot.utils.custompids.MapleJoystickDriveInput;
 import java.util.function.BooleanSupplier;
@@ -114,12 +117,17 @@ public class CMD_Shoot extends Command {
   // a second at the predicted position to get the final shooting params
   private ShootingParams getShootingParamsWithPrediction() {
     double distMeters = targetSupplier.get().getDistance(drive.getPose().getTranslation());
-    ShootingParams initialParams = ShooterConstants.getShootingParams(distMeters);
+    ShootingParams initialParams =
+        Robot.CURRENT_ROBOT == RobotName.COMP_BOT
+            ? ShooterConstants.getShootingParams(distMeters)
+            : DrumConstants.getShootingParams(distMeters);
 
     Translation2d predictedPos = getPredictedPosition(initialParams.tofSeconds());
     double predictedDist = targetSupplier.get().getDistance(predictedPos);
 
-    return ShooterConstants.getShootingParams(predictedDist);
+    return Robot.CURRENT_ROBOT == RobotName.COMP_BOT
+        ? ShooterConstants.getShootingParams(predictedDist)
+        : DrumConstants.getShootingParams(predictedDist);
   }
 
   @Override
