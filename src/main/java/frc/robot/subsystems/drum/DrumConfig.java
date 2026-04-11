@@ -17,14 +17,14 @@ public class DrumConfig {
         .disableFollowerMode()
         .idleMode(IdleMode.kCoast)
         .inverted(DrumConstants.kInverted)
-        .smartCurrentLimit(50)
+        .smartCurrentLimit(60)
         .voltageCompensation(12.0);
     topLeftLeaderConfig
         .encoder
         .positionConversionFactor(Math.PI * 2)
         .velocityConversionFactor((Math.PI * 2) / 60)
         .uvwAverageDepth(2)
-        .uvwMeasurementPeriod(8);
+        .uvwMeasurementPeriod(20);
     topLeftLeaderConfig
         .closedLoop
         .pid(DrumConstants.kP, 0.0, DrumConstants.kD, ClosedLoopSlot.kSlot0)
@@ -36,37 +36,37 @@ public class DrumConfig {
     bottomLeftFollowerConfig
         .follow(DrumConstants.kTopLeftLeaderCanId, DrumConstants.kFollowerAInverted)
         .idleMode(IdleMode.kCoast)
-        .smartCurrentLimit(50)
+        .smartCurrentLimit(60)
         .voltageCompensation(12.0);
     bottomLeftFollowerConfig
         .encoder
         .positionConversionFactor(Math.PI * 2)
         .velocityConversionFactor((Math.PI * 2) / 60)
         .uvwAverageDepth(2)
-        .uvwMeasurementPeriod(8);
+        .uvwMeasurementPeriod(20);
 
     topRightFollowerConfig
         .follow(DrumConstants.kTopLeftLeaderCanId, DrumConstants.kFollowerBInverted)
         .idleMode(IdleMode.kCoast)
-        .smartCurrentLimit(50)
+        .smartCurrentLimit(60)
         .voltageCompensation(12.0);
     topRightFollowerConfig
         .encoder
         .positionConversionFactor(Math.PI * 2)
         .velocityConversionFactor((Math.PI * 2) / 60)
         .uvwAverageDepth(2)
-        .uvwMeasurementPeriod(8);
+        .uvwMeasurementPeriod(20);
 
     bottomRightFollowerConfig
         .follow(DrumConstants.kTopLeftLeaderCanId, DrumConstants.kFollowerCInverted)
         .idleMode(IdleMode.kCoast)
-        .smartCurrentLimit(50)
+        .smartCurrentLimit(60)
         .voltageCompensation(12.0);
     bottomRightFollowerConfig
         .encoder
         .positionConversionFactor(Math.PI * 2)
         .velocityConversionFactor((Math.PI * 2) / 60)
         .uvwAverageDepth(2)
-        .uvwMeasurementPeriod(8);
+        .uvwMeasurementPeriod(20);
   }
 }

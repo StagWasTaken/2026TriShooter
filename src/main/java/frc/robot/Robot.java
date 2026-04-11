@@ -45,6 +45,7 @@ public class Robot extends LoggedRobot {
   private static final RobotMode JAVA_SIM_MODE = RobotMode.SIM;
   public static final RobotMode CURRENT_ROBOT_MODE = isReal() ? RobotMode.REAL : JAVA_SIM_MODE;
   public static final RobotName CURRENT_ROBOT = RobotName.DRUM_BOT;
+  public static final boolean tuningMode = false;
 
   private Command autonomousCommand;
   private RobotContainer robotContainer;

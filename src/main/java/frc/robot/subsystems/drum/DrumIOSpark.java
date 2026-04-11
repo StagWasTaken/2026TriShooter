@@ -68,7 +68,7 @@ public class DrumIOSpark implements DrumIO {
 
   @Override
   public void updateInputs(DrumIOInputs inputs) {
-    inputs.shooterReference = getReference();
+    inputs.shooterReference = getReference() / ((Math.PI * 2) / 60);
     inputs.readyToShoot = isReady();
 
     // Leader — used for control and logging
@@ -79,15 +79,21 @@ public class DrumIOSpark implements DrumIO {
 
     // Followers — current and temp only for diagnostics
     inputs.followerACurrent = bottomLeftFollower.getOutputCurrent();
+    inputs.followerAVoltage =
+        bottomLeftFollower.getBusVoltage() * bottomLeftFollower.getAppliedOutput();
     inputs.followerATemp =
         Fahrenheit.convertFrom(bottomLeftFollower.getMotorTemperature(), Celsius);
     inputs.followerAVel = bottomLeftFollowerEncoder.getVelocity() / ((Math.PI * 2) / 60);
 
     inputs.followerBCurrent = topRightFollower.getOutputCurrent();
+    inputs.followerBVoltage =
+        topRightFollower.getBusVoltage() * topRightFollower.getAppliedOutput();
     inputs.followerBTemp = Fahrenheit.convertFrom(topRightFollower.getMotorTemperature(), Celsius);
     inputs.followerBVel = topRightFollowerEncoder.getVelocity() / ((Math.PI * 2) / 60);
 
     inputs.followerCCurrent = bottomRightFollower.getOutputCurrent();
+    inputs.followerCVoltage =
+        bottomRightFollower.getBusVoltage() * bottomRightFollower.getAppliedOutput();
     inputs.followerCTemp =
         Fahrenheit.convertFrom(bottomRightFollower.getMotorTemperature(), Celsius);
     inputs.followerCVel = bottomRightFollowerEncoder.getVelocity() / ((Math.PI * 2) / 60);

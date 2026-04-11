@@ -16,14 +16,17 @@ public interface DrumIO {
 
     // Followers — logged for diagnostics only
     public double followerACurrent;
+    public double followerAVoltage;
     public double followerATemp;
     public double followerAVel;
 
     public double followerBCurrent;
+    public double followerBVoltage;
     public double followerBTemp;
     public double followerBVel;
 
     public double followerCCurrent;
+    public double followerCVoltage;
     public double followerCTemp;
     public double followerCVel;
   }

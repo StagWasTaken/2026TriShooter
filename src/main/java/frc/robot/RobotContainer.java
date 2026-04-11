@@ -176,8 +176,9 @@ public class RobotContainer {
     }
 
     this.ledStatusLight = new LEDStatusLight(0, 155, true, false);
-    hoodRef = new LoggedNetworkNumber("HoodRef", 18);
-    shooterRef = new LoggedNetworkNumber("ShooterRef", 14000);
+    hoodRef =
+        new LoggedNetworkNumber("HoodRef", Robot.CURRENT_ROBOT == RobotName.COMP_BOT ? .2 : 23);
+    shooterRef = new LoggedNetworkNumber("ShooterRef", 12250);
 
     autoChooser = new LoggedDashboardChooser<>("Auto Choices");
 

@@ -13,9 +13,9 @@ public class DrumConstants {
   public static final int kBottomRightFollowerCanId = 18;
 
   public static final double kS = 0.22;
-  public static final double kV = 0.0205;
-  public static final double kP = 0.003;
-  public static final double kD = 0.00;
+  public static final double kV = 0.02025; // .0205
+  public static final double kP = 0.0015; // .003
+  public static final double kD = 0.00001;
 
   public static final double kPSim = 0.0;
   public static final double kDSim = 0.0;
