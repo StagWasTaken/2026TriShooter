@@ -10,14 +10,14 @@ public class ConveyorConfig {
   static {
     conveyorConfig
         .disableFollowerMode()
-        .idleMode(IdleMode.kBrake)
+        .idleMode(IdleMode.kCoast)
         .inverted(ConveyorConstants.kInverted)
         .smartCurrentLimit(40);
     // .voltageCompensation(12.0);
     conveyorConfig
         .encoder
-        .positionConversionFactor((Math.PI * 2) / ConveyorConstants.kGearRatio)
-        .velocityConversionFactor((Math.PI * 2) / (60 * ConveyorConstants.kGearRatio))
+        .positionConversionFactor(1)
+        .velocityConversionFactor(1)
         .quadratureAverageDepth(2)
         .quadratureMeasurementPeriod(10);
     conveyorConfig

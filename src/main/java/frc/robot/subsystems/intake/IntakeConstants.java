@@ -27,7 +27,7 @@ public class IntakeConstants {
   public static final double kMinOutput = -1;
   public static final double kMaxOutput = 1;
 
-  public static final double kOn = 8;
+  public static final double kOn = 6.5;
   public static final double kOff = 0;
   public static final double kExtake = -kOn;
 
@@ -59,7 +59,7 @@ public class IntakeConstants {
     public static final double kMaxOutput = 1;
 
     public static final double kHome = Math.toRadians(70);
-    public static final double kStow = Math.toRadians(150);
+    public static final double kStow = Math.toRadians(120);
     public static final double kExtended = Math.toRadians(315);
 
     public static final double kMaxVel = Math.toRadians(43200);

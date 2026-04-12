@@ -25,9 +25,7 @@ public class AUTO_27Right implements Auto {
 
   private Command sweepPath(PathPlannerPath path, RobotContainer robot) {
     return new ParallelCommandGroup(
-        AutoBuilder.followPath(path),
-        new CMD_Intake(robot.conveyor, robot.intake),
-        Commands.sequence(Commands.waitSeconds(3), robot.shooter.runVoltage(6)));
+        AutoBuilder.followPath(path), new CMD_Intake(robot.conveyor, robot.intake));
   }
 
   private Command shootCycle(RobotContainer robot, double timeout) {

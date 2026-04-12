@@ -50,6 +50,11 @@ public class Drum extends SubsystemBase implements Shootable {
   }
 
   @Override
+  public double getVelocity() {
+    return io.getVelocity();
+  }
+
+  @Override
   public void periodic() {
     io.updateInputs(inputs);
     io.periodic();

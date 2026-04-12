@@ -13,7 +13,6 @@ import com.revrobotics.spark.SparkClosedLoopController.ArbFFUnits;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkMaxConfig;
-import edu.wpi.first.math.util.Units;
 import frc.robot.Robot;
 import frc.robot.Robot.RobotName;
 import frc.robot.utils.LoggedTunableNumber;
@@ -66,10 +65,10 @@ public class KickerIOSpark implements KickerIO {
 
   @Override
   public void updateInputs(KickerIOInputs inputs) {
-    inputs.kickerReference = Units.radiansToDegrees(getReference());
+    inputs.kickerReference = getReference();
     inputs.kickerCurrent = getCurrent();
     inputs.kickerVoltage = getVoltage();
-    inputs.kickerVelocity = Units.radiansToDegrees(getVelocity());
+    inputs.kickerVelocity = getVelocity();
     inputs.atVelocity = atVelocity();
     inputs.kickerTemp = Fahrenheit.convertFrom(kickerMotorLeader.getMotorTemperature(), Celsius);
 

@@ -17,4 +17,6 @@ public interface Shootable extends Subsystem {
   void startShooting();
 
   void stopShooting();
+
+  double getVelocity();
 }

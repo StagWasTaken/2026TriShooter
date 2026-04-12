@@ -361,21 +361,14 @@ public class RobotContainer {
   }
 
   public Command pass() {
-    return new CMD_Shoot(
-        drive,
-        driver.getDriveInput(),
-        () -> {
-          Translation2d target =
-              FieldMirroringUtils.toCurrentAllianceTranslation(FieldConstants.PassingTarget);
-          return drive.getPose().getTranslation().getY() > (FieldMirroringUtils.FIELD_HEIGHT / 2)
-              ? flipLeftRight(target)
-              : target;
-        },
+    return new CMD_ShootNoVision(
         conveyor,
         hood,
         intake,
         kicker,
         shooter,
+        () -> 250,
+        () -> Robot.CURRENT_ROBOT == RobotName.COMP_BOT ? 0.25 : 45,
         () -> !operator.intakeButton().getAsBoolean(),
         () -> operator.scoreButton().getAsBoolean());
   }

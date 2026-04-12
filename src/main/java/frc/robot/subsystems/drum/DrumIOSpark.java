@@ -140,7 +140,7 @@ public class DrumIOSpark implements DrumIO {
   @Override
   public boolean isReady() {
     return drumDebouncer.calculate(
-        Math.abs(topLeftLeaderEncoder.getVelocity() - getReference())
+        Math.abs(bottomLeftFollowerEncoder.getVelocity() - getReference())
             < DrumConstants.kStartOnTargetVel);
   }
 
@@ -155,8 +155,8 @@ public class DrumIOSpark implements DrumIO {
   }
 
   private void setAllSetpoints(double reference, ControlType type, double ff) {
-    topLeftLeaderController.setSetpoint(
-        reference, type, ClosedLoopSlot.kSlot0, ff, ArbFFUnits.kVoltage);
+    // topLeftLeaderController.setSetpoint(
+    //     reference, type, ClosedLoopSlot.kSlot0, ff, ArbFFUnits.kVoltage);
     bottomLeftFollowerController.setSetpoint(
         reference, type, ClosedLoopSlot.kSlot0, ff, ArbFFUnits.kVoltage);
     topRightFollowerController.setSetpoint(
@@ -166,7 +166,7 @@ public class DrumIOSpark implements DrumIO {
   }
 
   private void setAllVoltage(double voltage) {
-    topLeftLeaderController.setSetpoint(voltage, ControlType.kVoltage);
+    // topLeftLeaderController.setSetpoint(voltage, ControlType.kVoltage);
     bottomLeftFollowerController.setSetpoint(voltage, ControlType.kVoltage);
     topRightFollowerController.setSetpoint(voltage, ControlType.kVoltage);
     bottomRightFollowerController.setSetpoint(voltage, ControlType.kVoltage);

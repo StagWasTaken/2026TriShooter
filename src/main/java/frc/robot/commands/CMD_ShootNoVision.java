@@ -24,6 +24,7 @@ public class CMD_ShootNoVision extends Command {
 
   private boolean shooting;
   private final DoubleSupplier hoodSupplier, shooterSupplier;
+  private boolean alreadyRamped;
 
   // When true, intake collapses after 2 seconds (default behavior).
   // When false, intake stays down and running — operator keeps it extended.
@@ -90,11 +91,13 @@ public class CMD_ShootNoVision extends Command {
     timer.stop();
     shooterRampTimer.reset();
     shooterRampTimer.start();
+    alreadyRamped = shooter.getVelocity() > 150;
   }
 
   @Override
   public void execute() {
     double rampFraction = Math.min(shooterRampTimer.get() / kShooterRampDuration, 1.0);
+    if (alreadyRamped) rampFraction = 1;
     shooter.setReference(shooterSupplier.getAsDouble() * rampFraction);
     hood.setReference(hoodSupplier.getAsDouble());
 
@@ -116,10 +119,10 @@ public class CMD_ShootNoVision extends Command {
           intake.setExtenderVoltage(0);
           intake.setVoltage(IntakeConstants.kOn);
         }
-      } else if (timer.hasElapsed(0)) {
+      } else if (timer.hasElapsed(0.5)) {
         if (intake.getExtenderPosition() > ExtenderConstants.kStow) {
-          // Still above kStow — keep driving it down
-          intake.setExtenderVoltage(-1);
+          // Still above kStow — keep driving it up
+          intake.setExtenderVoltage(-1.33);
           intake.setVoltage(2);
         } else {
           // Reached kStow — stop
@@ -127,6 +130,7 @@ public class CMD_ShootNoVision extends Command {
           intake.setVoltage(0);
         }
       } else {
+        // Waiting for delay — hold extender in place
         intake.setExtenderVoltage(0);
       }
     }

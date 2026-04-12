@@ -49,6 +49,11 @@ public class Shooter extends SubsystemBase implements Shootable {
   }
 
   @Override
+  public double getVelocity() {
+    return io.getLeftVelocity();
+  }
+
+  @Override
   public void periodic() {
     io.updateInputs(inputs);
     io.periodic();

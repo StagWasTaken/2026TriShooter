@@ -23,7 +23,7 @@ public class AUTO_27Left implements Auto {
     }
   }
 
-  private Command sweepPath(PathPlannerPath path, RobotContainer robot) {
+  private Command sweepPath(PathPlannerPath path, RobotContainer robot, double spinupDelay) {
     return new ParallelCommandGroup(
         AutoBuilder.followPath(path), new CMD_Intake(robot.conveyor, robot.intake));
   }
@@ -46,9 +46,9 @@ public class AUTO_27Left implements Auto {
   public Command getAutoCommand(RobotContainer robot) {
     return Commands.sequence(
         setAutoStartPose("SweepMiddle27", true, robot.drive),
-        sweepPath(sweepHalfMiddle, robot),
+        sweepPath(sweepHalfMiddle, robot, 4),
         shootCycle(robot, 3.5),
-        sweepPath(sweepAgain, robot),
+        sweepPath(sweepAgain, robot, 6),
         shootCycle(robot, 5));
   }
 }

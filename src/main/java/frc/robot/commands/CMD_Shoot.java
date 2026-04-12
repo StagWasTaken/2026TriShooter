@@ -47,6 +47,7 @@ public class CMD_Shoot extends Command {
   private final Timer shootTimer = new Timer();
   private final Timer shooterRampTimer = new Timer();
   private static final double kShooterRampDuration = 1; // seconds
+  private boolean alreadyRamped;
   private Command driveCommand;
 
   // Teleop constructor — includes driver joystick input and shoot-on-the-fly prediction
@@ -140,6 +141,7 @@ public class CMD_Shoot extends Command {
     shootTimer.stop();
     shooterRampTimer.reset();
     shooterRampTimer.start();
+    alreadyRamped = shooter.getVelocity() > 150;
 
     ChassisHeadingController.getInstance()
         .setHeadingRequest(new ChassisHeadingController.NullRequest());
@@ -178,6 +180,7 @@ public class CMD_Shoot extends Command {
 
     // Ramp shooter RPM from 0 → target over kShooterRampDuration seconds
     double rampFraction = Math.min(shooterRampTimer.get() / kShooterRampDuration, 1.0);
+    if (alreadyRamped) rampFraction = 1;
     shooter.setReference(shootingParams.shooterReference() * rampFraction);
     hood.setReference(shootingParams.hoodReference());
 
@@ -193,21 +196,37 @@ public class CMD_Shoot extends Command {
       shootTimer.start();
     }
 
+    if (shooter.isReady() && rampFraction == 1 && hood.atReference() && driveReady && !shooting) {
+      conveyor.setVoltage(ConveyorConstants.kConvey);
+      kicker.setVoltage(KickerConstants.kKick);
+      shooting = true;
+      shooter.startShooting();
+      shootTimer.restart(); // restart so we can use it for the 0.5s intake delay
+    }
+
     if (shooting) {
       if (!stowIntakeOnShoot.getAsBoolean()) {
         // Operator wants intake to stay down and running
         if (!intake.getExtenderInPosition()) {
           intake.setExtenderReference(ExtenderConstants.kExtended);
         } else {
-          // Once down, cut extender voltage so it can fold back if bumped,
-          // and run the roller so we're ready to intake immediately after the shot
+          // Once down, cut extender voltage so it can fold back if bumped
           intake.setExtenderVoltage(0);
           intake.setVoltage(IntakeConstants.kOn);
         }
-      } else if (shootTimer.hasElapsed(2)) {
-        // Stow mode — fully collapse intake after 2 seconds, run rollers at 2V
-        intake.setExtenderReference(ExtenderConstants.kStow);
-        intake.setVoltage(2.0);
+      } else if (shootTimer.hasElapsed(0.5)) {
+        if (intake.getExtenderPosition() > ExtenderConstants.kStow) {
+          // Still above kStow — keep driving it up
+          intake.setExtenderVoltage(-1.33);
+          intake.setVoltage(2);
+        } else {
+          // Reached kStow — stop
+          intake.setExtenderVoltage(0);
+          intake.setVoltage(0);
+        }
+      } else {
+        // Waiting for delay — hold extender in place
+        intake.setExtenderVoltage(0);
       }
     }
   }

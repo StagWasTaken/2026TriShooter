@@ -17,6 +17,7 @@ public class DrumConfig {
         .idleMode(IdleMode.kCoast)
         .inverted(inverted)
         .smartCurrentLimit(50)
+        .secondaryCurrentLimit(60)
         .voltageCompensation(12.0);
     config
         .encoder

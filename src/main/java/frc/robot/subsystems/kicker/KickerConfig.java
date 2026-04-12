@@ -13,7 +13,7 @@ public class KickerConfig {
         .disableFollowerMode()
         .idleMode(IdleMode.kBrake)
         .inverted(KickerConstants.kInverted)
-        .smartCurrentLimit(40);
+        .smartCurrentLimit(20);
     // .voltageCompensation(12.0);
     kickerLeaderConfig
         .encoder
@@ -32,6 +32,6 @@ public class KickerConfig {
         .idleMode(IdleMode.kBrake)
         .inverted(KickerConstants.kInverted)
         .voltageCompensation(12.0)
-        .smartCurrentLimit(40);
+        .smartCurrentLimit(20);
   }
 }

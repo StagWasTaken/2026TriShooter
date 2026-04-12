@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.commands.CMD_HomeHood;
 import frc.robot.subsystems.conveyor.ConveyorConstants;
 import frc.robot.subsystems.drive.DriveConstants;
 import frc.robot.subsystems.drive.SwervePhysicsSim;
@@ -121,6 +122,7 @@ public class Robot extends LoggedRobot {
                 put(HoodConstants.kHoodCanId, "hood");
               }
             }));
+
     // allow the drivetrain to pass over the bump in simulation mode
     SimulatedArena.overrideInstance(new Arena2026Rebuilt(false));
     // Instantiate our RobotContainer. This will perform all our button bindings,
@@ -154,6 +156,7 @@ public class Robot extends LoggedRobot {
   @Override
   public void autonomousInit() {
     HubShiftUtil.initialize();
+    CommandScheduler.getInstance().schedule(new CMD_HomeHood(robotContainer.hood));
     try {
       autonomousCommand = robotContainer.getAutonomousCommand().getAutoCommand(robotContainer);
     } catch (Exception e) {

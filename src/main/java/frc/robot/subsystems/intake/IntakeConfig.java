@@ -19,8 +19,8 @@ public class IntakeConfig {
         .disableFollowerMode()
         .idleMode(IdleMode.kCoast)
         .inverted(IntakeConstants.kInverted)
-        .smartCurrentLimit(40)
-        .voltageCompensation(12.0);
+        .smartCurrentLimit(40);
+    // .voltageCompensation(12.0);
     intakeConfig
         .encoder
         .positionConversionFactor((Math.PI * 2) / IntakeConstants.kGearRatio)
@@ -32,8 +32,8 @@ public class IntakeConfig {
         .disableFollowerMode()
         .idleMode(IdleMode.kCoast)
         .inverted(IntakeConstants.kSecondaryInverted)
-        .smartCurrentLimit(40)
-        .voltageCompensation(12.0);
+        .smartCurrentLimit(40);
+    // .voltageCompensation(12.0);
     secondaryRollerConfig
         .encoder
         .positionConversionFactor((Math.PI * 2) / IntakeConstants.kGearRatio)
