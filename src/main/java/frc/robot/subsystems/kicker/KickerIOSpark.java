@@ -9,11 +9,15 @@ import com.revrobotics.ResetMode;
 import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkClosedLoopController;
+import com.revrobotics.spark.SparkClosedLoopController.ArbFFUnits;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.util.Units;
 import frc.robot.Robot;
 import frc.robot.Robot.RobotName;
+import frc.robot.utils.LoggedTunableNumber;
+import frc.robot.utils.SparkUtil;
 
 public class KickerIOSpark implements KickerIO {
   private final SparkMax kickerMotorLeader;
@@ -23,6 +27,8 @@ public class KickerIOSpark implements KickerIO {
 
   private double kickerReference;
   private ControlType kickerType;
+
+  private LoggedTunableNumber kS, kV, kP, kD, kTargetVelocity;
 
   public KickerIOSpark() {
     kickerMotorLeader = new SparkMax(KickerConstants.kKickerLeadCanId, MotorType.kBrushless);
@@ -48,6 +54,14 @@ public class KickerIOSpark implements KickerIO {
 
     kickerReference = 0;
     kickerType = ControlType.kVoltage;
+
+    if (Robot.tuningMode) {
+      kS = new LoggedTunableNumber("Kicker/kS", KickerConstants.kS);
+      kV = new LoggedTunableNumber("Kicker/kV", KickerConstants.kV);
+      kP = new LoggedTunableNumber("Kicker/kP", KickerConstants.kP);
+      kD = new LoggedTunableNumber("Kicker/kD", KickerConstants.kD);
+      kTargetVelocity = new LoggedTunableNumber("Kicker/kTargetVelocity", KickerConstants.kKick);
+    }
   }
 
   @Override
@@ -59,7 +73,6 @@ public class KickerIOSpark implements KickerIO {
     inputs.atVelocity = atVelocity();
     inputs.kickerTemp = Fahrenheit.convertFrom(kickerMotorLeader.getMotorTemperature(), Celsius);
 
-    // Only log follower data if it exists
     if (kickerMotorFollower != null) {
       inputs.kickerFollowerCurrent = kickerMotorFollower.getOutputCurrent();
       inputs.kickerFollowerTemp =
@@ -109,6 +122,32 @@ public class KickerIOSpark implements KickerIO {
 
   @Override
   public void periodic() {
-    kickerController.setSetpoint(kickerReference, kickerType, ClosedLoopSlot.kSlot0);
+    double ff = 0;
+
+    if (Robot.tuningMode) {
+      ff = kS.get() + (kV.get() * kTargetVelocity.get());
+      setReference(kTargetVelocity.get());
+
+      if (kP.hasChanged(kP.hashCode()) || kD.hasChanged(kD.hashCode())) {
+        SparkMaxConfig newConfig = new SparkMaxConfig();
+        newConfig.closedLoop.pid(kP.get(), 0.0, kD.get());
+        setVoltage(0);
+        SparkUtil.tryUntilOk(
+            kickerMotorLeader,
+            5,
+            () ->
+                kickerMotorLeader.configure(
+                    newConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters));
+      }
+    } else {
+      ff = KickerConstants.kS + (KickerConstants.kV * kickerReference);
+    }
+
+    if (kickerType == ControlType.kVelocity) {
+      kickerController.setSetpoint(
+          kickerReference, kickerType, ClosedLoopSlot.kSlot0, ff, ArbFFUnits.kVoltage);
+    } else {
+      kickerController.setSetpoint(kickerReference, kickerType, ClosedLoopSlot.kSlot0);
+    }
   }
 }

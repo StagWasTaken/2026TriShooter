@@ -11,7 +11,7 @@ public class IntakeConstants {
   public static final double kV = 0.0;
   public static final double kS = 0.0;
   public static final double kG = 0.0;
-  public static final double kA = 0;
+  public static final double kA = 0.0;
 
   public static final double kPSim = 0.0;
   public static final double kISim = 0.0;
@@ -23,6 +23,7 @@ public class IntakeConstants {
   public static final double kASim = 0.0;
 
   public static final boolean kInverted = false;
+  public static final boolean kSecondaryInverted = false;
   public static final double kMinOutput = -1;
   public static final double kMaxOutput = 1;
 

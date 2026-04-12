@@ -45,6 +45,8 @@ public class CMD_Shoot extends Command {
   private boolean shooting;
   private final Debouncer atSetpointDebouncer = new Debouncer(0.02);
   private final Timer shootTimer = new Timer();
+  private final Timer shooterRampTimer = new Timer();
+  private static final double kShooterRampDuration = 1; // seconds
   private Command driveCommand;
 
   // Teleop constructor — includes driver joystick input and shoot-on-the-fly prediction
@@ -136,6 +138,8 @@ public class CMD_Shoot extends Command {
     atSetpointDebouncer.calculate(false); // flush debouncer state
     shootTimer.reset();
     shootTimer.stop();
+    shooterRampTimer.reset();
+    shooterRampTimer.start();
 
     ChassisHeadingController.getInstance()
         .setHeadingRequest(new ChassisHeadingController.NullRequest());
@@ -172,14 +176,16 @@ public class CMD_Shoot extends Command {
 
     ShootingParams shootingParams = getShootingParamsWithPrediction();
 
-    shooter.setReference(shootingParams.shooterReference());
+    // Ramp shooter RPM from 0 → target over kShooterRampDuration seconds
+    double rampFraction = Math.min(shooterRampTimer.get() / kShooterRampDuration, 1.0);
+    shooter.setReference(shootingParams.shooterReference() * rampFraction);
     hood.setReference(shootingParams.hoodReference());
 
     boolean driveReady =
         atSetpointDebouncer.calculate(ChassisHeadingController.getInstance().atSetPoint());
 
     // Fire once all subsystems are ready — latch shooting=true so we don't re-trigger
-    if (shooter.isReady() && hood.atReference() && driveReady && !shooting) {
+    if (shooter.isReady() && rampFraction == 1 && hood.atReference() && driveReady && !shooting) {
       conveyor.setVoltage(ConveyorConstants.kConvey);
       kicker.setVoltage(KickerConstants.kKick);
       shooting = true;
@@ -199,8 +205,9 @@ public class CMD_Shoot extends Command {
           intake.setVoltage(IntakeConstants.kOn);
         }
       } else if (shootTimer.hasElapsed(2)) {
-        // Stow mode — fully collapse intake after 2 seconds
-        intake.setExtenderReference(ExtenderConstants.kHome);
+        // Stow mode — fully collapse intake after 2 seconds, run rollers at 2V
+        intake.setExtenderReference(ExtenderConstants.kStow);
+        intake.setVoltage(2.0);
       }
     }
   }

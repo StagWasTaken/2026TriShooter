@@ -9,25 +9,33 @@ import com.revrobotics.ResetMode;
 import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkClosedLoopController;
+import com.revrobotics.spark.SparkClosedLoopController.ArbFFUnits;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.filter.Debouncer;
+import frc.robot.Robot;
+import frc.robot.utils.LoggedTunableNumber;
+import frc.robot.utils.SparkUtil;
 
 public class DrumIOSpark implements DrumIO {
-  // Leader — all PID/FF runs here
   private final SparkMax topLeftLeader;
-  private final RelativeEncoder topLeftLeaderEncoder;
-  private final SparkClosedLoopController topLeftLeaderController;
-
-  // Followers — configured via DrumConfig to follow topLeftLeader
   private final SparkMax bottomLeftFollower, topRightFollower, bottomRightFollower;
+
+  private final RelativeEncoder topLeftLeaderEncoder;
   private final RelativeEncoder bottomLeftFollowerEncoder;
   private final RelativeEncoder topRightFollowerEncoder;
   private final RelativeEncoder bottomRightFollowerEncoder;
 
+  private final SparkClosedLoopController topLeftLeaderController;
+  private final SparkClosedLoopController bottomLeftFollowerController;
+  private final SparkClosedLoopController topRightFollowerController;
+  private final SparkClosedLoopController bottomRightFollowerController;
+
   private double shooterReference;
   private ControlType shooterType;
 
+  private LoggedTunableNumber kS, kV, kP, kD;
   private final Debouncer drumDebouncer = new Debouncer(0.05);
   public boolean shooting;
 
@@ -39,11 +47,14 @@ public class DrumIOSpark implements DrumIO {
         new SparkMax(DrumConstants.kBottomRightFollowerCanId, MotorType.kBrushless);
 
     topLeftLeaderEncoder = topLeftLeader.getEncoder();
-    topLeftLeaderController = topLeftLeader.getClosedLoopController();
-
     bottomLeftFollowerEncoder = bottomLeftFollower.getEncoder();
     topRightFollowerEncoder = topRightFollower.getEncoder();
     bottomRightFollowerEncoder = bottomRightFollower.getEncoder();
+
+    topLeftLeaderController = topLeftLeader.getClosedLoopController();
+    bottomLeftFollowerController = bottomLeftFollower.getClosedLoopController();
+    topRightFollowerController = topRightFollower.getClosedLoopController();
+    bottomRightFollowerController = bottomRightFollower.getClosedLoopController();
 
     topLeftLeader.configure(
         DrumConfig.topLeftLeaderConfig,
@@ -64,6 +75,13 @@ public class DrumIOSpark implements DrumIO {
 
     shooterType = ControlType.kVelocity;
     shooting = false;
+
+    if (Robot.tuningMode) {
+      kS = new LoggedTunableNumber("Drum/kS", DrumConstants.kS);
+      kV = new LoggedTunableNumber("Drum/kV", DrumConstants.kV);
+      kP = new LoggedTunableNumber("Drum/kP", DrumConstants.kP);
+      kD = new LoggedTunableNumber("Drum/kD", DrumConstants.kD);
+    }
   }
 
   @Override
@@ -71,13 +89,11 @@ public class DrumIOSpark implements DrumIO {
     inputs.shooterReference = getReference() / ((Math.PI * 2) / 60);
     inputs.readyToShoot = isReady();
 
-    // Leader — used for control and logging
     inputs.leaderCurrent = topLeftLeader.getOutputCurrent();
     inputs.leaderVoltage = topLeftLeader.getBusVoltage() * topLeftLeader.getAppliedOutput();
     inputs.leaderVelocity = topLeftLeaderEncoder.getVelocity() / ((Math.PI * 2) / 60);
     inputs.leaderTemp = Fahrenheit.convertFrom(topLeftLeader.getMotorTemperature(), Celsius);
 
-    // Followers — current and temp only for diagnostics
     inputs.followerACurrent = bottomLeftFollower.getOutputCurrent();
     inputs.followerAVoltage =
         bottomLeftFollower.getBusVoltage() * bottomLeftFollower.getAppliedOutput();
@@ -138,47 +154,57 @@ public class DrumIOSpark implements DrumIO {
     shooting = false;
   }
 
+  private void setAllSetpoints(double reference, ControlType type, double ff) {
+    topLeftLeaderController.setSetpoint(
+        reference, type, ClosedLoopSlot.kSlot0, ff, ArbFFUnits.kVoltage);
+    bottomLeftFollowerController.setSetpoint(
+        reference, type, ClosedLoopSlot.kSlot0, ff, ArbFFUnits.kVoltage);
+    topRightFollowerController.setSetpoint(
+        reference, type, ClosedLoopSlot.kSlot0, ff, ArbFFUnits.kVoltage);
+    bottomRightFollowerController.setSetpoint(
+        reference, type, ClosedLoopSlot.kSlot0, ff, ArbFFUnits.kVoltage);
+  }
+
+  private void setAllVoltage(double voltage) {
+    topLeftLeaderController.setSetpoint(voltage, ControlType.kVoltage);
+    bottomLeftFollowerController.setSetpoint(voltage, ControlType.kVoltage);
+    topRightFollowerController.setSetpoint(voltage, ControlType.kVoltage);
+    bottomRightFollowerController.setSetpoint(voltage, ControlType.kVoltage);
+  }
+
   @Override
   public void periodic() {
     double ff = 0;
 
-    // tuning
+    if (Robot.tuningMode) {
+      ff = kS.get() + (kV.get() * getReference());
 
-    // double referenceRad = Units.degreesToRadians(reference.get());
-    // shooterReference = referenceRad;
-
-    // if (shooterType == ControlType.kVelocity && referenceRad != 0) {
-    //   ff = kS.get() + (kV.get() * referenceRad);
-    // }
-
-    // double p = kP.get();
-    // if(lastP != p){
-    //     setVoltage(0);
-    //     SparkMaxConfig newConfig = new SparkMaxConfig();
-    //     newConfig.apply(DrumConfig.topLeftLeaderConfig);
-    //     newConfig.closedLoop.p(p);
-    //     topLeftLeader.configureAsync(newConfig, ResetMode.kNoResetSafeParameters,
-    // PersistMode.kNoPersistParameters);
-    // }
-    // lastP = p;
-
-    // topLeftLeaderController.setSetpoint(referenceRad, shooterType, ClosedLoopSlot.kSlot0, ff);
-
-    // real
-
-    if (shooterType == ControlType.kVelocity) {
+      if (kP.hasChanged(kP.hashCode()) || kD.hasChanged(kD.hashCode())) {
+        SparkMaxConfig newConfig = new SparkMaxConfig();
+        newConfig.closedLoop.pid(kP.get(), 0.0, kD.get());
+        setVoltage(0);
+        for (SparkMax motor :
+            new SparkMax[] {
+              topLeftLeader, bottomLeftFollower, topRightFollower, bottomRightFollower
+            }) {
+          SparkUtil.tryUntilOk(
+              motor,
+              5,
+              () ->
+                  motor.configure(
+                      newConfig,
+                      ResetMode.kNoResetSafeParameters,
+                      PersistMode.kNoPersistParameters));
+        }
+      }
+    } else {
       ff = DrumConstants.kS + (DrumConstants.kV * getReference());
     }
 
-    // if (shooting) {
-    //     ff += 0.25;
-    // }
-
-    // Followers mirror the leader automatically — only need to command the leader
     if (shooterReference > 0) {
-      topLeftLeaderController.setSetpoint(shooterReference, shooterType, ClosedLoopSlot.kSlot0, ff);
+      setAllSetpoints(shooterReference, shooterType, ff);
     } else {
-      topLeftLeaderController.setSetpoint(DrumConstants.kIdleVolts, ControlType.kVoltage);
+      setAllVoltage(DrumConstants.kIdleVolts);
     }
   }
 }

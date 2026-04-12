@@ -30,6 +30,8 @@ public class CMD_ShootNoVision extends Command {
   private final BooleanSupplier stowIntakeOnShoot;
 
   private final Timer timer = new Timer();
+  private final Timer shooterRampTimer = new Timer();
+  private static final double kShooterRampDuration = 1;
 
   // Default constructor — always stows after 2 seconds
   public CMD_ShootNoVision(
@@ -86,14 +88,17 @@ public class CMD_ShootNoVision extends Command {
     shooting = false;
     timer.reset();
     timer.stop();
+    shooterRampTimer.reset();
+    shooterRampTimer.start();
   }
 
   @Override
   public void execute() {
-    shooter.setReference(shooterSupplier.getAsDouble());
+    double rampFraction = Math.min(shooterRampTimer.get() / kShooterRampDuration, 1.0);
+    shooter.setReference(shooterSupplier.getAsDouble() * rampFraction);
     hood.setReference(hoodSupplier.getAsDouble());
 
-    if (shooter.isReady() && hood.atReference() && !shooting) {
+    if (shooter.isReady() && rampFraction == 1 && hood.atReference() && !shooting) {
       conveyor.setVoltage(ConveyorConstants.kConvey);
       kicker.setVoltage(KickerConstants.kKick);
       shooting = true;
@@ -111,9 +116,18 @@ public class CMD_ShootNoVision extends Command {
           intake.setExtenderVoltage(0);
           intake.setVoltage(IntakeConstants.kOn);
         }
-      } else if (timer.hasElapsed(2)) {
-        // Stow mode — fully collapse intake after 2 seconds
-        intake.setExtenderReference(ExtenderConstants.kHome);
+      } else if (timer.hasElapsed(0)) {
+        if (intake.getExtenderPosition() > ExtenderConstants.kStow) {
+          // Still above kStow — keep driving it down
+          intake.setExtenderVoltage(-1);
+          intake.setVoltage(2);
+        } else {
+          // Reached kStow — stop
+          intake.setExtenderVoltage(0);
+          intake.setVoltage(0);
+        }
+      } else {
+        intake.setExtenderVoltage(0);
       }
     }
   }

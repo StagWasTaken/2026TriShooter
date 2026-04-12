@@ -13,12 +13,12 @@ public class KickerConfig {
         .disableFollowerMode()
         .idleMode(IdleMode.kBrake)
         .inverted(KickerConstants.kInverted)
-        .smartCurrentLimit(40)
-        .voltageCompensation(12.0);
+        .smartCurrentLimit(40);
+    // .voltageCompensation(12.0);
     kickerLeaderConfig
         .encoder
-        .positionConversionFactor((Math.PI * 2) / KickerConstants.kGearRatio)
-        .velocityConversionFactor((Math.PI * 2) / (60 * KickerConstants.kGearRatio))
+        .positionConversionFactor(1)
+        .velocityConversionFactor(1)
         .uvwAverageDepth(4)
         .uvwMeasurementPeriod(16);
     kickerLeaderConfig

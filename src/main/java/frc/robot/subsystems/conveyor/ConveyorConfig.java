@@ -12,8 +12,8 @@ public class ConveyorConfig {
         .disableFollowerMode()
         .idleMode(IdleMode.kBrake)
         .inverted(ConveyorConstants.kInverted)
-        .smartCurrentLimit(40)
-        .voltageCompensation(12.0);
+        .smartCurrentLimit(40);
+    // .voltageCompensation(12.0);
     conveyorConfig
         .encoder
         .positionConversionFactor((Math.PI * 2) / ConveyorConstants.kGearRatio)

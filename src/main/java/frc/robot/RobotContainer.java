@@ -19,6 +19,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -276,7 +277,7 @@ public class RobotContainer {
                   kicker,
                   shooter,
                   () -> Math.toRadians(25000),
-                  () -> Robot.CURRENT_ROBOT == RobotName.COMP_BOT ? 0.8 : 50,
+                  () -> Robot.CURRENT_ROBOT == RobotName.COMP_BOT ? 0.8 : 33,
                   () -> !operator.intakeButton().getAsBoolean(),
                   () -> operator.scoreButton().getAsBoolean()));
 
@@ -346,6 +347,7 @@ public class RobotContainer {
     if (Robot.CURRENT_ROBOT_MODE == RobotMode.SIM)
       field.getObject("Odometry").setPose(drive.getPose());
 
+    Logger.recordOutput("RioVoltage", RobotController.getBatteryVoltage());
     Logger.recordOutput("Match Time", DriverStation.getMatchTime());
     Logger.recordOutput("Hub Active", HubShiftUtil.getOfficialShiftInfo().active());
     Logger.recordOutput(

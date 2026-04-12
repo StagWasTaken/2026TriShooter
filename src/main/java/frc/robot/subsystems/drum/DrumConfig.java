@@ -11,62 +11,31 @@ public class DrumConfig {
   public static final SparkMaxConfig topRightFollowerConfig = new SparkMaxConfig();
   public static final SparkMaxConfig bottomRightFollowerConfig = new SparkMaxConfig();
 
-  static {
-    // Leader — full PID/FF config, all other motors follow this one
-    topLeftLeaderConfig
+  private static void applyCommonConfig(SparkMaxConfig config, boolean inverted) {
+    config
         .disableFollowerMode()
         .idleMode(IdleMode.kCoast)
-        .inverted(DrumConstants.kInverted)
-        .smartCurrentLimit(60)
+        .inverted(inverted)
+        .smartCurrentLimit(50)
         .voltageCompensation(12.0);
-    topLeftLeaderConfig
+    config
         .encoder
         .positionConversionFactor(Math.PI * 2)
         .velocityConversionFactor((Math.PI * 2) / 60)
         .uvwAverageDepth(2)
         .uvwMeasurementPeriod(20);
-    topLeftLeaderConfig
+    config
         .closedLoop
         .pid(DrumConstants.kP, 0.0, DrumConstants.kD, ClosedLoopSlot.kSlot0)
         .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
         .outputRange(DrumConstants.kMinOutput, DrumConstants.kMaxOutput)
         .positionWrappingEnabled(false);
+  }
 
-    // Followers — just set follow relationship and inversion, PID/FF is handled by leader
-    bottomLeftFollowerConfig
-        .follow(DrumConstants.kTopLeftLeaderCanId, DrumConstants.kFollowerAInverted)
-        .idleMode(IdleMode.kCoast)
-        .smartCurrentLimit(60)
-        .voltageCompensation(12.0);
-    bottomLeftFollowerConfig
-        .encoder
-        .positionConversionFactor(Math.PI * 2)
-        .velocityConversionFactor((Math.PI * 2) / 60)
-        .uvwAverageDepth(2)
-        .uvwMeasurementPeriod(20);
-
-    topRightFollowerConfig
-        .follow(DrumConstants.kTopLeftLeaderCanId, DrumConstants.kFollowerBInverted)
-        .idleMode(IdleMode.kCoast)
-        .smartCurrentLimit(60)
-        .voltageCompensation(12.0);
-    topRightFollowerConfig
-        .encoder
-        .positionConversionFactor(Math.PI * 2)
-        .velocityConversionFactor((Math.PI * 2) / 60)
-        .uvwAverageDepth(2)
-        .uvwMeasurementPeriod(20);
-
-    bottomRightFollowerConfig
-        .follow(DrumConstants.kTopLeftLeaderCanId, DrumConstants.kFollowerCInverted)
-        .idleMode(IdleMode.kCoast)
-        .smartCurrentLimit(60)
-        .voltageCompensation(12.0);
-    bottomRightFollowerConfig
-        .encoder
-        .positionConversionFactor(Math.PI * 2)
-        .velocityConversionFactor((Math.PI * 2) / 60)
-        .uvwAverageDepth(2)
-        .uvwMeasurementPeriod(20);
+  static {
+    applyCommonConfig(topLeftLeaderConfig, DrumConstants.kInverted);
+    applyCommonConfig(bottomLeftFollowerConfig, DrumConstants.kFollowerAInverted);
+    applyCommonConfig(topRightFollowerConfig, DrumConstants.kFollowerBInverted);
+    applyCommonConfig(bottomRightFollowerConfig, DrumConstants.kFollowerCInverted);
   }
 }

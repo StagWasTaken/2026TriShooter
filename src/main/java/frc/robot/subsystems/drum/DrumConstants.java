@@ -14,7 +14,7 @@ public class DrumConstants {
 
   public static final double kS = 0.22;
   public static final double kV = 0.02025; // .0205
-  public static final double kP = 0.0015; // .003
+  public static final double kP = 0.005; // .003
   public static final double kD = 0.00001;
 
   public static final double kPSim = 0.0;
@@ -66,9 +66,12 @@ public class DrumConstants {
   };
 
   public static final double[][] SHOOTING_TABLE_REAL = {
-    {3.0480, 18.0, 240.0, 0.386}, // 120in
-    {3.5560, 18.0, 253.1, 0.336}, // 140in
-    {4.0640, 20.0, 261.8, 0.313}, // 160in
+    {2.032, 15, 191.896, 0.456}, // 80in
+    {2.5400, 17, 200.713, 0.456}, // 100in
+    {2.7940, 18, 209.44, 0.456}, // 110in
+    {3.0480, 18, 222.53, 0.481}, // 120in
+    {3.3000, 20, 218.66, 0.464}, // 130in
+    {3.5560, 25, 218.66, 0.468}, // 140in
   };
 
   private static double[] extractColumn(int col) {

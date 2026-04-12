@@ -31,9 +31,9 @@ public class HoodConfig {
     hoodConfig
         .softLimit
         .reverseSoftLimit(HoodConstants.kMinPos)
-        .reverseSoftLimitEnabled(true)
+        .reverseSoftLimitEnabled(false)
         .forwardSoftLimit(HoodConstants.kMaxPos)
-        .forwardSoftLimitEnabled(true);
+        .forwardSoftLimitEnabled(false);
     hoodConfig
         .closedLoop
         .maxMotion

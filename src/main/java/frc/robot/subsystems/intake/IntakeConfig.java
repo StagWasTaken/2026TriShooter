@@ -10,7 +10,7 @@ import frc.robot.subsystems.intake.IntakeConstants.ExtenderConstants;
 
 public class IntakeConfig {
   public static final SparkFlexConfig intakeConfig = new SparkFlexConfig();
-  public static final SparkFlexConfig intakeFollowerConfig = new SparkFlexConfig();
+  public static final SparkFlexConfig secondaryRollerConfig = new SparkFlexConfig();
 
   public static final SparkMaxConfig intakeExtenderConfig = new SparkMaxConfig();
 
@@ -28,11 +28,18 @@ public class IntakeConfig {
         .uvwAverageDepth(4)
         .uvwMeasurementPeriod(16);
 
-    intakeFollowerConfig
-        .smartCurrentLimit(40)
-        .voltageCompensation(12)
+    secondaryRollerConfig
+        .disableFollowerMode()
         .idleMode(IdleMode.kCoast)
-        .follow(IntakeConstants.kIntakeCanId, false);
+        .inverted(IntakeConstants.kSecondaryInverted)
+        .smartCurrentLimit(40)
+        .voltageCompensation(12.0);
+    secondaryRollerConfig
+        .encoder
+        .positionConversionFactor((Math.PI * 2) / IntakeConstants.kGearRatio)
+        .velocityConversionFactor((Math.PI * 2) / (60 * IntakeConstants.kGearRatio))
+        .uvwAverageDepth(4)
+        .uvwMeasurementPeriod(16);
 
     intakeExtenderConfig
         .disableFollowerMode()
