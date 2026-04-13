@@ -6,10 +6,10 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
 public class DrumConfig {
-  public static final SparkMaxConfig topLeftLeaderConfig = new SparkMaxConfig();
-  public static final SparkMaxConfig bottomLeftFollowerConfig = new SparkMaxConfig();
-  public static final SparkMaxConfig topRightFollowerConfig = new SparkMaxConfig();
-  public static final SparkMaxConfig bottomRightFollowerConfig = new SparkMaxConfig();
+  public static final SparkMaxConfig topLeftConfig = new SparkMaxConfig();
+  public static final SparkMaxConfig bottomLeftConfig = new SparkMaxConfig();
+  public static final SparkMaxConfig topRightConfig = new SparkMaxConfig();
+  public static final SparkMaxConfig bottomRightConfig = new SparkMaxConfig();
 
   private static void applyCommonConfig(SparkMaxConfig config, boolean inverted) {
     config
@@ -33,9 +33,9 @@ public class DrumConfig {
   }
 
   static {
-    applyCommonConfig(topLeftLeaderConfig, DrumConstants.kInverted);
-    applyCommonConfig(bottomLeftFollowerConfig, DrumConstants.kFollowerAInverted);
-    applyCommonConfig(topRightFollowerConfig, DrumConstants.kFollowerBInverted);
-    applyCommonConfig(bottomRightFollowerConfig, DrumConstants.kFollowerCInverted);
+    applyCommonConfig(topLeftConfig, DrumConstants.kInverted);
+    applyCommonConfig(bottomLeftConfig, DrumConstants.kBottomLeftInverted);
+    applyCommonConfig(topRightConfig, DrumConstants.kTopRightInverted);
+    applyCommonConfig(bottomRightConfig, DrumConstants.kBottomRightInverted);
   }
 }

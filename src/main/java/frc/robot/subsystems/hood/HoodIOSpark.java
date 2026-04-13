@@ -42,9 +42,7 @@ public class HoodIOSpark implements HoodIO {
     }
 
     hoodMotor.configure(
-        Robot.CURRENT_ROBOT == RobotName.COMP_BOT
-            ? HoodConfig.hoodConfig
-            : HoodConfig.hoodDrumConfig,
+        Robot.CURRENT_ROBOT == RobotName.HYDRA ? HoodConfig.hoodConfig : HoodConfig.hoodDrumConfig,
         ResetMode.kResetSafeParameters,
         PersistMode.kPersistParameters);
 
@@ -123,7 +121,7 @@ public class HoodIOSpark implements HoodIO {
     // if (lastP != p) {
     //   setVoltage(0);
     //   SparkMaxConfig newConfig = new SparkMaxConfig();
-    //   newConfig.apply(Robot.CURRENT_ROBOT == RobotName.COMP_BOT ? HoodConfig.hoodConfig :
+    //   newConfig.apply(Robot.CURRENT_ROBOT == RobotName.HYDRA ? HoodConfig.hoodConfig :
     // HoodConfig.hoodDrumConfig);
     //   newConfig.closedLoop.p(p);
     //   hoodMotor.configure(

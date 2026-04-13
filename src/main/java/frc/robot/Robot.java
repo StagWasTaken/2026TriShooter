@@ -39,7 +39,7 @@ public class Robot extends LoggedRobot {
   Pose2d simPose = sim.getPose2d();
 
   public enum RobotName {
-    COMP_BOT,
+    HYDRA,
     DRUM_BOT
   }
 
@@ -110,15 +110,15 @@ public class Robot extends LoggedRobot {
                 put(DriveConstants.frontRightTurnCanId, "front Right Turn");
                 put(DriveConstants.backLeftTurnCanId, "back Left Turn");
                 put(DriveConstants.backRightTurnCanId, "back right Turn");
-                put(IntakeConstants.kIntakeCanId, "intake leader");
-                put(IntakeConstants.kIntakeFollowerCanId, "intake follower");
+                put(IntakeConstants.kIntakeCanId, "intake");
+                put(IntakeConstants.kIntakeBottomRightanId, "intake follower");
                 put(ExtenderConstants.kIntakeExtenderCanId, "intake extender");
                 put(ShooterConstants.kLeftShooterCanId, "left shooter");
                 put(ShooterConstants.kMiddleShooterCanId, "middle shooter");
                 put(ShooterConstants.kRightShooterCanId, "right shooter");
                 put(ConveyorConstants.kConveyorCanId, "conveyor");
                 put(KickerConstants.kKickerLeadCanId, "kicker lead");
-                put(KickerConstants.kKickerFollowerCanId, "kicker follower");
+                put(KickerConstants.kKickerBottomRightanId, "kicker follower");
                 put(HoodConstants.kHoodCanId, "hood");
               }
             }));

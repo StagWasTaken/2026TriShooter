@@ -36,7 +36,7 @@ public class IntakeIOSpark implements IntakeIO {
   public IntakeIOSpark() {
     intakeMotor = new SparkFlex(IntakeConstants.kIntakeCanId, MotorType.kBrushless);
     intakeSecondaryMotor =
-        new SparkFlex(IntakeConstants.kIntakeFollowerCanId, MotorType.kBrushless);
+        new SparkFlex(IntakeConstants.kIntakeBottomRightanId, MotorType.kBrushless);
 
     intakeExtenderMotor =
         new SparkMax(ExtenderConstants.kIntakeExtenderCanId, MotorType.kBrushless);

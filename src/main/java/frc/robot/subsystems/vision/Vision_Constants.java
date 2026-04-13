@@ -43,7 +43,7 @@ public class Vision_Constants {
   public static final Transform3d robotToCamera1;
 
   static {
-    if (Robot.CURRENT_ROBOT == Robot.RobotName.COMP_BOT) {
+    if (Robot.CURRENT_ROBOT == Robot.RobotName.HYDRA) {
       robotToCamera0 =
           new Transform3d(
               new Translation3d(

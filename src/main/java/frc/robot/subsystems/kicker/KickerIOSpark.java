@@ -39,9 +39,9 @@ public class KickerIOSpark implements KickerIO {
 
     if (Robot.CURRENT_ROBOT != RobotName.DRUM_BOT) {
       kickerMotorFollower =
-          new SparkMax(KickerConstants.kKickerFollowerCanId, MotorType.kBrushless);
+          new SparkMax(KickerConstants.kKickerBottomRightanId, MotorType.kBrushless);
       kickerMotorFollower.configure(
-          KickerConfig.kickerFollowerConfig,
+          KickerConfig.kickerBottomRightonfig,
           ResetMode.kResetSafeParameters,
           PersistMode.kPersistParameters);
     } else {
@@ -73,11 +73,11 @@ public class KickerIOSpark implements KickerIO {
     inputs.kickerTemp = Fahrenheit.convertFrom(kickerMotorLeader.getMotorTemperature(), Celsius);
 
     if (kickerMotorFollower != null) {
-      inputs.kickerFollowerCurrent = kickerMotorFollower.getOutputCurrent();
+      inputs.kickerBottomRighturrent = kickerMotorFollower.getOutputCurrent();
       inputs.kickerFollowerTemp =
           Fahrenheit.convertFrom(kickerMotorFollower.getMotorTemperature(), Celsius);
     } else {
-      inputs.kickerFollowerCurrent = 0;
+      inputs.kickerBottomRighturrent = 0;
       inputs.kickerFollowerTemp = 0;
     }
   }

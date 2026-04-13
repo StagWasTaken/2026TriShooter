@@ -7,18 +7,18 @@ import edu.wpi.first.math.util.Units;
 import frc.robot.utils.custompids.MapleShooterOptimization;
 
 public class DrumConstants {
-  public static final int kTopLeftLeaderCanId = 3;
-  public static final int kBottomLeftFollowerCanId = 4;
-  public static final int kTopRightFollowerCanId = 17;
-  public static final int kBottomRightFollowerCanId = 18;
+  public static final int kTopLeftCanId = 3;
+  public static final int kBottomLeftCanId = 4;
+  public static final int kTopRightCanId = 17;
+  public static final int kBottomRightCanId = 18;
 
   public static final double kS = 0.22;
-  public static final double kV = 0.002119;
+  public static final double kV = 0.00212;
   public static final double kP = 0.000524;
-  public static final double kD = 0.000000274;
+  public static final double kD = 0.0;
 
   public static final double kProfileMaxVel = 4000.0;
-  public static final double kProfileMaxAccel = 1000.0;
+  public static final double kProfileMaxAccel = 20000.0;
 
   public static final double kPSim = 0.0;
   public static final double kDSim = 0.0;
@@ -27,14 +27,17 @@ public class DrumConstants {
   public static final double kVSim = 0.0;
 
   public static final boolean kInverted = false;
-  public static final boolean kFollowerAInverted = false;
-  public static final boolean kFollowerBInverted = true;
-  public static final boolean kFollowerCInverted = true;
+  public static final boolean kBottomLeftInverted = false;
+  public static final boolean kTopRightInverted = true;
+  public static final boolean kBottomRightInverted = true;
 
   public static final double kMinOutput = -1;
   public static final double kMaxOutput = 1;
 
   public static final double kIdleVolts = 0.5;
+  public static final double kStowVolts = -1.33;
+  public static final double kSlowStowVolts = -1.0;
+  public static final double kStartOnTargetVel = 50;
 
   // sim
   public static final double kGearRatio = 1;
@@ -54,8 +57,6 @@ public class DrumConstants {
     double rPath = kFlywheelRadiusMeters + kGapMeters / 2;
     return rPath * deltaThetaRadians;
   }
-
-  public static final double kStartOnTargetVel = 75;
 
   // Shooting table: {distance (meters), angle (degrees), velocity (rpm), time of flight (s)}
   public static final double[][] SHOOTING_TABLE = {

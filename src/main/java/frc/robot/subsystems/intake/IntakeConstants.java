@@ -2,7 +2,7 @@ package frc.robot.subsystems.intake;
 
 public class IntakeConstants {
   public static final int kIntakeCanId = 12;
-  public static final int kIntakeFollowerCanId = 1;
+  public static final int kIntakeBottomRightanId = 1;
 
   public static final double kP = 0;
   public static final double kI = 0.0;

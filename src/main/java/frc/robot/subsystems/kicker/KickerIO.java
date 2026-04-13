@@ -12,7 +12,7 @@ public interface KickerIO {
     public boolean atVelocity;
     public double kickerTemp;
 
-    public double kickerFollowerCurrent;
+    public double kickerBottomRighturrent;
     public double kickerFollowerTemp;
   }
 

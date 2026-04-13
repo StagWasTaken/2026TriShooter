@@ -2,8 +2,11 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Robot;
+import frc.robot.Robot.RobotName;
 import frc.robot.subsystems.conveyor.Conveyor;
 import frc.robot.subsystems.conveyor.ConveyorConstants;
+import frc.robot.subsystems.drum.DrumConstants;
 import frc.robot.subsystems.hood.Hood;
 import frc.robot.subsystems.hood.HoodConstants;
 import frc.robot.subsystems.intake.Intake;
@@ -25,9 +28,9 @@ public class CMD_ShootNoVision extends Command {
   private boolean shooting;
   private final DoubleSupplier hoodSupplier, shooterSupplier;
 
-  // When true, intake collapses after 2 seconds (default behavior).
+  // When true, intake collapses slowly after 0.5 seconds (default behavior).
   // When false, intake stays down and running — operator keeps it extended.
-  private final BooleanSupplier stowIntakeOnShoot;
+  private final BooleanSupplier stowIntakeOnShoot, slowStow;
 
   private final Timer timer = new Timer();
 
@@ -40,8 +43,8 @@ public class CMD_ShootNoVision extends Command {
         intake,
         kicker,
         shooter,
-        () -> Math.toRadians(20000),
-        () -> 33,
+        () -> Robot.CURRENT_ROBOT == RobotName.HYDRA ? Math.toRadians(20000) : 3333,
+        () -> Robot.CURRENT_ROBOT == RobotName.HYDRA ? 0.433 : 33,
         () -> true,
         () -> false);
   }
@@ -77,6 +80,7 @@ public class CMD_ShootNoVision extends Command {
     this.shooterSupplier = shooterRPM;
     this.hoodSupplier = hoodAngle;
     this.stowIntakeOnShoot = stowIntakeOnShoot;
+    this.slowStow = slowStow;
 
     addRequirements(conveyor, hood, intake, kicker, shooter);
   }
@@ -109,16 +113,15 @@ public class CMD_ShootNoVision extends Command {
           intake.setExtenderVoltage(0);
           intake.setVoltage(IntakeConstants.kOn);
         }
-      } else if (timer.hasElapsed(0.5)) {
-        if (intake.getExtenderPosition() > ExtenderConstants.kStow) {
-          intake.setExtenderVoltage(-1.33);
-          intake.setVoltage(2);
-        } else {
-          intake.setExtenderVoltage(0);
-          intake.setVoltage(0);
-        }
+      }
+    } else if (timer.hasElapsed(0.5)) {
+      if (intake.getExtenderPosition() > ExtenderConstants.kStow) {
+        intake.setExtenderVoltage(
+            slowStow.getAsBoolean() ? DrumConstants.kSlowStowVolts : DrumConstants.kStowVolts);
+        intake.setVoltage(2);
       } else {
         intake.setExtenderVoltage(0);
+        intake.setVoltage(0);
       }
     }
   }

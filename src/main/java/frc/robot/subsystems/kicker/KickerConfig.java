@@ -6,7 +6,7 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 
 public class KickerConfig {
   public static final SparkMaxConfig kickerLeaderConfig = new SparkMaxConfig();
-  public static final SparkMaxConfig kickerFollowerConfig = new SparkMaxConfig();
+  public static final SparkMaxConfig kickerBottomRightonfig = new SparkMaxConfig();
 
   static {
     kickerLeaderConfig
@@ -26,7 +26,7 @@ public class KickerConfig {
         .outputRange(KickerConstants.kMinOutput, KickerConstants.kMaxOutput)
         .feedbackSensor(FeedbackSensor.kPrimaryEncoder);
 
-    kickerFollowerConfig
+    kickerBottomRightonfig
         .follow(KickerConstants.kKickerLeadCanId, true)
         .idleMode(IdleMode.kBrake)
         .inverted(KickerConstants.kInverted)

@@ -17,13 +17,13 @@ import frc.robot.Robot;
 import frc.robot.utils.LoggedTunableNumber;
 
 public class DrumIOSpark implements DrumIO {
-  private final SparkMax topLeftLeader;
-  private final SparkMax bottomLeftFollower, topRightFollower, bottomRightFollower;
+  private final SparkMax topLeft;
+  private final SparkMax bottomLeft, topRight, bottomRight;
 
-  private final RelativeEncoder topLeftLeaderEncoder;
-  private final RelativeEncoder bottomLeftFollowerEncoder;
-  private final RelativeEncoder topRightFollowerEncoder;
-  private final RelativeEncoder bottomRightFollowerEncoder;
+  private final RelativeEncoder topLeftEncoder;
+  private final RelativeEncoder bottomLeftEncoder;
+  private final RelativeEncoder topRightEncoder;
+  private final RelativeEncoder bottomRightEncoder;
 
   // Trapezoidal profile — position axis = RPM, velocity axis = RPM/s
   private final TrapezoidProfile shooterProfile;
@@ -42,31 +42,26 @@ public class DrumIOSpark implements DrumIO {
   public boolean shooting;
 
   public DrumIOSpark() {
-    topLeftLeader = new SparkMax(DrumConstants.kTopLeftLeaderCanId, MotorType.kBrushless);
-    bottomLeftFollower = new SparkMax(DrumConstants.kBottomLeftFollowerCanId, MotorType.kBrushless);
-    topRightFollower = new SparkMax(DrumConstants.kTopRightFollowerCanId, MotorType.kBrushless);
-    bottomRightFollower =
-        new SparkMax(DrumConstants.kBottomRightFollowerCanId, MotorType.kBrushless);
+    topLeft = new SparkMax(DrumConstants.kTopLeftCanId, MotorType.kBrushless);
+    bottomLeft = new SparkMax(DrumConstants.kBottomLeftCanId, MotorType.kBrushless);
+    topRight = new SparkMax(DrumConstants.kTopRightCanId, MotorType.kBrushless);
+    bottomRight = new SparkMax(DrumConstants.kBottomRightCanId, MotorType.kBrushless);
 
-    topLeftLeaderEncoder = topLeftLeader.getEncoder();
-    bottomLeftFollowerEncoder = bottomLeftFollower.getEncoder();
-    topRightFollowerEncoder = topRightFollower.getEncoder();
-    bottomRightFollowerEncoder = bottomRightFollower.getEncoder();
+    topLeftEncoder = topLeft.getEncoder();
+    bottomLeftEncoder = bottomLeft.getEncoder();
+    topRightEncoder = topRight.getEncoder();
+    bottomRightEncoder = bottomRight.getEncoder();
 
-    topLeftLeader.configure(
-        DrumConfig.topLeftLeaderConfig,
+    topLeft.configure(
+        DrumConfig.topLeftConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    bottomLeft.configure(
+        DrumConfig.bottomLeftConfig,
         ResetMode.kResetSafeParameters,
         PersistMode.kPersistParameters);
-    bottomLeftFollower.configure(
-        DrumConfig.bottomLeftFollowerConfig,
-        ResetMode.kResetSafeParameters,
-        PersistMode.kPersistParameters);
-    topRightFollower.configure(
-        DrumConfig.topRightFollowerConfig,
-        ResetMode.kResetSafeParameters,
-        PersistMode.kPersistParameters);
-    bottomRightFollower.configure(
-        DrumConfig.bottomRightFollowerConfig,
+    topRight.configure(
+        DrumConfig.topRightConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    bottomRight.configure(
+        DrumConfig.bottomRightConfig,
         ResetMode.kResetSafeParameters,
         PersistMode.kPersistParameters);
 
@@ -93,30 +88,25 @@ public class DrumIOSpark implements DrumIO {
     inputs.profiledReference = getProfiledReference();
     inputs.readyToShoot = isReady();
 
-    inputs.leaderCurrent = topLeftLeader.getOutputCurrent();
-    inputs.leaderVoltage = topLeftLeader.getBusVoltage() * topLeftLeader.getAppliedOutput();
-    inputs.leaderVelocity = topLeftLeaderEncoder.getVelocity();
-    inputs.leaderTemp = Fahrenheit.convertFrom(topLeftLeader.getMotorTemperature(), Celsius);
+    inputs.topLeftCurrent = topLeft.getOutputCurrent();
+    inputs.topLeftVoltage = topLeft.getBusVoltage() * topLeft.getAppliedOutput();
+    inputs.topLeftVelocity = topLeftEncoder.getVelocity();
+    inputs.topLeftTemp = Fahrenheit.convertFrom(topLeft.getMotorTemperature(), Celsius);
 
-    inputs.followerACurrent = bottomLeftFollower.getOutputCurrent();
-    inputs.followerAVoltage =
-        bottomLeftFollower.getBusVoltage() * bottomLeftFollower.getAppliedOutput();
-    inputs.followerATemp =
-        Fahrenheit.convertFrom(bottomLeftFollower.getMotorTemperature(), Celsius);
-    inputs.followerAVel = bottomLeftFollowerEncoder.getVelocity();
+    inputs.bottomLeftCurrent = bottomLeft.getOutputCurrent();
+    inputs.bottomLeftVoltage = bottomLeft.getBusVoltage() * bottomLeft.getAppliedOutput();
+    inputs.bottomLeftTemp = Fahrenheit.convertFrom(bottomLeft.getMotorTemperature(), Celsius);
+    inputs.bottomLeftVel = bottomLeftEncoder.getVelocity();
 
-    inputs.followerBCurrent = topRightFollower.getOutputCurrent();
-    inputs.followerBVoltage =
-        topRightFollower.getBusVoltage() * topRightFollower.getAppliedOutput();
-    inputs.followerBTemp = Fahrenheit.convertFrom(topRightFollower.getMotorTemperature(), Celsius);
-    inputs.followerBVel = topRightFollowerEncoder.getVelocity();
+    inputs.topRightCurrent = topRight.getOutputCurrent();
+    inputs.topRightVoltage = topRight.getBusVoltage() * topRight.getAppliedOutput();
+    inputs.topRightTemp = Fahrenheit.convertFrom(topRight.getMotorTemperature(), Celsius);
+    inputs.topRightVel = topRightEncoder.getVelocity();
 
-    inputs.followerCCurrent = bottomRightFollower.getOutputCurrent();
-    inputs.followerCVoltage =
-        bottomRightFollower.getBusVoltage() * bottomRightFollower.getAppliedOutput();
-    inputs.followerCTemp =
-        Fahrenheit.convertFrom(bottomRightFollower.getMotorTemperature(), Celsius);
-    inputs.followerCVel = bottomRightFollowerEncoder.getVelocity();
+    inputs.bottomRightCurrent = bottomRight.getOutputCurrent();
+    inputs.bottomRightVoltage = bottomRight.getBusVoltage() * bottomRight.getAppliedOutput();
+    inputs.bottomRightTemp = Fahrenheit.convertFrom(bottomRight.getMotorTemperature(), Celsius);
+    inputs.bottomRightVel = bottomRightEncoder.getVelocity();
   }
 
   @Override
@@ -131,16 +121,16 @@ public class DrumIOSpark implements DrumIO {
 
   @Override
   public double getVelocity() {
-    return topLeftLeaderEncoder.getVelocity();
+    return topLeftEncoder.getVelocity();
   }
 
   @Override
   public void setReference(double velocity) {
-    if (velocity != shooterReference) {
-      profileSetpoint = new TrapezoidProfile.State(topLeftLeaderEncoder.getVelocity(), 0);
-      profileGoal = new TrapezoidProfile.State(velocity, 0);
-      shooterReference = velocity;
+    if (voltageMode || shooterReference <= 0) {
+      profileSetpoint = new TrapezoidProfile.State(topLeftEncoder.getVelocity(), 0);
     }
+    shooterReference = velocity;
+    profileGoal = new TrapezoidProfile.State(velocity, 0);
     voltageMode = false;
   }
 
@@ -156,7 +146,7 @@ public class DrumIOSpark implements DrumIO {
   @Override
   public boolean isReady() {
     return drumDebouncer.calculate(
-        Math.abs(bottomLeftFollowerEncoder.getVelocity() - getReference())
+        Math.abs(bottomLeftEncoder.getVelocity() - getReference())
             < DrumConstants.kStartOnTargetVel);
   }
 
@@ -172,17 +162,17 @@ public class DrumIOSpark implements DrumIO {
 
   private void setAllVoltage(double voltage) {
     double clamped = MathUtil.clamp(voltage, -12.0, 12.0);
-    topLeftLeader.setVoltage(clamped);
-    bottomLeftFollower.setVoltage(clamped);
-    topRightFollower.setVoltage(clamped);
-    bottomRightFollower.setVoltage(clamped);
+    topLeft.setVoltage(clamped);
+    bottomLeft.setVoltage(clamped);
+    topRight.setVoltage(clamped);
+    bottomRight.setVoltage(clamped);
   }
 
   @Override
   public void periodic() {
     if (RobotState.isDisabled()) {
       prevError = 0.0;
-      profileSetpoint = new TrapezoidProfile.State(topLeftLeaderEncoder.getVelocity(), 0);
+      profileSetpoint = new TrapezoidProfile.State(topLeftEncoder.getVelocity(), 0);
       lastTimestamp = Timer.getFPGATimestamp();
       return;
     }
@@ -217,7 +207,7 @@ public class DrumIOSpark implements DrumIO {
     // PD on actual velocity vs profiled setpoint
     double kPVal = Robot.tuningMode ? kP.get() : DrumConstants.kP;
     double kDVal = Robot.tuningMode ? kD.get() : DrumConstants.kD;
-    double error = profiledVel - topLeftLeaderEncoder.getVelocity();
+    double error = profiledVel - topLeftEncoder.getVelocity();
     double dError = (error - prevError) / dt;
     prevError = error;
     double pid = kPVal * error + kDVal * dError;

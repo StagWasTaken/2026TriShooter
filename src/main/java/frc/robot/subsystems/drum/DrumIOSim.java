@@ -46,18 +46,18 @@ public class DrumIOSim implements DrumIO {
     inputs.shooterReference = Units.radiansToDegrees(getReference());
     inputs.readyToShoot = isReady();
 
-    inputs.leaderCurrent = drumSim.getCurrentDrawAmps();
-    inputs.leaderVoltage = drumSim.getInputVoltage();
-    inputs.leaderVelocity = Units.radiansToDegrees(drumSim.getAngularVelocityRadPerSec());
-    inputs.leaderTemp = 0; // not simulated
+    inputs.topLeftCurrent = drumSim.getCurrentDrawAmps();
+    inputs.topLeftVoltage = drumSim.getInputVoltage();
+    inputs.topLeftVelocity = Units.radiansToDegrees(drumSim.getAngularVelocityRadPerSec());
+    inputs.topLeftTemp = 0; // not simulated
 
     // Followers not simulated — zeroed
-    inputs.followerACurrent = 0;
-    inputs.followerATemp = 0;
-    inputs.followerBCurrent = 0;
-    inputs.followerBTemp = 0;
-    inputs.followerCCurrent = 0;
-    inputs.followerCTemp = 0;
+    inputs.bottomLeftCurrent = 0;
+    inputs.bottomLeftTemp = 0;
+    inputs.topRightCurrent = 0;
+    inputs.topRightTemp = 0;
+    inputs.bottomRightCurrent = 0;
+    inputs.bottomRightTemp = 0;
   }
 
   @Override

@@ -177,11 +177,11 @@ public class RobotContainer {
     }
 
     this.ledStatusLight = new LEDStatusLight(0, 155, true, false);
-    hoodRef =
-        new LoggedNetworkNumber("HoodRef", Robot.CURRENT_ROBOT == RobotName.COMP_BOT ? .2 : 23);
+    hoodRef = new LoggedNetworkNumber("HoodRef", Robot.CURRENT_ROBOT == RobotName.HYDRA ? .2 : 23);
     shooterRef =
         new LoggedNetworkNumber(
-            "ShooterRef", Robot.CURRENT_ROBOT == RobotName.COMP_BOT ? 12000 : 2400);
+            "ShooterRef",
+            Robot.CURRENT_ROBOT == RobotName.HYDRA ? Units.degreesToRadians(12000) : 2400);
 
     autoChooser = new LoggedDashboardChooser<>("Auto Choices");
 
@@ -261,7 +261,7 @@ public class RobotContainer {
                   kicker,
                   shooter,
                   () -> shooterRef.get(),
-                  () -> Robot.CURRENT_ROBOT == RobotName.COMP_BOT ? 0.25 : hoodRef.get(),
+                  () -> Robot.CURRENT_ROBOT == RobotName.HYDRA ? 0.25 : hoodRef.get(),
                   () -> !operator.intakeButton().getAsBoolean(),
                   () -> operator.scoreButton().getAsBoolean()));
 
@@ -278,8 +278,8 @@ public class RobotContainer {
                   intake,
                   kicker,
                   shooter,
-                  () -> Math.toRadians(25000),
-                  () -> Robot.CURRENT_ROBOT == RobotName.COMP_BOT ? 0.8 : 33,
+                  () -> Robot.CURRENT_ROBOT == RobotName.HYDRA ? Math.toRadians(25000) : 4000,
+                  () -> Robot.CURRENT_ROBOT == RobotName.HYDRA ? 0.8 : 33,
                   () -> !operator.intakeButton().getAsBoolean(),
                   () -> operator.scoreButton().getAsBoolean()));
 
@@ -369,8 +369,8 @@ public class RobotContainer {
         intake,
         kicker,
         shooter,
-        () -> 3000,
-        () -> Robot.CURRENT_ROBOT == RobotName.COMP_BOT ? 0.25 : 45,
+        () -> Robot.CURRENT_ROBOT == RobotName.HYDRA ? Math.toRadians(15000) : 3000,
+        () -> Robot.CURRENT_ROBOT == RobotName.HYDRA ? 0.25 : 45,
         () -> !operator.intakeButton().getAsBoolean(),
         () -> operator.scoreButton().getAsBoolean());
   }

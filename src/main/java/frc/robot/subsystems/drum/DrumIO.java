@@ -9,27 +9,25 @@ public interface DrumIO {
     public double profiledReference;
     public boolean readyToShoot;
 
-    // Leader — used for control
-    public double leaderCurrent;
-    public double leaderVoltage;
-    public double leaderVelocity;
-    public double leaderTemp;
+    public double topLeftCurrent;
+    public double topLeftVoltage;
+    public double topLeftVelocity;
+    public double topLeftTemp;
 
-    // Followers — logged for diagnostics only
-    public double followerACurrent;
-    public double followerAVoltage;
-    public double followerATemp;
-    public double followerAVel;
+    public double bottomLeftCurrent;
+    public double bottomLeftVoltage;
+    public double bottomLeftTemp;
+    public double bottomLeftVel;
 
-    public double followerBCurrent;
-    public double followerBVoltage;
-    public double followerBTemp;
-    public double followerBVel;
+    public double topRightCurrent;
+    public double topRightVoltage;
+    public double topRightTemp;
+    public double topRightVel;
 
-    public double followerCCurrent;
-    public double followerCVoltage;
-    public double followerCTemp;
-    public double followerCVel;
+    public double bottomRightCurrent;
+    public double bottomRightVoltage;
+    public double bottomRightTemp;
+    public double bottomRightVel;
   }
 
   public default void updateInputs(DrumIOInputs inputs) {}
