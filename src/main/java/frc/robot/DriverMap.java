@@ -7,7 +7,7 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.utils.CustomPIDs.MapleJoystickDriveInput;
+import frc.robot.utils.custompids.MapleJoystickDriveInput;
 import java.util.function.DoubleSupplier;
 
 public interface DriverMap extends Subsystem {
@@ -21,9 +21,9 @@ public interface DriverMap extends Subsystem {
 
   Trigger resetOdometryButton();
 
-  Trigger stopWithXButton();
+  Trigger xButton();
 
-  Trigger autoAlignmentButton();
+  Trigger leftBumper();
 
   Trigger rightBumper();
 
@@ -107,12 +107,12 @@ public interface DriverMap extends Subsystem {
     }
 
     @Override
-    public Trigger stopWithXButton() {
+    public Trigger xButton() {
       return xboxController.x();
     }
 
     @Override
-    public Trigger autoAlignmentButton() {
+    public Trigger leftBumper() {
       return xboxController.leftBumper();
     }
 

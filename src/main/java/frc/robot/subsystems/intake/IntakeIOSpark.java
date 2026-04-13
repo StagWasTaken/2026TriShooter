@@ -18,9 +18,10 @@ import frc.robot.subsystems.intake.IntakeConstants.ExtenderConstants;
 
 public class IntakeIOSpark implements IntakeIO {
   private final SparkFlex intakeMotor;
-  private final SparkFlex intakeFollowerMotor;
+  private final SparkFlex intakeSecondaryMotor;
   private final RelativeEncoder intakeEncoder;
   private final SparkClosedLoopController intakeController;
+  private final SparkClosedLoopController secondaryRollerController;
 
   private double intakeReference;
   private ControlType intakeType;
@@ -34,12 +35,14 @@ public class IntakeIOSpark implements IntakeIO {
 
   public IntakeIOSpark() {
     intakeMotor = new SparkFlex(IntakeConstants.kIntakeCanId, MotorType.kBrushless);
-    intakeFollowerMotor = new SparkFlex(IntakeConstants.kIntakeFollowerCanId, MotorType.kBrushless);
+    intakeSecondaryMotor =
+        new SparkFlex(IntakeConstants.kIntakeBottomRightanId, MotorType.kBrushless);
 
     intakeExtenderMotor =
         new SparkMax(ExtenderConstants.kIntakeExtenderCanId, MotorType.kBrushless);
 
     intakeController = intakeMotor.getClosedLoopController();
+    secondaryRollerController = intakeSecondaryMotor.getClosedLoopController();
     intakeExtenderController = intakeExtenderMotor.getClosedLoopController();
 
     intakeEncoder = intakeMotor.getEncoder();
@@ -48,8 +51,8 @@ public class IntakeIOSpark implements IntakeIO {
     intakeMotor.configure(
         IntakeConfig.intakeConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
-    intakeFollowerMotor.configure(
-        IntakeConfig.intakeFollowerConfig,
+    intakeSecondaryMotor.configure(
+        IntakeConfig.secondaryRollerConfig,
         ResetMode.kResetSafeParameters,
         PersistMode.kPersistParameters);
 
@@ -75,7 +78,7 @@ public class IntakeIOSpark implements IntakeIO {
     inputs.intakeTemp = Fahrenheit.convertFrom(intakeMotor.getMotorTemperature(), Celsius);
 
     inputs.intakeFollowerTemp =
-        Fahrenheit.convertFrom(intakeFollowerMotor.getMotorTemperature(), Celsius);
+        Fahrenheit.convertFrom(intakeSecondaryMotor.getMotorTemperature(), Celsius);
 
     inputs.extenderReference = Units.radiansToDegrees(getExtenderReference());
     inputs.extenderCurrent = getExtenderCurrent();
@@ -170,6 +173,7 @@ public class IntakeIOSpark implements IntakeIO {
   @Override
   public void periodic() {
     intakeController.setSetpoint(intakeReference, intakeType);
+    secondaryRollerController.setSetpoint(intakeReference, intakeType);
 
     intakeExtenderController.setSetpoint(
         intakeExtenderReference, intakeExtenderType, ClosedLoopSlot.kSlot0);

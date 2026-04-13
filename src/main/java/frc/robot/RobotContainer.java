@@ -15,21 +15,25 @@ package frc.robot;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.GenericHID;
-import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.Robot.RobotName;
 import frc.robot.autos.*;
+import frc.robot.autos.bump.*;
+import frc.robot.autos.trench.*;
 import frc.robot.commands.*;
 import frc.robot.commands.drive.*;
 import frc.robot.subsystems.conveyor.*;
 import frc.robot.subsystems.drive.*;
-import frc.robot.subsystems.drive.IO.*;
+import frc.robot.subsystems.drive.io.*;
+import frc.robot.subsystems.drum.*;
 import frc.robot.subsystems.hood.*;
 import frc.robot.subsystems.intake.*;
 import frc.robot.subsystems.intake.IntakeConstants.ExtenderConstants;
@@ -37,28 +41,23 @@ import frc.robot.subsystems.kicker.*;
 import frc.robot.subsystems.led.LEDStatusLight;
 import frc.robot.subsystems.shooter.*;
 import frc.robot.subsystems.vision.*;
-import frc.robot.utils.CustomPIDs.ChassisHeadingController;
-import frc.robot.utils.CustomPIDs.MapleJoystickDriveInput;
 import frc.robot.utils.constants.FieldConstants;
 import frc.robot.utils.constants.RobotMode;
+import frc.robot.utils.custompids.ChassisHeadingController;
+import frc.robot.utils.custompids.MapleJoystickDriveInput;
 import frc.robot.utils.hubcounter.HubShiftUtil;
 import java.util.function.IntSupplier;
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
+import org.ironmaple.utils.FieldMirroringUtils;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
-/**
- * This class is where the bulk of the robot should be declared. Since Command-based is a
- * "declarative" paradigm, very little robot logic should actually be handled in the {@link Robot}
- * periodic methods (other than the scheduler calls). Instead, the structure of the robot (including
- * subsystems, commands, and button mappings) should be declared here.
- */
 public class RobotContainer {
   // Subsystems
   public final Drive drive;
-  public final Shooter shooter;
+  public final Shootable shooter; // Shooter or Drum depending on robot
   public final Intake intake;
   public final Conveyor conveyor;
   public final Kicker kicker;
@@ -66,31 +65,20 @@ public class RobotContainer {
   public final Vision vision;
   public final LEDStatusLight ledStatusLight;
 
-  private final LoggedNetworkNumber shooterRef =
-      new LoggedNetworkNumber("/Tuning/shooterRef", 21000);
-  private final LoggedNetworkNumber hoodRef =
-      new LoggedNetworkNumber(
-          "/Tuning/hoodRef", Robot.CURRENT_ROBOT == Robot.RobotName.COMP_BOT ? 0.4 : 0.55);
-
   public SwerveDriveSimulation driveSimulation = null;
 
   private final Field2d field = new Field2d();
-  // Controller
   public final DriverMap driver = new DriverMap.LeftHandedXbox(0);
-  //   public final DriverMap operator = new DriverMap.LeftHandedXbox(1);
+  public final DriverMap operator = new DriverMap.LeftHandedXbox(1);
 
   public Pose2d resetPose;
 
-  // Dashboard inputs
   private final LoggedDashboardChooser<Auto> autoChooser;
+  private final LoggedNetworkNumber hoodRef, shooterRef;
 
-  // private final LoggedDashboardChooser<Boolean> buttonBindingChooser;
-
-  /** The container for the robot. Contains subsystems, IO devices, and commands. */
   public RobotContainer() {
     switch (Robot.CURRENT_ROBOT_MODE) {
       case REAL:
-        // Real robot, instantiate hardware IO implementations
         drive =
             new Drive(
                 new GyroIONavX(),
@@ -100,7 +88,11 @@ public class RobotContainer {
                 new ModuleIOSpark(3),
                 (pose) -> {});
 
-        shooter = new Shooter(new ShooterIOSpark());
+        shooter =
+            Robot.CURRENT_ROBOT == Robot.RobotName.DRUM_BOT
+                ? new Drum(new DrumIOSpark())
+                : new Shooter(new ShooterIOSpark());
+
         intake = new Intake(new IntakeIOSpark());
         conveyor = new Conveyor(new ConveyorIOSpark());
         kicker = new Kicker(new KickerIOSpark());
@@ -114,16 +106,14 @@ public class RobotContainer {
                     Vision_Constants.camera0Name, Vision_Constants.robotToCamera0),
                 new VisionIOPhotonVision(
                     Vision_Constants.camera1Name, Vision_Constants.robotToCamera1));
-
         break;
+
       case SIM:
-        // create a maple-sim swerve drive simulation instance
         this.driveSimulation =
             new SwerveDriveSimulation(
                 DriveConstants.mapleSimConfig, new Pose2d(3.5, 4, new Rotation2d()));
-        // add the simulated drivetrain to the simulation field
         SimulatedArena.getInstance().addDriveTrainSimulation(driveSimulation);
-        // Sim robot, instantiate physics sim IO implementations
+
         drive =
             new Drive(
                 new GyroIOSim(driveSimulation.getGyroSimulation()),
@@ -133,7 +123,11 @@ public class RobotContainer {
                 new ModuleIOSim(driveSimulation.getModules()[3]),
                 driveSimulation::setSimulationWorldPose);
 
-        shooter = new Shooter(new ShooterIOSim());
+        shooter =
+            Robot.CURRENT_ROBOT == Robot.RobotName.DRUM_BOT
+                ? new Drum(new DrumIOSim())
+                : new Shooter(new ShooterIOSim());
+
         intake = new Intake(new IntakeIOSim(driveSimulation));
         conveyor = new Conveyor(new ConveyorIOSim());
         kicker = new Kicker(new KickerIOSim());
@@ -151,10 +145,9 @@ public class RobotContainer {
                     Vision_Constants.camera1Name,
                     Vision_Constants.robotToCamera1,
                     driveSimulation::getSimulatedDriveTrainPose));
-
         break;
+
       default:
-        // Replayed robot, disable IO implementations
         drive =
             new Drive(
                 new GyroIO() {},
@@ -164,7 +157,11 @@ public class RobotContainer {
                 new ModuleIO() {},
                 (pose) -> {});
 
-        shooter = new Shooter(new ShooterIO() {});
+        shooter =
+            Robot.CURRENT_ROBOT == Robot.RobotName.DRUM_BOT
+                ? new Drum(new DrumIO() {})
+                : new Shooter(new ShooterIO() {});
+
         intake = new Intake(new IntakeIO() {});
         conveyor = new Conveyor(new ConveyorIO() {});
         kicker = new Kicker(new KickerIO() {});
@@ -180,91 +177,130 @@ public class RobotContainer {
     }
 
     this.ledStatusLight = new LEDStatusLight(0, 155, true, false);
+    hoodRef = new LoggedNetworkNumber("HoodRef", Robot.CURRENT_ROBOT == RobotName.HYDRA ? .2 : 23);
+    shooterRef =
+        new LoggedNetworkNumber(
+            "ShooterRef",
+            Robot.CURRENT_ROBOT == RobotName.HYDRA ? Units.degreesToRadians(12000) : 2400);
 
-    // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices");
-    // autoChooser.addOption("Trench And Outpost", new AUTO_TrenchAndOutpost());
-    // autoChooser.addOption("Trench Left", new AUTO_TrenchLeft());
-    // autoChooser.addOption("Trench Right", new AUTO_TrenchRight());
-    // autoChooser.addOption("Outpost", new AUTO_Outpost());
-    autoChooser.addOption("Disrupt Middle Left", new AUTO_DisruptMiddleLeft());
-    autoChooser.addOption("Disrupt Middle Right", new AUTO_DisruptMiddleLeft());
-    autoChooser.addOption("Double Sweep Right", new AUTO_DoubleSweepRight());
-    autoChooser.addOption("Double Sweep Left", new AUTO_DoubleSweepLeft());
 
-    // Wheel Radius Test, tell the bot to run in a straight line for 3 meters, measure actual
-    // distance
-    //   Multiply wheel radius by actual distance (in) / 118.11 inches
-    // autoChooser.addOption("3MeterTest", new AUTO_3MeterTest());
+    // trench
+    autoChooser.addOption("Right Trench Middle", new AUTO_DoubleSweepRight());
+    autoChooser.addOption("Left Trench  Middle", new AUTO_DoubleSweepLeft());
+    autoChooser.addOption("Right Trench Partner", new AUTO_DoubleSweepPartnerSideRight());
+    autoChooser.addOption("Left Trench Partner", new AUTO_DoubleSweepPartnerSideLeft());
+    autoChooser.addOption("Right Trench Opponent", new AUTO_DoubleSweepOpponentSideRight());
+    autoChooser.addOption("Left Trench Opponent", new AUTO_DoubleSweepOpponentSideLeft());
 
-    // Configure the button bindings
+    // bump
+    autoChooser.addOption("27 Left", new AUTO_27Left());
+    autoChooser.addOption("27 Right", new AUTO_27Right());
+    autoChooser.addOption("Left Bump Opponent", new AUTO_DoubleSweepBumpOpponentLeft());
+    autoChooser.addOption("Right Bump Opponent", new AUTO_DoubleSweepBumpOpponentRight());
+    autoChooser.addOption("Left Bump Partner", new AUTO_DoubleSweepBumpPartnerLeft());
+    autoChooser.addOption("Right Bump Partner", new AUTO_DoubleSweepBumpPartnerRight());
+    autoChooser.addOption("Left Bump Middle", new AUTO_DoubleSweepBumpMiddleLeft());
+    autoChooser.addOption("Right Bump Middle", new AUTO_DoubleSweepBumpMiddleRight());
+
     configureButtonBindings();
 
     SmartDashboard.putData("Field", field);
   }
 
-  /**
-   * Use this method to define your button->command mappings. Buttons can be created by
-   * instantiating a {@link GenericHID} or one of its subclasses ({@link
-   * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing it to a {@link
-   * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
-   */
   public void configureButtonBindings() {
-    /* joystick drive command */
     final MapleJoystickDriveInput driveInput = driver.getDriveInput();
     IntSupplier pov = () -> -1;
     final JoystickDrive joystickDrive = new JoystickDrive(driveInput, () -> true, pov, drive);
     drive.setDefaultCommand(joystickDrive);
 
-    // default commands, turn off most subsystems when not in use
-    shooter.setDefaultCommand(shooter.setTargetVelolcity(0));
+    // shooter.setDefaultCommand(shooter.runVelocity(0));
     hood.setDefaultCommand(
         hood.setTargetPos(
             Robot.CURRENT_ROBOT_MODE == RobotMode.REAL
                 ? HoodConstants.kMinPos
-                : HoodConstants.kMinHoodAngle)); // sim uses radians, real uses rotations
-    conveyor.setDefaultCommand(conveyor.runVoltage(ConveyorConstants.kOff));
+                : HoodConstants.kMinHoodAngle));
 
     ledStatusLight.setDefaultCommand(ledStatusLight.showHubStatus());
 
-    // Reset gyro / odometry
     final Runnable resetGyro =
         Robot.CURRENT_ROBOT_MODE == RobotMode.SIM
             ? () -> drive.resetOdometry(driveSimulation.getSimulatedDriveTrainPose())
-            // reset odometry to actual robot pose during simulation
             : () ->
-                drive.resetOdometry(
-                    new Pose2d(drive.getPose().getTranslation(), new Rotation2d())); // zero gyro
+                drive.resetOdometry(new Pose2d(drive.getPose().getTranslation(), new Rotation2d()));
     driver.resetOdometryButton().onTrue(Commands.runOnce(resetGyro, drive).ignoringDisable(true));
 
-    driver.stopWithXButton().onTrue(Commands.runOnce(() -> drive.stopWithX()));
-    driver
-        .scoreButton()
-        .whileTrue(new CMD_Shoot(drive, driveInput, conveyor, hood, intake, kicker, shooter));
     if (Robot.CURRENT_ROBOT_MODE == RobotMode.REAL) {
-      driver.intakeButton().whileTrue(new CMD_Intake(intake)).onFalse(new CMD_Extend(intake));
-
-      driver.yButton().onTrue(new CMD_Stow(intake));
-      driver.aButton().onTrue(new CMD_Home(intake));
-      driver.rightBumper().whileTrue(pass());
       driver
-          .povDown()
+          .scoreButton()
           .whileTrue(
-              conveyor
-                  .runVoltage(-ConveyorConstants.kConvey)
-                  .alongWith(intake.setExtenderTargetAngle(ExtenderConstants.kExtended)));
-      driver.autoAlignmentButton().whileTrue(shootClose());
+              new CMD_Shoot(
+                  drive,
+                  driveInput,
+                  () -> FieldConstants.getHubPose(),
+                  conveyor,
+                  hood,
+                  intake,
+                  kicker,
+                  shooter,
+                  () -> !operator.intakeButton().getAsBoolean(),
+                  () -> operator.scoreButton().getAsBoolean()));
+
+      driver
+          .intakeButton()
+          .whileTrue(new CMD_Intake(conveyor, intake))
+          .onFalse(new CMD_Extend(conveyor, intake));
+
+      driver
+          .leftBumper()
+          .whileTrue(
+              new CMD_ShootNoVision(
+                  conveyor,
+                  hood,
+                  intake,
+                  kicker,
+                  shooter,
+                  () -> shooterRef.get(),
+                  () -> Robot.CURRENT_ROBOT == RobotName.HYDRA ? 0.25 : hoodRef.get(),
+                  () -> !operator.intakeButton().getAsBoolean(),
+                  () -> operator.scoreButton().getAsBoolean()));
+
+      driver.rightBumper().whileTrue(pass());
+
+      driver.aButton().onTrue(new CMD_Home(intake));
+
+      driver
+          .yButton()
+          .whileTrue(
+              new CMD_ShootNoVision(
+                  conveyor,
+                  hood,
+                  intake,
+                  kicker,
+                  shooter,
+                  () -> Robot.CURRENT_ROBOT == RobotName.HYDRA ? Math.toRadians(25000) : 4000,
+                  () -> Robot.CURRENT_ROBOT == RobotName.HYDRA ? 0.8 : 33,
+                  () -> !operator.intakeButton().getAsBoolean(),
+                  () -> operator.scoreButton().getAsBoolean()));
+
+      driver
+          .xButton()
+          .whileTrue(
+              intake
+                  .runVoltage(IntakeConstants.kExtake)
+                  .beforeStarting(
+                      conveyor
+                          .runVoltage(ConveyorConstants.kExtake)
+                          .alongWith(intake.setExtenderTargetAngle(ExtenderConstants.kExtended))))
+          .onFalse(new CMD_Extend(conveyor, intake));
+
+      driver.bButton().onTrue(new CMD_HomeHood(hood));
 
     } else if (Robot.CURRENT_ROBOT_MODE == RobotMode.SIM) {
-      driver.scoreButton().whileTrue(new CMD_ShootFuelSim(driveSimulation));
+      driver.scoreButton().whileTrue(new CMD_ShootFuelSim(drive, driveSimulation, driveInput));
     }
   }
 
-  /**
-   * Use this to pass the autonomous command to the main {@link Robot} class.
-   *
-   * @return the command to run in autonomous
-   */
   public Auto getAutonomousCommand() {
     return autoChooser.get();
   }
@@ -279,7 +315,6 @@ public class RobotContainer {
     }
 
     drive.resetOdometry(resetPose);
-
     SimulatedArena.getInstance().resetFieldForAuto();
   }
 
@@ -293,7 +328,6 @@ public class RobotContainer {
     Logger.recordOutput(
         "FieldSimulation/Fuel", SimulatedArena.getInstance().getGamePiecesArrayByType("Fuel"));
     Logger.recordOutput("FieldSimulation/Alliance", FieldConstants.getAlliance().toString());
-
     Logger.recordOutput("FieldSimulation/BlueScore", SimulatedArena.getInstance().getScore(true));
     Logger.recordOutput("FieldSimulation/RedScore", SimulatedArena.getInstance().getScore(false));
   }
@@ -302,10 +336,8 @@ public class RobotContainer {
 
   public void setMotorBrake(boolean brakeModeEnabled) {
     if (motorBrakeEnabled == brakeModeEnabled) return;
-
     System.out.println("Set motor brake: " + brakeModeEnabled);
     drive.setMotorBrake(brakeModeEnabled);
-
     motorBrakeEnabled = brakeModeEnabled;
   }
 
@@ -317,6 +349,7 @@ public class RobotContainer {
     if (Robot.CURRENT_ROBOT_MODE == RobotMode.SIM)
       field.getObject("Odometry").setPose(drive.getPose());
 
+    Logger.recordOutput("RioVoltage", RobotController.getBatteryVoltage());
     Logger.recordOutput("Match Time", DriverStation.getMatchTime());
     Logger.recordOutput("Hub Active", HubShiftUtil.getOfficialShiftInfo().active());
     Logger.recordOutput(
@@ -329,19 +362,21 @@ public class RobotContainer {
             FieldConstants.getHubPose().getDistance(drive.getPose().getTranslation())));
   }
 
-  public Command shootClose() {
+  public Command pass() {
     return new CMD_ShootNoVision(
         conveyor,
         hood,
         intake,
         kicker,
         shooter,
-        () -> Math.toRadians(shooterRef.get()),
-        () -> hoodRef.get());
+        () -> Robot.CURRENT_ROBOT == RobotName.HYDRA ? Math.toRadians(15000) : 3000,
+        () -> Robot.CURRENT_ROBOT == RobotName.HYDRA ? 0.25 : 45,
+        () -> !operator.intakeButton().getAsBoolean(),
+        () -> operator.scoreButton().getAsBoolean());
   }
 
-  public Command pass() {
-    return new CMD_ShootNoVision(
-        conveyor, hood, intake, kicker, shooter, () -> Math.toRadians(30000), () -> 0.8);
+  public Translation2d flipLeftRight(Translation2d translation) {
+    return new Translation2d(
+        translation.getX(), FieldMirroringUtils.FIELD_HEIGHT - translation.getY());
   }
 }

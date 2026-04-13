@@ -1,8 +1,8 @@
-package frc.robot.utils.CustomPIDs;
+package frc.robot.utils.custompids;
 
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecondPerSecond;
-import static frc.robot.utils.CustomPIDs.DriveControlLoops.*;
+import static frc.robot.utils.custompids.DriveControlLoops.*;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -178,7 +178,7 @@ public class ChassisHeadingController {
             robotPose.getTranslation(), Rotation2d.fromRadians(chassisRotationState.position)));
     final Rotation2d error = requestedRotation.minus(robotPose.getRotation());
     Logger.recordOutput("ChassisHeadingController/Error", error.getDegrees());
-    atSetPoint = Math.abs(error.getRadians()) < Math.toRadians(3);
+    atSetPoint = Math.abs(error.getRadians()) < Math.toRadians(5);
   }
 
   public boolean atSetPoint() {

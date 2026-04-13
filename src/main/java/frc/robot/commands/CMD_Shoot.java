@@ -4,22 +4,27 @@ import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Robot;
+import frc.robot.Robot.RobotName;
 import frc.robot.commands.drive.JoystickDriveAndAimAtTarget;
 import frc.robot.subsystems.conveyor.Conveyor;
 import frc.robot.subsystems.conveyor.ConveyorConstants;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.drum.DrumConstants;
 import frc.robot.subsystems.hood.Hood;
 import frc.robot.subsystems.hood.HoodConstants;
 import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.intake.IntakeConstants;
 import frc.robot.subsystems.intake.IntakeConstants.ExtenderConstants;
 import frc.robot.subsystems.kicker.Kicker;
 import frc.robot.subsystems.kicker.KickerConstants;
-import frc.robot.subsystems.shooter.Shooter;
+import frc.robot.subsystems.shooter.Shootable;
 import frc.robot.subsystems.shooter.ShooterConstants;
-import frc.robot.subsystems.shooter.ShooterConstants.ShootingParams;
-import frc.robot.utils.CustomPIDs.ChassisHeadingController;
-import frc.robot.utils.CustomPIDs.MapleJoystickDriveInput;
-import frc.robot.utils.constants.FieldConstants;
+import frc.robot.subsystems.shooter.ShootingParams;
+import frc.robot.utils.custompids.ChassisHeadingController;
+import frc.robot.utils.custompids.MapleJoystickDriveInput;
+import java.util.function.BooleanSupplier;
+import java.util.function.Supplier;
 
 public class CMD_Shoot extends Command {
   private final Drive drive;
@@ -27,48 +32,70 @@ public class CMD_Shoot extends Command {
   private final Hood hood;
   private final Intake intake;
   private final Kicker kicker;
-  private final Shooter shooter;
+  private final Shootable shooter;
   private final MapleJoystickDriveInput driveSupplier; // null when using auto constructor
+  private final Supplier<Translation2d> targetSupplier;
+
+  // When true, intake collapses slowly after 0.5 seconds (default behavior).
+  // When false, intake stays down and running — operator keeps it extended.
+  private final BooleanSupplier stowIntakeOnShoot, slowStow;
 
   private boolean shooting;
-  private final Timer timer = new Timer();
-  private final Debouncer atSetpointDebouncer = new Debouncer(0.25);
+  private final Debouncer atSetpointDebouncer = new Debouncer(0.02);
+  private final Timer shootTimer = new Timer();
   private Command driveCommand;
 
-  // Original constructor — teleop with driver input and shoot-on-the-fly
+  // Teleop constructor — includes driver joystick input and shoot-on-the-fly prediction
   public CMD_Shoot(
       Drive drive,
       MapleJoystickDriveInput driveSupplier,
+      Supplier<Translation2d> targetSupplier,
       Conveyor conveyor,
       Hood hood,
       Intake intake,
       Kicker kicker,
-      Shooter shooter) {
+      Shootable shooter,
+      BooleanSupplier stowIntakeOnShoot,
+      BooleanSupplier slowStow) {
     this.drive = drive;
     this.driveSupplier = driveSupplier;
+    this.targetSupplier = targetSupplier;
     this.conveyor = conveyor;
     this.hood = hood;
     this.intake = intake;
     this.kicker = kicker;
     this.shooter = shooter;
+    this.stowIntakeOnShoot = stowIntakeOnShoot;
+    this.slowStow = slowStow;
 
     addRequirements(drive, conveyor, hood, intake, kicker, shooter);
   }
 
-  // Auto constructor — no driver input, no shoot-on-the-fly, just lookup table at current position
+  // Auto constructor — no driver input, always stows intake
   public CMD_Shoot(
-      Drive drive, Conveyor conveyor, Hood hood, Intake intake, Kicker kicker, Shooter shooter) {
+      Drive drive,
+      Supplier<Translation2d> targetSupplier,
+      Conveyor conveyor,
+      Hood hood,
+      Intake intake,
+      Kicker kicker,
+      Shootable shooter) {
     this.drive = drive;
     this.driveSupplier = null;
+    this.targetSupplier = targetSupplier;
     this.conveyor = conveyor;
     this.hood = hood;
     this.intake = intake;
     this.kicker = kicker;
     this.shooter = shooter;
+    this.stowIntakeOnShoot = () -> true;
+    this.slowStow = () -> false;
 
     addRequirements(drive, conveyor, hood, intake, kicker, shooter);
   }
 
+  // Projects the robot's current position forward by tofSeconds to account for
+  // robot motion during the time-of-flight of the note
   private Translation2d getPredictedPosition(double tofSeconds) {
     var chassisSpeeds = drive.getMeasuredChassisSpeedsRobotRelative();
     var robotAngle = drive.getPose().getRotation();
@@ -86,28 +113,29 @@ public class CMD_Shoot extends Command {
         .plus(new Translation2d(vxField * tofSeconds, vyField * tofSeconds));
   }
 
-  private ShootingParams getShootingParams() {
-    // Always uses current position — no prediction in auto
-    double distMeters = FieldConstants.getHubPose().getDistance(drive.getPose().getTranslation());
-    return ShooterConstants.getShootingParams(distMeters);
-  }
-
+  // Does two lookups: one at current position to get tof, then
+  // a second at the predicted position to get the final shooting params
   private ShootingParams getShootingParamsWithPrediction() {
-    double distMeters = FieldConstants.getHubPose().getDistance(drive.getPose().getTranslation());
-    ShootingParams initialParams = ShooterConstants.getShootingParams(distMeters);
+    double distMeters = targetSupplier.get().getDistance(drive.getPose().getTranslation());
+    ShootingParams initialParams =
+        Robot.CURRENT_ROBOT == RobotName.HYDRA
+            ? ShooterConstants.getShootingParams(distMeters)
+            : DrumConstants.getShootingParams(distMeters);
 
     Translation2d predictedPos = getPredictedPosition(initialParams.tofSeconds());
-    double predictedDist = FieldConstants.getHubPose().getDistance(predictedPos);
+    double predictedDist = targetSupplier.get().getDistance(predictedPos);
 
-    return ShooterConstants.getShootingParams(predictedDist);
+    return Robot.CURRENT_ROBOT == RobotName.HYDRA
+        ? ShooterConstants.getShootingParams(predictedDist)
+        : DrumConstants.getShootingParams(predictedDist);
   }
 
   @Override
   public void initialize() {
     shooting = false;
-    timer.stop();
-    timer.reset();
-    atSetpointDebouncer.calculate(false); // flush debouncer state
+    atSetpointDebouncer.calculate(false);
+    shootTimer.reset();
+    shootTimer.stop();
 
     ChassisHeadingController.getInstance()
         .setHeadingRequest(new ChassisHeadingController.NullRequest());
@@ -118,7 +146,7 @@ public class CMD_Shoot extends Command {
           JoystickDriveAndAimAtTarget.driveAndAimAtTarget(
               driveSupplier,
               drive,
-              FieldConstants::getHubPose,
+              targetSupplier::get,
               ShooterConstants.kShooterOptimization,
               0.5,
               false);
@@ -127,7 +155,7 @@ public class CMD_Shoot extends Command {
           JoystickDriveAndAimAtTarget.driveAndAimAtTarget(
                   new MapleJoystickDriveInput(() -> 0.0, () -> 0.0, () -> 0.0),
                   drive,
-                  FieldConstants::getHubPose,
+                  targetSupplier::get,
                   null,
                   0.0,
                   true)
@@ -140,8 +168,7 @@ public class CMD_Shoot extends Command {
   public void execute() {
     driveCommand.execute();
 
-    ShootingParams shootingParams =
-        driveSupplier != null ? getShootingParamsWithPrediction() : getShootingParams();
+    ShootingParams shootingParams = getShootingParamsWithPrediction();
 
     shooter.setReference(shootingParams.shooterReference());
     hood.setReference(shootingParams.hoodReference());
@@ -152,15 +179,29 @@ public class CMD_Shoot extends Command {
     if (shooter.isReady() && hood.atReference() && driveReady && !shooting) {
       conveyor.setVoltage(ConveyorConstants.kConvey);
       kicker.setVoltage(KickerConstants.kKick);
-      timer.restart();
       shooting = true;
+      shooter.startShooting();
+      shootTimer.start();
     }
 
-    if (shooting && intake.getExtenderPosition() > ExtenderConstants.kStow) {
-      intake.setExtenderVoltage(-1.25);
-      intake.setVoltage(2);
-    } else {
-      intake.setExtenderVoltage(0);
+    if (shooting) {
+      if (!stowIntakeOnShoot.getAsBoolean()) {
+        if (!intake.getExtenderInPosition()) {
+          intake.setExtenderReference(ExtenderConstants.kExtended);
+        } else {
+          intake.setExtenderVoltage(0);
+          intake.setVoltage(IntakeConstants.kOn);
+        }
+      }
+    } else if (shootTimer.hasElapsed(0.5)) {
+      if (intake.getExtenderPosition() > ExtenderConstants.kStow) {
+        intake.setExtenderVoltage(
+            slowStow.getAsBoolean() ? DrumConstants.kSlowStowVolts : DrumConstants.kStowVolts);
+        intake.setVoltage(2);
+      } else {
+        intake.setExtenderVoltage(0);
+        intake.setVoltage(0);
+      }
     }
   }
 
@@ -171,9 +212,11 @@ public class CMD_Shoot extends Command {
     }
 
     shooter.setReference(0);
+    shooter.stopShooting();
     hood.setReference(HoodConstants.kMinPos);
     conveyor.setVoltage(ConveyorConstants.kOff);
     kicker.setVoltage(KickerConstants.kOff);
+    // Hold extender at current position and stop roller
     intake.setExtenderReference(intake.getExtenderPosition());
     intake.setVoltage(0);
   }

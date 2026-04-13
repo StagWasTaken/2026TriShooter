@@ -19,14 +19,32 @@ spotless {
     }
 }
 
+// Fixed Git Hook Task
 tasks.register('installGitHooks') {
     doLast {
         def hookFile = file('.git/hooks/pre-commit')
-        hookFile.text = '#!/bin/sh\ncmd.exe /c "gradlew.bat spotlessApply"\n'
+        
+        // This script works on Windows (Git Bash), macOS, and Linux.
+        // It runs spotless, and if successful, stages the formatted files.
+        hookFile.text = """#!/bin/sh
+echo "--- Running Pre-Commit Spotless Check ---"
+./gradlew spotlessApply
+
+if [ \$? -eq 0 ]; then
+    echo "Spotless applied successfully. Staging changes..."
+    git add .
+    exit 0
+else
+    echo "Spotless failed! Commit aborted."
+    exit 1
+fi
+"""
         hookFile.setExecutable(true)
+        println "Git pre-commit hook installed/updated."
     }
 }
 
+// Ensures hooks are installed every time you build/deploy
 tasks.named('build') {
     dependsOn 'installGitHooks'
 }
@@ -56,7 +74,6 @@ deploy {
 def deployArtifact = deploy.targets.roborio.artifacts.frcJava
 
 wpi.java.debugJni = false
-
 def includeDesktopSupport = true
 
 dependencies {
@@ -83,6 +100,7 @@ dependencies {
 
     implementation 'org.ode4j:core:0.5.4'
 
+    // AdvantageKit setup
     def akitJson = new groovy.json.JsonSlurper().parseText(new File(projectDir.getAbsolutePath() + "/vendordeps/AdvantageKit.json").text)
     annotationProcessor "org.littletonrobotics.akit:akit-autolog:$akitJson.version"
 }

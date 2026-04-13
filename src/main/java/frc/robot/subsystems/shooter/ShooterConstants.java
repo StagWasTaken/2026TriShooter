@@ -4,7 +4,7 @@ import static edu.wpi.first.units.Units.Kilograms;
 import static edu.wpi.first.units.Units.Pounds;
 
 import edu.wpi.first.math.util.Units;
-import frc.robot.utils.CustomPIDs.MapleShooterOptimization;
+import frc.robot.utils.custompids.MapleShooterOptimization;
 
 public class ShooterConstants {
   public static final int kLeftShooterCanId = 3;
@@ -72,27 +72,30 @@ public class ShooterConstants {
 
   // Shooting table: {distance (meters), angle (degrees), velocity (rpm), time of flight (s)}
   public static final double[][] SHOOTING_TABLE = {
-    {3.0480, 75.51, 3323.33, 1.532}, // 120in
-    {3.5560, 73.42, 3565.00, 1.608}, // 140in
-    {4.0640, 71.33, 3806.67, 1.681}, // 160in
-    {4.5720, 69.25, 4048.33, 1.751}, // 180in
-    {5.0800, 67.16, 4290.00, 1.816}, // 200in
+    {2.5400, 74.00, 3000.00, 0.456}, // 100in
+    {3.0480, 70.01, 3273.33, 0.481}, // 120in
+    {3.3000, 71.00, 3416.67, 0.464}, // 130in
+    {3.5560, 68.00, 3606.67, 0.468}, // 140in
+    {4.0640, 66.50, 3916.67, 0.468}, // 160in
+    {4.5720, 65.00, 4000.00, 0.495}, // 180in
+    {5.0800, 65.00, 4166.67, 0.482} // 200in
   };
 
-  // Shooting table: {distance (meters), hood (0-1 rotations), velocity (rad/s), time of flight (s)}
   public static final double[][] SHOOTING_TABLE_REAL = {
-    {3.0480, 0.433, 342.7827, 1.515}, // 120in
-    {3.5560, 0.5, 377.6892, 1.627}, // 140in
-    {4.0640, 0.55, 410.15237, 1.690}, // 160in
-    {4.5720, 0.6, 418.87902, 1.740}, // 180in
-    {5.0800, 0.6, 436.332, 1.817}, // 200in
+    {2.54, 0.3, 314.15927, 0.456}, // 100in
+    {3.0480, 0.433, 342.7827, 0.481}, // 120in
+    {3.3, 0.4, 357.7925, 0.464}, // 130in
+    {3.5560, 0.5, 377.6892, 0.468}, // 140in
+    {4.0640, 0.55, 410.15237, 0.468}, // 160in
+    {4.5720, 0.6, 418.87902, 0.495}, // 180in
+    {5.0800, 0.6, 436.332, 0.482}, // 200in
   };
 
   // Extract columns for MapleShooterOptimization
   private static double[] extractColumn(int col) {
-    double[] result = new double[SHOOTING_TABLE.length];
-    for (int i = 0; i < SHOOTING_TABLE.length; i++) {
-      result[i] = SHOOTING_TABLE[i][col];
+    double[] result = new double[SHOOTING_TABLE_REAL.length];
+    for (int i = 0; i < SHOOTING_TABLE_REAL.length; i++) {
+      result[i] = SHOOTING_TABLE_REAL[i][col];
     }
     return result;
   }
@@ -107,7 +110,8 @@ public class ShooterConstants {
           );
 
   public static final record ShootingParams(
-      double hoodReference, double shooterReference, double tofSeconds) {}
+      double hoodReference, double shooterReference, double tofSeconds)
+      implements frc.robot.subsystems.shooter.ShootingParams {}
 
   public static final ShootingParams getShootingParams(double distance) {
     if (distance <= SHOOTING_TABLE_REAL[0][0]) {

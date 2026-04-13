@@ -1,7 +1,7 @@
 package frc.robot.utils.constants;
 
 /**
- * Configs for the driver's joystick See {@link frc.robot.utils.CustomPIDs.MapleJoystickDriveInput}
+ * Configs for the driver's joystick See {@link frc.robot.utils.custompids.MapleJoystickDriveInput}
  */
 public class JoystickConfigs {
   public static final double DEFAULT_TRANSLATIONAL_SENSITIVITY = 1;
@@ -17,7 +17,7 @@ public class JoystickConfigs {
   public static final double DEAD_BAND_WHEN_OTHER_AXIS_EMPTY = 0.02;
 
   public static final double DEAD_BAND_WHEN_OTHER_AXIS_FULL = 0.1;
-  public static final double LINEAR_SPEED_INPUT_EXPONENT = 1.6;
+  public static final double LINEAR_SPEED_INPUT_EXPONENT = 1.25;
   public static final double ROTATION_SPEED_INPUT_EXPONENT = 2;
 
   /**

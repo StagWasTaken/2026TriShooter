@@ -1,11 +1,14 @@
 package frc.robot.subsystems.conveyor;
 
+import frc.robot.Robot;
+import frc.robot.Robot.RobotName;
+
 public class ConveyorConstants {
   public static final int kConveyorCanId = 13;
 
-  public static final double kP = 0.0006;
+  public static final double kP = 0.0;
   public static final double kI = 0.0;
-  public static final double kD = 0.0001;
+  public static final double kD = 0.0;
 
   public static final double kV = 0.0;
   public static final double kS = 0.0;
@@ -25,8 +28,9 @@ public class ConveyorConstants {
   public static final double kMinOutput = -1;
   public static final double kMaxOutput = 1;
 
-  public static final double kConvey = 11;
+  public static final double kConvey = Robot.CURRENT_ROBOT == RobotName.HYDRA ? 10 : 7.0;
   public static final double kOff = 0;
+  public static final double kExtake = -kConvey;
 
   public static final double kGearRatio = 3;
 }

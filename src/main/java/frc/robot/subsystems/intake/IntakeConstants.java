@@ -2,7 +2,7 @@ package frc.robot.subsystems.intake;
 
 public class IntakeConstants {
   public static final int kIntakeCanId = 12;
-  public static final int kIntakeFollowerCanId = 1;
+  public static final int kIntakeBottomRightanId = 1;
 
   public static final double kP = 0;
   public static final double kI = 0.0;
@@ -11,7 +11,7 @@ public class IntakeConstants {
   public static final double kV = 0.0;
   public static final double kS = 0.0;
   public static final double kG = 0.0;
-  public static final double kA = 0;
+  public static final double kA = 0.0;
 
   public static final double kPSim = 0.0;
   public static final double kISim = 0.0;
@@ -23,11 +23,13 @@ public class IntakeConstants {
   public static final double kASim = 0.0;
 
   public static final boolean kInverted = false;
+  public static final boolean kSecondaryInverted = false;
   public static final double kMinOutput = -1;
   public static final double kMaxOutput = 1;
 
-  public static final double kOn = 8;
+  public static final double kOn = 6.5;
   public static final double kOff = 0;
+  public static final double kExtake = -kOn;
 
   public static final double kGearRatio = 1;
 
@@ -58,12 +60,12 @@ public class IntakeConstants {
 
     public static final double kHome = Math.toRadians(70);
     public static final double kStow = Math.toRadians(120);
-    public static final double kExtended = Math.toRadians(270);
+    public static final double kExtended = Math.toRadians(315);
 
     public static final double kMaxVel = Math.toRadians(43200);
     public static final double kMaxAccel = Math.toRadians(86400);
 
-    public static final double kPositionTolerance = Math.toRadians(5);
+    public static final double kPositionTolerance = Math.toRadians(10);
 
     public static final double kGearRatio = 81;
     // absolute encoder has another 3:1 reduction after it

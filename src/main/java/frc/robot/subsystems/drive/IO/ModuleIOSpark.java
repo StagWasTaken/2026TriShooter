@@ -11,7 +11,7 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 
-package frc.robot.subsystems.drive.IO;
+package frc.robot.subsystems.drive.io;
 
 import static edu.wpi.first.units.Units.Celsius;
 import static edu.wpi.first.units.Units.Fahrenheit;
@@ -107,7 +107,8 @@ public class ModuleIOSpark implements ModuleIO {
     var driveConfig = new SparkFlexConfig();
     driveConfig
         .idleMode(IdleMode.kBrake)
-        .smartCurrentLimit(driveMotorCurrentLimit)
+        .smartCurrentLimit(driveMotorStallCurrentLimit)
+        .secondaryCurrentLimit(driveMotorCurrentLimit)
         .voltageCompensation(12.0);
     driveConfig
         .encoder
@@ -119,7 +120,11 @@ public class ModuleIOSpark implements ModuleIO {
         .closedLoop
         .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
         .pid(driveKp, 0.0, driveKd);
-    driveConfig.closedLoop.feedForward.sva(driveKs, driveKv, driveKa);
+
+    // We only put Ks and Kv into the Spark config.
+    // Ka is handled manually in setDriveVelocity.
+    driveConfig.closedLoop.feedForward.sv(driveKs, driveKv);
+
     driveConfig
         .signals
         .primaryEncoderPositionAlwaysOn(true)

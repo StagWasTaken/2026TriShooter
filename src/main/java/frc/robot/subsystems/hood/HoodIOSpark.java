@@ -5,37 +5,51 @@ import static edu.wpi.first.units.Units.Fahrenheit;
 
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.PersistMode;
+import com.revrobotics.RelativeEncoder;
 import com.revrobotics.ResetMode;
 import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
-import edu.wpi.first.math.MathUtil;
+import frc.robot.Robot;
+import frc.robot.Robot.RobotName;
 
 public class HoodIOSpark implements HoodIO {
   private final SparkMax hoodMotor;
-  private final AbsoluteEncoder hoodEncoder;
+  // Only one of these will be non-null depending on robot
+  private final AbsoluteEncoder absoluteEncoder;
+  private final RelativeEncoder relativeEncoder;
   private final SparkClosedLoopController hoodController;
 
   private double hoodReference;
   private ControlType hoodType;
 
-  public HoodIOSpark() {
-    // initialize motor
-    hoodMotor = new SparkMax(HoodConstants.kHoodCanId, MotorType.kBrushless);
+  // tuning
+  //   private final LoggedNetworkNumber kP, reference;
+  //   private double lastP = Double.NaN;
 
-    // initialize PID controller
+  public HoodIOSpark() {
+    hoodMotor = new SparkMax(HoodConstants.kHoodCanId, MotorType.kBrushless);
     hoodController = hoodMotor.getClosedLoopController();
 
-    // initalize encoder
-    hoodEncoder = hoodMotor.getAbsoluteEncoder();
+    if (Robot.CURRENT_ROBOT == RobotName.DRUM_BOT) {
+      relativeEncoder = hoodMotor.getEncoder();
+      absoluteEncoder = null;
+    } else {
+      absoluteEncoder = hoodMotor.getAbsoluteEncoder();
+      relativeEncoder = null;
+    }
 
-    // apply config
     hoodMotor.configure(
-        HoodConfig.hoodConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        Robot.CURRENT_ROBOT == RobotName.HYDRA ? HoodConfig.hoodConfig : HoodConfig.hoodDrumConfig,
+        ResetMode.kResetSafeParameters,
+        PersistMode.kPersistParameters);
 
-    // reset target speed in init
+    // tuning
+    // kP = new LoggedNetworkNumber("/Tuning/Hood/kP", HoodConstants.kP);
+    // reference = new LoggedNetworkNumber("/Tuning/Hood/Reference", 0.0);
+
     hoodReference = HoodConstants.kMinPos;
     hoodType = ControlType.kPosition;
   }
@@ -53,12 +67,12 @@ public class HoodIOSpark implements HoodIO {
 
   @Override
   public double getVelocity() {
-    return hoodEncoder.getVelocity();
+    return relativeEncoder != null ? relativeEncoder.getVelocity() : absoluteEncoder.getVelocity();
   }
 
   @Override
   public double getPosition() {
-    return hoodEncoder.getPosition();
+    return relativeEncoder != null ? relativeEncoder.getPosition() : absoluteEncoder.getPosition();
   }
 
   @Override
@@ -84,7 +98,8 @@ public class HoodIOSpark implements HoodIO {
 
   @Override
   public void setReference(double reference) {
-    hoodReference = MathUtil.clamp(reference, HoodConstants.kMinPos, HoodConstants.kMaxPos);
+    // MathUtil.clamp(reference, HoodConstants.kMinPos, HoodConstants.kMaxPos)
+    hoodReference = reference;
     hoodType = ControlType.kPosition;
   }
 
@@ -94,7 +109,26 @@ public class HoodIOSpark implements HoodIO {
   }
 
   @Override
+  public void resetEncoder() {
+    if (relativeEncoder != null) {
+      relativeEncoder.setPosition(0);
+    }
+  }
+
+  @Override
   public void periodic() {
+    // double p = kP.get();
+    // if (lastP != p) {
+    //   setVoltage(0);
+    //   SparkMaxConfig newConfig = new SparkMaxConfig();
+    //   newConfig.apply(Robot.CURRENT_ROBOT == RobotName.HYDRA ? HoodConfig.hoodConfig :
+    // HoodConfig.hoodDrumConfig);
+    //   newConfig.closedLoop.p(p);
+    //   hoodMotor.configure(
+    //       newConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
+    // }
+    // lastP = p;
+
     hoodController.setSetpoint(hoodReference, hoodType, ClosedLoopSlot.kSlot0);
   }
 }

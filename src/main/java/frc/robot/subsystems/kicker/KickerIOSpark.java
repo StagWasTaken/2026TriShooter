@@ -9,56 +9,77 @@ import com.revrobotics.ResetMode;
 import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkClosedLoopController;
+import com.revrobotics.spark.SparkClosedLoopController.ArbFFUnits;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkMaxConfig;
-import edu.wpi.first.math.util.Units;
-import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
+import frc.robot.Robot;
+import frc.robot.Robot.RobotName;
+import frc.robot.utils.LoggedTunableNumber;
+import frc.robot.utils.SparkUtil;
 
 public class KickerIOSpark implements KickerIO {
-  private final SparkMax kickerMotor;
+  private final SparkMax kickerMotorLeader;
+  private final SparkMax kickerMotorFollower;
   private final RelativeEncoder kickerEncoder;
   private final SparkClosedLoopController kickerController;
 
   private double kickerReference;
   private ControlType kickerType;
 
-  // tuning
-  private final LoggedNetworkNumber kS, kV, kP;
-  private double lastP = Double.NaN;
+  private LoggedTunableNumber kS, kV, kP, kD, kTargetVelocity;
 
   public KickerIOSpark() {
-    // initialize motor
-    kickerMotor = new SparkMax(KickerConstants.kKickerCanId, MotorType.kBrushless);
+    kickerMotorLeader = new SparkMax(KickerConstants.kKickerLeadCanId, MotorType.kBrushless);
 
-    // initialize PID controller
-    kickerController = kickerMotor.getClosedLoopController();
+    kickerMotorLeader.configure(
+        KickerConfig.kickerLeaderConfig,
+        ResetMode.kResetSafeParameters,
+        PersistMode.kPersistParameters);
 
-    // initalize encoder
-    kickerEncoder = kickerMotor.getEncoder();
+    if (Robot.CURRENT_ROBOT != RobotName.DRUM_BOT) {
+      kickerMotorFollower =
+          new SparkMax(KickerConstants.kKickerBottomRightanId, MotorType.kBrushless);
+      kickerMotorFollower.configure(
+          KickerConfig.kickerBottomRightonfig,
+          ResetMode.kResetSafeParameters,
+          PersistMode.kPersistParameters);
+    } else {
+      kickerMotorFollower = null;
+    }
 
-    // apply config
-    kickerMotor.configure(
-        KickerConfig.kickerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    kickerController = kickerMotorLeader.getClosedLoopController();
+    kickerEncoder = kickerMotorLeader.getEncoder();
 
-    // reset target speed in init
     kickerReference = 0;
     kickerType = ControlType.kVoltage;
 
-    // tuning
-    kS = new LoggedNetworkNumber("/Tuning/Kicker/kS", KickerConstants.kS);
-    kV = new LoggedNetworkNumber("/Tuning/Kicker/kV", KickerConstants.kV);
-    kP = new LoggedNetworkNumber("/Tuning/Kicker/kP", KickerConstants.kP);
+    if (Robot.tuningMode) {
+      kS = new LoggedTunableNumber("Kicker/kS", KickerConstants.kS);
+      kV = new LoggedTunableNumber("Kicker/kV", KickerConstants.kV);
+      kP = new LoggedTunableNumber("Kicker/kP", KickerConstants.kP);
+      kD = new LoggedTunableNumber("Kicker/kD", KickerConstants.kD);
+      kTargetVelocity = new LoggedTunableNumber("Kicker/kTargetVelocity", KickerConstants.kKick);
+    }
   }
 
   @Override
   public void updateInputs(KickerIOInputs inputs) {
-    inputs.kickerReference = Units.radiansToDegrees(getReference());
+    inputs.kickerReference = getReference();
     inputs.kickerCurrent = getCurrent();
     inputs.kickerVoltage = getVoltage();
-    inputs.kickerVelocity = Units.radiansToDegrees(getVelocity());
+    inputs.kickerVelocity = getVelocity();
     inputs.atVelocity = atVelocity();
-    inputs.kickerTemp = Fahrenheit.convertFrom(kickerMotor.getMotorTemperature(), Celsius);
+    inputs.kickerTemp = Fahrenheit.convertFrom(kickerMotorLeader.getMotorTemperature(), Celsius);
+
+    if (kickerMotorFollower != null) {
+      inputs.kickerBottomRighturrent = kickerMotorFollower.getOutputCurrent();
+      inputs.kickerFollowerTemp =
+          Fahrenheit.convertFrom(kickerMotorFollower.getMotorTemperature(), Celsius);
+    } else {
+      inputs.kickerBottomRighturrent = 0;
+      inputs.kickerFollowerTemp = 0;
+    }
   }
 
   @Override
@@ -68,12 +89,12 @@ public class KickerIOSpark implements KickerIO {
 
   @Override
   public double getCurrent() {
-    return kickerMotor.getOutputCurrent();
+    return kickerMotorLeader.getOutputCurrent();
   }
 
   @Override
   public double getVoltage() {
-    return kickerMotor.getBusVoltage() * kickerMotor.getAppliedOutput();
+    return kickerMotorLeader.getBusVoltage() * kickerMotorLeader.getAppliedOutput();
   }
 
   @Override
@@ -100,27 +121,32 @@ public class KickerIOSpark implements KickerIO {
 
   @Override
   public void periodic() {
-    // tuning
-    // setReference(reference.get());
-    double kickerFF = kS.get() + (kV.get() * getReference());
+    double ff = 0;
 
-    double p = kP.get();
-    if (lastP != p) {
-      SparkMaxConfig newConfig = new SparkMaxConfig();
-      newConfig.apply(KickerConfig.kickerConfig);
-      newConfig.closedLoop.pid(p, 0, 0, ClosedLoopSlot.kSlot0);
+    if (Robot.tuningMode) {
+      ff = kS.get() + (kV.get() * kTargetVelocity.get());
+      setReference(kTargetVelocity.get());
 
-      kickerMotor.configure(
-          newConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
-
-      lastP = p;
+      if (kP.hasChanged(kP.hashCode()) || kD.hasChanged(kD.hashCode())) {
+        SparkMaxConfig newConfig = new SparkMaxConfig();
+        newConfig.closedLoop.pid(kP.get(), 0.0, kD.get());
+        setVoltage(0);
+        SparkUtil.tryUntilOk(
+            kickerMotorLeader,
+            5,
+            () ->
+                kickerMotorLeader.configure(
+                    newConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters));
+      }
+    } else {
+      ff = KickerConstants.kS + (KickerConstants.kV * kickerReference);
     }
 
-    // Bypass velocity control at 0 RPM to prevent chatter and allow a smooth coast-down
-    if (kickerReference > 0) {
-      kickerController.setSetpoint(kickerReference, kickerType, ClosedLoopSlot.kSlot0, kickerFF);
+    if (kickerType == ControlType.kVelocity) {
+      kickerController.setSetpoint(
+          kickerReference, kickerType, ClosedLoopSlot.kSlot0, ff, ArbFFUnits.kVoltage);
     } else {
-      kickerController.setSetpoint(0, ControlType.kVoltage, ClosedLoopSlot.kSlot0);
+      kickerController.setSetpoint(kickerReference, kickerType, ClosedLoopSlot.kSlot0);
     }
   }
 }
