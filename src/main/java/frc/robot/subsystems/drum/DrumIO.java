@@ -6,6 +6,7 @@ public interface DrumIO {
   @AutoLog
   public static class DrumIOInputs {
     public double shooterReference;
+    public double profiledReference;
     public boolean readyToShoot;
 
     // Leader — used for control

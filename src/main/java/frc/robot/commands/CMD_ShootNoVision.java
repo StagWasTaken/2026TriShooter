@@ -24,15 +24,12 @@ public class CMD_ShootNoVision extends Command {
 
   private boolean shooting;
   private final DoubleSupplier hoodSupplier, shooterSupplier;
-  private boolean alreadyRamped;
 
   // When true, intake collapses after 2 seconds (default behavior).
   // When false, intake stays down and running — operator keeps it extended.
   private final BooleanSupplier stowIntakeOnShoot;
 
   private final Timer timer = new Timer();
-  private final Timer shooterRampTimer = new Timer();
-  private static final double kShooterRampDuration = 1;
 
   // Default constructor — always stows after 2 seconds
   public CMD_ShootNoVision(
@@ -89,19 +86,14 @@ public class CMD_ShootNoVision extends Command {
     shooting = false;
     timer.reset();
     timer.stop();
-    shooterRampTimer.reset();
-    shooterRampTimer.start();
-    alreadyRamped = shooter.getVelocity() > 150;
   }
 
   @Override
   public void execute() {
-    double rampFraction = Math.min(shooterRampTimer.get() / kShooterRampDuration, 1.0);
-    if (alreadyRamped) rampFraction = 1;
-    shooter.setReference(shooterSupplier.getAsDouble() * rampFraction);
+    shooter.setReference(shooterSupplier.getAsDouble());
     hood.setReference(hoodSupplier.getAsDouble());
 
-    if (shooter.isReady() && rampFraction == 1 && hood.atReference() && !shooting) {
+    if (shooter.isReady() && hood.atReference() && !shooting) {
       conveyor.setVoltage(ConveyorConstants.kConvey);
       kicker.setVoltage(KickerConstants.kKick);
       shooting = true;
@@ -111,26 +103,21 @@ public class CMD_ShootNoVision extends Command {
 
     if (shooting) {
       if (!stowIntakeOnShoot.getAsBoolean()) {
-        // Operator wants intake to stay down and running
         if (!intake.getExtenderInPosition()) {
           intake.setExtenderReference(ExtenderConstants.kExtended);
         } else {
-          // Once down, cut extender voltage so it can fold back if bumped
           intake.setExtenderVoltage(0);
           intake.setVoltage(IntakeConstants.kOn);
         }
       } else if (timer.hasElapsed(0.5)) {
         if (intake.getExtenderPosition() > ExtenderConstants.kStow) {
-          // Still above kStow — keep driving it up
           intake.setExtenderVoltage(-1.33);
           intake.setVoltage(2);
         } else {
-          // Reached kStow — stop
           intake.setExtenderVoltage(0);
           intake.setVoltage(0);
         }
       } else {
-        // Waiting for delay — hold extender in place
         intake.setExtenderVoltage(0);
       }
     }

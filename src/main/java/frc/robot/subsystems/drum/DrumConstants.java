@@ -13,9 +13,12 @@ public class DrumConstants {
   public static final int kBottomRightFollowerCanId = 18;
 
   public static final double kS = 0.22;
-  public static final double kV = 0.02025; // .0205
-  public static final double kP = 0.005; // .003
-  public static final double kD = 0.00001;
+  public static final double kV = 0.002119;
+  public static final double kP = 0.000524;
+  public static final double kD = 0.000000274;
+
+  public static final double kProfileMaxVel = 4000.0;
+  public static final double kProfileMaxAccel = 1000.0;
 
   public static final double kPSim = 0.0;
   public static final double kDSim = 0.0;
@@ -31,7 +34,7 @@ public class DrumConstants {
   public static final double kMinOutput = -1;
   public static final double kMaxOutput = 1;
 
-  public static final double kIdleVolts = 0.5; // .33
+  public static final double kIdleVolts = 0.5;
 
   // sim
   public static final double kGearRatio = 1;
@@ -52,7 +55,7 @@ public class DrumConstants {
     return rPath * deltaThetaRadians;
   }
 
-  public static final double kStartOnTargetVel = Math.toRadians(720);
+  public static final double kStartOnTargetVel = 75;
 
   // Shooting table: {distance (meters), angle (degrees), velocity (rpm), time of flight (s)}
   public static final double[][] SHOOTING_TABLE = {
@@ -66,12 +69,12 @@ public class DrumConstants {
   };
 
   public static final double[][] SHOOTING_TABLE_REAL = {
-    {2.032, 15, 191.896, 0.456}, // 80in
-    {2.5400, 17, 200.713, 0.456}, // 100in
-    {2.7940, 18, 209.44, 0.456}, // 110in
-    {3.0480, 18, 222.53, 0.481}, // 120in
-    {3.3000, 20, 218.66, 0.464}, // 130in
-    {3.5560, 25, 218.66, 0.468}, // 140in
+    {2.032, 15, 1832.6, 0.456}, // 80in
+    {2.5400, 17, 1916.7, 0.456}, // 100in
+    {2.7940, 18, 2000.0, 0.456}, // 110in
+    {3.0480, 18, 2125.7, 0.481}, // 120in
+    {3.3000, 20, 2088.8, 0.464}, // 130in
+    {3.5560, 25, 2088.8, 0.468}, // 140in
   };
 
   private static double[] extractColumn(int col) {

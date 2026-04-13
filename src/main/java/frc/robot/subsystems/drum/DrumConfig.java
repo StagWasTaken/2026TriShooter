@@ -17,12 +17,11 @@ public class DrumConfig {
         .idleMode(IdleMode.kCoast)
         .inverted(inverted)
         .smartCurrentLimit(50)
-        .secondaryCurrentLimit(60)
-        .voltageCompensation(12.0);
+        .secondaryCurrentLimit(60);
     config
         .encoder
-        .positionConversionFactor(Math.PI * 2)
-        .velocityConversionFactor((Math.PI * 2) / 60)
+        .positionConversionFactor(1)
+        .velocityConversionFactor(1)
         .uvwAverageDepth(2)
         .uvwMeasurementPeriod(20);
     config

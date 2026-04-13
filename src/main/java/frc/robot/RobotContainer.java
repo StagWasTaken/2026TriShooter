@@ -179,7 +179,9 @@ public class RobotContainer {
     this.ledStatusLight = new LEDStatusLight(0, 155, true, false);
     hoodRef =
         new LoggedNetworkNumber("HoodRef", Robot.CURRENT_ROBOT == RobotName.COMP_BOT ? .2 : 23);
-    shooterRef = new LoggedNetworkNumber("ShooterRef", 12250);
+    shooterRef =
+        new LoggedNetworkNumber(
+            "ShooterRef", Robot.CURRENT_ROBOT == RobotName.COMP_BOT ? 12000 : 2400);
 
     autoChooser = new LoggedDashboardChooser<>("Auto Choices");
 
@@ -212,7 +214,7 @@ public class RobotContainer {
     final JoystickDrive joystickDrive = new JoystickDrive(driveInput, () -> true, pov, drive);
     drive.setDefaultCommand(joystickDrive);
 
-    shooter.setDefaultCommand(shooter.runVelocity(0));
+    // shooter.setDefaultCommand(shooter.runVelocity(0));
     hood.setDefaultCommand(
         hood.setTargetPos(
             Robot.CURRENT_ROBOT_MODE == RobotMode.REAL
@@ -258,7 +260,7 @@ public class RobotContainer {
                   intake,
                   kicker,
                   shooter,
-                  () -> Math.toRadians(shooterRef.get()),
+                  () -> shooterRef.get(),
                   () -> Robot.CURRENT_ROBOT == RobotName.COMP_BOT ? 0.25 : hoodRef.get(),
                   () -> !operator.intakeButton().getAsBoolean(),
                   () -> operator.scoreButton().getAsBoolean()));
@@ -367,7 +369,7 @@ public class RobotContainer {
         intake,
         kicker,
         shooter,
-        () -> 250,
+        () -> 3000,
         () -> Robot.CURRENT_ROBOT == RobotName.COMP_BOT ? 0.25 : 45,
         () -> !operator.intakeButton().getAsBoolean(),
         () -> operator.scoreButton().getAsBoolean());

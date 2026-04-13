@@ -15,8 +15,7 @@ public class ShooterConfig {
         .disableFollowerMode()
         .idleMode(IdleMode.kCoast)
         .inverted(ShooterConstants.kInverted)
-        .smartCurrentLimit(40)
-        .voltageCompensation(12.0);
+        .smartCurrentLimit(40);
     middleShooterConfig
         .encoder
         .positionConversionFactor(Math.PI * 2)
@@ -38,8 +37,7 @@ public class ShooterConfig {
         .disableFollowerMode()
         .idleMode(IdleMode.kCoast)
         .inverted(ShooterConstants.kInverted)
-        .smartCurrentLimit(40)
-        .voltageCompensation(12.0);
+        .smartCurrentLimit(40);
     leftShooterConfig
         .encoder
         .positionConversionFactor(Math.PI * 2)
@@ -61,8 +59,7 @@ public class ShooterConfig {
         .disableFollowerMode()
         .idleMode(IdleMode.kCoast)
         .inverted(ShooterConstants.kInverted)
-        .smartCurrentLimit(40)
-        .voltageCompensation(12.0);
+        .smartCurrentLimit(40);
     rightShooterConfig
         .encoder
         .positionConversionFactor(Math.PI * 2)

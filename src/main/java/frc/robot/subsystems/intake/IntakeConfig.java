@@ -41,11 +41,7 @@ public class IntakeConfig {
         .uvwAverageDepth(4)
         .uvwMeasurementPeriod(16);
 
-    intakeExtenderConfig
-        .disableFollowerMode()
-        .idleMode(IdleMode.kBrake)
-        .smartCurrentLimit(40)
-        .voltageCompensation(12.0);
+    intakeExtenderConfig.disableFollowerMode().idleMode(IdleMode.kBrake).smartCurrentLimit(40);
     intakeExtenderConfig
         .absoluteEncoder
         .positionConversionFactor((Math.PI * 2))

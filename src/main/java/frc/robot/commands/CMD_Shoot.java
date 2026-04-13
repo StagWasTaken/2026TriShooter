@@ -45,9 +45,6 @@ public class CMD_Shoot extends Command {
   private boolean shooting;
   private final Debouncer atSetpointDebouncer = new Debouncer(0.02);
   private final Timer shootTimer = new Timer();
-  private final Timer shooterRampTimer = new Timer();
-  private static final double kShooterRampDuration = 1; // seconds
-  private boolean alreadyRamped;
   private Command driveCommand;
 
   // Teleop constructor — includes driver joystick input and shoot-on-the-fly prediction
@@ -136,19 +133,15 @@ public class CMD_Shoot extends Command {
   @Override
   public void initialize() {
     shooting = false;
-    atSetpointDebouncer.calculate(false); // flush debouncer state
+    atSetpointDebouncer.calculate(false);
     shootTimer.reset();
     shootTimer.stop();
-    shooterRampTimer.reset();
-    shooterRampTimer.start();
-    alreadyRamped = shooter.getVelocity() > 150;
 
     ChassisHeadingController.getInstance()
         .setHeadingRequest(new ChassisHeadingController.NullRequest());
     ChassisHeadingController.getInstance().resetToCurrentPose(drive.getPose());
 
     if (driveSupplier != null) {
-      // Teleop: aim at target while allowing driver to translate
       driveCommand =
           JoystickDriveAndAimAtTarget.driveAndAimAtTarget(
               driveSupplier,
@@ -158,7 +151,6 @@ public class CMD_Shoot extends Command {
               0.5,
               false);
     } else {
-      // Auto: lock in place and aim, with a timeout in case we never fully align
       driveCommand =
           JoystickDriveAndAimAtTarget.driveAndAimAtTarget(
                   new MapleJoystickDriveInput(() -> 0.0, () -> 0.0, () -> 0.0),
@@ -178,17 +170,13 @@ public class CMD_Shoot extends Command {
 
     ShootingParams shootingParams = getShootingParamsWithPrediction();
 
-    // Ramp shooter RPM from 0 → target over kShooterRampDuration seconds
-    double rampFraction = Math.min(shooterRampTimer.get() / kShooterRampDuration, 1.0);
-    if (alreadyRamped) rampFraction = 1;
-    shooter.setReference(shootingParams.shooterReference() * rampFraction);
+    shooter.setReference(shootingParams.shooterReference());
     hood.setReference(shootingParams.hoodReference());
 
     boolean driveReady =
         atSetpointDebouncer.calculate(ChassisHeadingController.getInstance().atSetPoint());
 
-    // Fire once all subsystems are ready — latch shooting=true so we don't re-trigger
-    if (shooter.isReady() && rampFraction == 1 && hood.atReference() && driveReady && !shooting) {
+    if (shooter.isReady() && hood.atReference() && driveReady && !shooting) {
       conveyor.setVoltage(ConveyorConstants.kConvey);
       kicker.setVoltage(KickerConstants.kKick);
       shooting = true;
@@ -196,36 +184,23 @@ public class CMD_Shoot extends Command {
       shootTimer.start();
     }
 
-    if (shooter.isReady() && rampFraction == 1 && hood.atReference() && driveReady && !shooting) {
-      conveyor.setVoltage(ConveyorConstants.kConvey);
-      kicker.setVoltage(KickerConstants.kKick);
-      shooting = true;
-      shooter.startShooting();
-      shootTimer.restart(); // restart so we can use it for the 0.5s intake delay
-    }
-
     if (shooting) {
       if (!stowIntakeOnShoot.getAsBoolean()) {
-        // Operator wants intake to stay down and running
         if (!intake.getExtenderInPosition()) {
           intake.setExtenderReference(ExtenderConstants.kExtended);
         } else {
-          // Once down, cut extender voltage so it can fold back if bumped
           intake.setExtenderVoltage(0);
           intake.setVoltage(IntakeConstants.kOn);
         }
       } else if (shootTimer.hasElapsed(0.5)) {
         if (intake.getExtenderPosition() > ExtenderConstants.kStow) {
-          // Still above kStow — keep driving it up
           intake.setExtenderVoltage(-1.33);
           intake.setVoltage(2);
         } else {
-          // Reached kStow — stop
           intake.setExtenderVoltage(0);
           intake.setVoltage(0);
         }
       } else {
-        // Waiting for delay — hold extender in place
         intake.setExtenderVoltage(0);
       }
     }
