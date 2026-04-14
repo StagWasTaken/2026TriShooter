@@ -25,7 +25,7 @@ public class AUTO_DoubleSweepBumpOpponentLeft implements Auto {
 
   private Command sweepPath(PathPlannerPath path, RobotContainer robot) {
     return new ParallelCommandGroup(
-        AutoBuilder.followPath(path), new CMD_Intake(robot.conveyor, robot.intake)
+        AutoBuilder.followPath(path), new CMD_Intake(robot.intake)
         // Commands.sequence(Commands.waitSeconds(3), robot.shooter.runVoltage(6))
         );
   }

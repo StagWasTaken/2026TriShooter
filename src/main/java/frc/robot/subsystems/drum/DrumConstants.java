@@ -13,8 +13,8 @@ public class DrumConstants {
   public static final int kBottomRightCanId = 18;
 
   public static final double kS = 0.22;
-  public static final double kV = 0.00212;
-  public static final double kP = 0.000524;
+  public static final double kV = 0.002185; // 0.00212
+  public static final double kP = 0.000524; // 0.000524
   public static final double kD = 0.0;
 
   public static final double kProfileMaxVel = 4000.0;

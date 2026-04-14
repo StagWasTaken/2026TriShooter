@@ -1,14 +1,18 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.subsystems.conveyor.Conveyor;
+import frc.robot.subsystems.conveyor.ConveyorConstants;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeConstants;
 import frc.robot.subsystems.intake.IntakeConstants.ExtenderConstants;
 
-public class CMD_Intake extends Command {
+public class CMD_Extake extends Command {
+  private final Conveyor conveyor;
   private final Intake intake;
 
-  public CMD_Intake(Intake intake) {
+  public CMD_Extake(Conveyor conveyor, Intake intake) {
+    this.conveyor = conveyor;
     this.intake = intake;
   }
 
@@ -28,7 +32,8 @@ public class CMD_Intake extends Command {
       return;
     }
 
-    intake.setReference(IntakeConstants.kIntake);
+    intake.setReference(IntakeConstants.kExtake);
+    conveyor.setVoltage(ConveyorConstants.kExtake);
     intake.setExtenderVoltage(0.1);
   }
 }

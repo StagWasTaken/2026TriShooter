@@ -111,7 +111,7 @@ public class CMD_ShootNoVision extends Command {
           intake.setExtenderReference(ExtenderConstants.kExtended);
         } else {
           intake.setExtenderVoltage(0);
-          intake.setVoltage(IntakeConstants.kOn);
+          intake.setReference(IntakeConstants.kIntake);
         }
       }
     } else if (timer.hasElapsed(0.5)) {

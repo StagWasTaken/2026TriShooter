@@ -72,6 +72,10 @@ public class Intake extends SubsystemBase {
     io.setReference(velocity);
   }
 
+  public Command runVelocity(double velocity) {
+    return Commands.runOnce(() -> io.setReference(velocity));
+  }
+
   public double getExtenderReference() {
     return io.getExtenderReference();
   }

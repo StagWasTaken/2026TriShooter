@@ -36,7 +36,6 @@ import frc.robot.subsystems.drive.io.*;
 import frc.robot.subsystems.drum.*;
 import frc.robot.subsystems.hood.*;
 import frc.robot.subsystems.intake.*;
-import frc.robot.subsystems.intake.IntakeConstants.ExtenderConstants;
 import frc.robot.subsystems.kicker.*;
 import frc.robot.subsystems.led.LEDStatusLight;
 import frc.robot.subsystems.shooter.*;
@@ -214,7 +213,7 @@ public class RobotContainer {
     final JoystickDrive joystickDrive = new JoystickDrive(driveInput, () -> true, pov, drive);
     drive.setDefaultCommand(joystickDrive);
 
-    // shooter.setDefaultCommand(shooter.runVelocity(0));
+    shooter.setDefaultCommand(shooter.runVelocity(0));
     hood.setDefaultCommand(
         hood.setTargetPos(
             Robot.CURRENT_ROBOT_MODE == RobotMode.REAL
@@ -248,7 +247,7 @@ public class RobotContainer {
 
       driver
           .intakeButton()
-          .whileTrue(new CMD_Intake(conveyor, intake))
+          .whileTrue(new CMD_Intake(intake))
           .onFalse(new CMD_Extend(conveyor, intake));
 
       driver
@@ -285,13 +284,7 @@ public class RobotContainer {
 
       driver
           .xButton()
-          .whileTrue(
-              intake
-                  .runVoltage(IntakeConstants.kExtake)
-                  .beforeStarting(
-                      conveyor
-                          .runVoltage(ConveyorConstants.kExtake)
-                          .alongWith(intake.setExtenderTargetAngle(ExtenderConstants.kExtended))))
+          .whileTrue(new CMD_Extake(conveyor, intake))
           .onFalse(new CMD_Extend(conveyor, intake));
 
       driver.bButton().onTrue(new CMD_HomeHood(hood));

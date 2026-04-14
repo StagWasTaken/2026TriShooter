@@ -4,15 +4,51 @@ public class IntakeConstants {
   public static final int kIntakeCanId = 12;
   public static final int kIntakeBottomRightanId = 1;
 
-  public static final double kP = 0;
+  public static final boolean kInverted = false;
+  public static final boolean kSecondaryInverted = false;
+  public static final double kMinOutput = -1;
+  public static final double kMaxOutput = 1;
+
+  public static final double kIntake = 4000;
+  public static final double kOff = 0;
+  public static final double kExtake = -kIntake;
+
+  public static final double kProfileMaxVel = 5000;
+  public static final double kProfileMaxAccel = 15000;
+
+  // Top roller gains
+  public static final double kP = 0.001;
   public static final double kI = 0.0;
   public static final double kD = 0.0;
 
-  public static final double kV = 0.0;
-  public static final double kS = 0.0;
-  public static final double kG = 0.0;
-  public static final double kA = 0.0;
+  public static final double kS = 0.13;
+  public static final double kV = 0.00177;
 
+  // Bottom roller gains
+  public static final double kPBottom = 0.0;
+  public static final double kIBottom = 0.0;
+  public static final double kDBottom = 0.0;
+
+  public static final double kSBottom = 0.13;
+  public static final double kVBottom = 0.00177;
+
+  // Top roller geometry — 1.5in diameter, 2:1 reduction
+  public static final double kGearRatio = 2.0;
+  public static final double kRollerDiameterInches = 1.5;
+  public static final double kRollerCircumferenceFeet = (Math.PI * kRollerDiameterInches) / 12.0;
+  public static final double kRPMToFtPerSec = kRollerCircumferenceFeet / (kGearRatio * 60.0);
+  public static final double kFtPerSecToRPM = 1.0 / kRPMToFtPerSec;
+
+  // Bottom roller geometry — 1.125in diameter, 2:1 reduction
+  public static final double kBottomGearRatio = 2.0;
+  public static final double kBottomRollerDiameterInches = 1.125;
+  public static final double kBottomRollerCircumferenceFeet =
+      (Math.PI * kBottomRollerDiameterInches) / 12.0;
+  public static final double kBottomRPMToFtPerSec =
+      kBottomRollerCircumferenceFeet / (kBottomGearRatio * 60.0);
+  public static final double kBottomFtPerSecToRPM = 1.0 / kBottomRPMToFtPerSec;
+
+  // sim
   public static final double kPSim = 0.0;
   public static final double kISim = 0.0;
   public static final double kDSim = 0.0;
@@ -21,17 +57,6 @@ public class IntakeConstants {
   public static final double kVSim = 0.0;
   public static final double kGSim = 0.0;
   public static final double kASim = 0.0;
-
-  public static final boolean kInverted = false;
-  public static final boolean kSecondaryInverted = false;
-  public static final double kMinOutput = -1;
-  public static final double kMaxOutput = 1;
-
-  public static final double kOn = 6.5;
-  public static final double kOff = 0;
-  public static final double kExtake = -kOn;
-
-  public static final double kGearRatio = 1;
 
   public static final class ExtenderConstants {
     public static final int kIntakeExtenderCanId = 7;

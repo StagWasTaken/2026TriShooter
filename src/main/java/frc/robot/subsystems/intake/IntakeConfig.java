@@ -20,26 +20,24 @@ public class IntakeConfig {
         .idleMode(IdleMode.kCoast)
         .inverted(IntakeConstants.kInverted)
         .smartCurrentLimit(40);
-    // .voltageCompensation(12.0);
     intakeConfig
         .encoder
-        .positionConversionFactor((Math.PI * 2) / IntakeConstants.kGearRatio)
-        .velocityConversionFactor((Math.PI * 2) / (60 * IntakeConstants.kGearRatio))
+        .positionConversionFactor(1)
+        .velocityConversionFactor(1)
         .uvwAverageDepth(4)
-        .uvwMeasurementPeriod(16);
+        .uvwMeasurementPeriod(20);
 
     secondaryRollerConfig
         .disableFollowerMode()
         .idleMode(IdleMode.kCoast)
         .inverted(IntakeConstants.kSecondaryInverted)
         .smartCurrentLimit(40);
-    // .voltageCompensation(12.0);
     secondaryRollerConfig
         .encoder
-        .positionConversionFactor((Math.PI * 2) / IntakeConstants.kGearRatio)
-        .velocityConversionFactor((Math.PI * 2) / (60 * IntakeConstants.kGearRatio))
+        .positionConversionFactor(1)
+        .velocityConversionFactor(1)
         .uvwAverageDepth(4)
-        .uvwMeasurementPeriod(16);
+        .uvwMeasurementPeriod(20);
 
     intakeExtenderConfig.disableFollowerMode().idleMode(IdleMode.kBrake).smartCurrentLimit(40);
     intakeExtenderConfig
