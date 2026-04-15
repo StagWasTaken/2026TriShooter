@@ -14,7 +14,7 @@ public class DrumConstants {
 
   public static final double kS = 0.22;
   public static final double kV = 0.002185; // 0.00212
-  public static final double kP = 0.000524; // 0.000524
+  public static final double kP = 0.0025; // 0.000524
   public static final double kD = 0.0;
 
   public static final double kProfileMaxVel = 4000.0;
@@ -35,7 +35,7 @@ public class DrumConstants {
   public static final double kMaxOutput = 1;
 
   public static final double kIdleVolts = 0.5;
-  public static final double kStowVolts = -1.33;
+  public static final double kStowVolts = -1.67;
   public static final double kSlowStowVolts = -1.0;
   public static final double kStartOnTargetVel = 50;
 
@@ -70,12 +70,16 @@ public class DrumConstants {
   };
 
   public static final double[][] SHOOTING_TABLE_REAL = {
-    {2.032, 15, 1832.6, 0.456}, // 80in
-    {2.5400, 17, 1916.7, 0.456}, // 100in
-    {2.7940, 18, 2000.0, 0.456}, // 110in
-    {3.0480, 18, 2125.7, 0.481}, // 120in
-    {3.3000, 20, 2088.8, 0.464}, // 130in
-    {3.5560, 25, 2088.8, 0.468}, // 140in
+    {1.524, 3.00, 1900.0, 0.456, 1.214}, // 60in
+    {2.032, 15.00, 1832.6, 0.456, 1.334}, // 80in
+    {2.540, 17.00, 1916.7, 0.456, 1.328}, // 100in
+    {2.794, 21.00, 2100.0, 0.456, 1.282}, // 110in
+    {3.048, 22.00, 2250.0, 0.481, 1.248}, // 120in
+    {3.300, 25.00, 2300.0, 0.464, 1.283}, // 130in
+    {3.810, 25.33, 2400.0, 0.468, 1.375}, // 140in
+    {4.064, 26.00, 2500.0, 0.468, 1.332}, // 160in
+    {4.318, 27.00, 2550.0, 0.468, 1.328}, // 170in
+    {5.080, 25.00, 2700.0, 0.468, 1.196} // 200in
   };
 
   private static double[] extractColumn(int col) {

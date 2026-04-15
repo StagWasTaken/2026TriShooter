@@ -192,18 +192,16 @@ public class CMD_Shoot extends Command {
           intake.setExtenderVoltage(0);
           intake.setReference(IntakeConstants.kIntake);
         }
-      } else if (shootTimer.hasElapsed(0.5)) {
-        if (intake.getExtenderPosition() > ExtenderConstants.kStow) {
-          intake.setExtenderVoltage(
-              slowStow.getAsBoolean() ? DrumConstants.kSlowStowVolts : DrumConstants.kStowVolts);
-          intake.setVoltage(2);
-        } else {
-          intake.setExtenderVoltage(0);
-          intake.setVoltage(0);
-        }
+      } else if (intake.getExtenderPosition() > ExtenderConstants.kStow) {
+        intake.setExtenderVoltage(
+            slowStow.getAsBoolean() ? DrumConstants.kSlowStowVolts : DrumConstants.kStowVolts);
+        intake.setVoltage(2);
       } else {
         intake.setExtenderVoltage(0);
+        intake.setVoltage(0);
       }
+    } else {
+      intake.setExtenderVoltage(0);
     }
   }
 

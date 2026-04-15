@@ -113,9 +113,7 @@ public class CMD_ShootNoVision extends Command {
           intake.setExtenderVoltage(0);
           intake.setReference(IntakeConstants.kIntake);
         }
-      }
-    } else if (timer.hasElapsed(0.5)) {
-      if (intake.getExtenderPosition() > ExtenderConstants.kStow) {
+      } else if (intake.getExtenderPosition() > ExtenderConstants.kStow) {
         intake.setExtenderVoltage(
             slowStow.getAsBoolean() ? DrumConstants.kSlowStowVolts : DrumConstants.kStowVolts);
         intake.setVoltage(2);
@@ -123,6 +121,8 @@ public class CMD_ShootNoVision extends Command {
         intake.setExtenderVoltage(0);
         intake.setVoltage(0);
       }
+    } else {
+      intake.setExtenderVoltage(0);
     }
   }
 

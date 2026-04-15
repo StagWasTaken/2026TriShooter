@@ -5,6 +5,8 @@ import com.pathplanner.lib.path.PathPlannerPath;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.RobotContainer;
 import frc.robot.autos.Auto;
 import frc.robot.commands.*;
@@ -23,11 +25,11 @@ public class AUTO_DoubleSweepBumpOpponentLeft implements Auto {
     }
   }
 
-  private Command sweepPath(PathPlannerPath path, RobotContainer robot) {
+  private Command sweepPath(PathPlannerPath path, RobotContainer robot, double spinupDelay) {
     return new ParallelCommandGroup(
-        AutoBuilder.followPath(path), new CMD_Intake(robot.intake)
-        // Commands.sequence(Commands.waitSeconds(3), robot.shooter.runVoltage(6))
-        );
+        AutoBuilder.followPath(path),
+        new CMD_Intake(robot.intake),
+        new SequentialCommandGroup(new WaitCommand(spinupDelay), robot.shooter.runVelocity(2000)));
   }
 
   private Command shootCycle(RobotContainer robot, double timeout) {
@@ -48,9 +50,9 @@ public class AUTO_DoubleSweepBumpOpponentLeft implements Auto {
   public Command getAutoCommand(RobotContainer robot) {
     return Commands.sequence(
         setAutoStartPose("SweepMiddleBump", true, robot.drive),
-        sweepPath(sweepHalfMiddle, robot),
+        sweepPath(sweepHalfMiddle, robot, 5),
         shootCycle(robot, 3.5),
-        sweepPath(sweepAgain, robot),
-        shootCycle(robot, 3.5));
+        sweepPath(sweepAgain, robot, 7),
+        shootCycle(robot, 5));
   }
 }

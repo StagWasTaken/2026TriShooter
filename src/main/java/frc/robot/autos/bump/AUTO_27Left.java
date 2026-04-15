@@ -5,6 +5,8 @@ import com.pathplanner.lib.path.PathPlannerPath;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.RobotContainer;
 import frc.robot.autos.Auto;
 import frc.robot.commands.*;
@@ -24,7 +26,10 @@ public class AUTO_27Left implements Auto {
   }
 
   private Command sweepPath(PathPlannerPath path, RobotContainer robot, double spinupDelay) {
-    return new ParallelCommandGroup(AutoBuilder.followPath(path), new CMD_Intake(robot.intake));
+    return new ParallelCommandGroup(
+        AutoBuilder.followPath(path),
+        new CMD_Intake(robot.intake),
+        new SequentialCommandGroup(new WaitCommand(spinupDelay), robot.shooter.runVelocity(2000)));
   }
 
   private Command shootCycle(RobotContainer robot, double timeout) {
@@ -45,9 +50,9 @@ public class AUTO_27Left implements Auto {
   public Command getAutoCommand(RobotContainer robot) {
     return Commands.sequence(
         setAutoStartPose("SweepMiddle27", true, robot.drive),
-        sweepPath(sweepHalfMiddle, robot, 4),
+        sweepPath(sweepHalfMiddle, robot, 5),
         shootCycle(robot, 3.5),
-        sweepPath(sweepAgain, robot, 6),
+        sweepPath(sweepAgain, robot, 7),
         shootCycle(robot, 5));
   }
 }
