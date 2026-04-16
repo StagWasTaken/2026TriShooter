@@ -9,12 +9,12 @@ public class IntakeConstants {
   public static final double kMinOutput = -1;
   public static final double kMaxOutput = 1;
 
-  public static final double kIntake = 5500;
+  public static final double kIntake = 5500; // rpm
   public static final double kOff = 0;
-  public static final double kExtake = -kIntake;
+  public static final double kExtake = -12; // volts
 
-  public static final double kProfileMaxVel = 10000;
-  public static final double kProfileMaxAccel = 25000;
+  public static final double kProfileMaxVel = 10000; // rpm
+  public static final double kProfileMaxAccel = 25000; // rpm
 
   // Top roller gains
   public static final double kP = 0.001;

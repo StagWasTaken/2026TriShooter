@@ -32,7 +32,7 @@ public class CMD_Extake extends Command {
       return;
     }
 
-    intake.setReference(IntakeConstants.kExtake);
+    intake.setVoltage(IntakeConstants.kExtake);
     conveyor.setVoltage(ConveyorConstants.kExtake);
     intake.setExtenderVoltage(0.1);
   }
