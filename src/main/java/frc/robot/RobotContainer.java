@@ -15,7 +15,6 @@ package frc.robot;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -289,8 +288,21 @@ public class RobotContainer {
 
       driver.bButton().onTrue(new CMD_HomeHood(hood));
 
+      // operator
+
+      operator.leftBumper().whileTrue(aimPassLeft());
+      operator.rightBumper().whileTrue(aimPassRight());
+      operator
+          .aButton()
+          .onTrue(
+              shooter.runVelocity(
+                  Robot.CURRENT_ROBOT == RobotName.HYDRA ? Math.toRadians(12000) : 2000));
+
     } else if (Robot.CURRENT_ROBOT_MODE == RobotMode.SIM) {
       driver.scoreButton().whileTrue(new CMD_ShootFuelSim(drive, driveSimulation, driveInput));
+
+      operator.leftBumper().whileTrue(aimPassLeft());
+      operator.rightBumper().whileTrue(aimPassRight());
     }
   }
 
@@ -368,8 +380,27 @@ public class RobotContainer {
         () -> operator.scoreButton().getAsBoolean());
   }
 
-  public Translation2d flipLeftRight(Translation2d translation) {
-    return new Translation2d(
-        translation.getX(), FieldMirroringUtils.FIELD_HEIGHT - translation.getY());
+  public Command aimPassLeft() {
+    return JoystickDriveAndAimAtTarget.driveAndAimAtTarget(
+            driver.getDriveInput(),
+            drive,
+            () ->
+                FieldMirroringUtils.toCurrentAllianceTranslation(FieldConstants.LeftPassingTarget),
+            DrumConstants.kShooterOptimization,
+            1,
+            false)
+        .onlyWhile(() -> driver.rightBumper().getAsBoolean() || driver.yButton().getAsBoolean());
+  }
+
+  public Command aimPassRight() {
+    return JoystickDriveAndAimAtTarget.driveAndAimAtTarget(
+            driver.getDriveInput(),
+            drive,
+            () ->
+                FieldMirroringUtils.toCurrentAllianceTranslation(FieldConstants.RightPassingTarget),
+            DrumConstants.kShooterOptimization,
+            1,
+            false)
+        .onlyWhile(() -> driver.rightBumper().getAsBoolean() || driver.yButton().getAsBoolean());
   }
 }

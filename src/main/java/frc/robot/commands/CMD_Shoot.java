@@ -147,7 +147,7 @@ public class CMD_Shoot extends Command {
               driveSupplier,
               drive,
               targetSupplier::get,
-              ShooterConstants.kShooterOptimization,
+              DrumConstants.kShooterOptimization,
               0.5,
               false);
     } else {
