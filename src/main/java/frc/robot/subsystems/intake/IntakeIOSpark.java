@@ -58,6 +58,7 @@ public class IntakeIOSpark implements IntakeIO {
 
   private double intakeExtenderReference;
   private ControlType intakeExtenderType;
+  private double extenderOffsetRad = 0.0;
 
   public IntakeIOSpark() {
     intakeMotor = new SparkFlex(IntakeConstants.kIntakeCanId, MotorType.kBrushless);
@@ -224,14 +225,24 @@ public class IntakeIOSpark implements IntakeIO {
   }
 
   @Override
-  public double getExtenderPosition() {
-    return intakeExtenderEncoder.getPosition();
-  }
-
-  @Override
   public boolean getExtenderInPosition() {
     double positionError = Math.abs(getExtenderPosition() - getExtenderReference());
     return positionError < ExtenderConstants.kPositionTolerance;
+  }
+
+  @Override
+  public double getExtenderPosition() {
+    return intakeExtenderEncoder.getPosition() - extenderOffsetRad;
+  }
+
+  @Override
+  public void resetEncoder() {
+    double currentPhysicalPos = intakeExtenderEncoder.getPosition();
+    double targetRad = Units.degreesToRadians(315.0);
+
+    // Offset = Physical Position - Desired Position
+    // This makes: (Physical - Offset) = targetRad
+    extenderOffsetRad = currentPhysicalPos - targetRad;
   }
 
   private void setTopVoltage(double voltage) {

@@ -34,6 +34,16 @@ public class Shooter extends SubsystemBase implements Shootable {
   }
 
   @Override
+  public void setPreRev(double velocity) {
+    setReference(velocity);
+  }
+
+  @Override
+  public Command runPreRev(double velocity) {
+    return runVelocity(velocity);
+  }
+
+  @Override
   public boolean isReady() {
     return io.isReady();
   }

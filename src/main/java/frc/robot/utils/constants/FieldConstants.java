@@ -14,8 +14,8 @@ public class FieldConstants {
       new Translation2d(Units.inchesToMeters(469.11), Units.inchesToMeters(158.84));
 
   // corner of the field on blue side
-  public static final Translation2d RightPassingTarget = new Translation2d(1.5, 2.5);
-  public static final Translation2d LeftPassingTarget = new Translation2d(1.5, 5.5);
+  public static final Translation2d RightPassingTarget = new Translation2d(1.5, 1.67);
+  public static final Translation2d LeftPassingTarget = new Translation2d(1.5, 6.33);
 
   // Returns the current alliance, defaulting to Blue if disconnected
   public static DriverStation.Alliance getAlliance() {

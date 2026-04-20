@@ -95,5 +95,8 @@ public class IntakeConstants {
     public static final double kGearRatio = 81;
     // absolute encoder has another 3:1 reduction after it
     public static final double kAbsoluteGearRatio = 3;
+
+    public static final double kHomingVoltage = 1;
+    public static final double kHomingVelocityThreshold = 0.0025;
   }
 }

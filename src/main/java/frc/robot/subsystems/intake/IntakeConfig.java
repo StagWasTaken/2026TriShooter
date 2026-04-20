@@ -55,9 +55,9 @@ public class IntakeConfig {
     intakeExtenderConfig
         .softLimit
         .forwardSoftLimit(ExtenderConstants.kExtended + ExtenderConstants.kPositionTolerance)
-        .forwardSoftLimitEnabled(true)
+        .forwardSoftLimitEnabled(false)
         .reverseSoftLimit(ExtenderConstants.kHome - ExtenderConstants.kPositionTolerance)
-        .reverseSoftLimitEnabled(true);
+        .reverseSoftLimitEnabled(false);
     intakeExtenderConfig
         .closedLoop
         .maxMotion

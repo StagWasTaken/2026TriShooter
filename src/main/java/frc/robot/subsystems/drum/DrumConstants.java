@@ -18,7 +18,10 @@ public class DrumConstants {
   public static final double kD = 0.0;
 
   public static final double kProfileMaxVel = 4000.0;
-  public static final double kProfileMaxAccel = 20000.0;
+  public static final double kProfileMaxAccel = 5000.0;
+
+  public static final double kPreRevMaxVel = 1000.0;
+  public static final double kPreRevMaxAccel = 1000.0;
 
   public static final double kPSim = 0.0;
   public static final double kDSim = 0.0;
@@ -71,10 +74,10 @@ public class DrumConstants {
 
   public static final double[][] SHOOTING_TABLE_REAL = {
     {1.524, 3.00, 1900.0, 0.456, 1.214}, // 60in
-    {2.032, 15.00, 1832.6, 0.456, 1.334}, // 80in
-    {2.540, 17.00, 1916.7, 0.456, 1.328}, // 100in
+    {2.032, 15.00, 1800.0, 0.456, 1.334}, // 80in
+    {2.540, 17.00, 1900.0, 0.456, 1.328}, // 100in
     {2.794, 21.00, 2100.0, 0.456, 1.282}, // 110in
-    {3.048, 22.00, 2250.0, 0.481, 1.248}, // 120in
+    {3.048, 22.00, 2200.0, 0.481, 1.248}, // 120in
     {3.300, 25.00, 2300.0, 0.464, 1.283}, // 130in
     {3.810, 25.33, 2400.0, 0.468, 1.375}, // 140in
     {4.064, 26.00, 2500.0, 0.468, 1.332}, // 160in

@@ -50,8 +50,8 @@ public class AUTO_27Right implements Auto {
   public Command getAutoCommand(RobotContainer robot) {
     return Commands.sequence(
         setAutoStartPose("SweepMiddle27", false, robot.drive),
-        sweepPath(sweepHalfMiddle, robot, 5),
-        shootCycle(robot, 3.5),
+        sweepPath(sweepHalfMiddle, robot, 4.5),
+        shootCycle(robot, 2.5),
         sweepPath(sweepAgain, robot, 7),
         shootCycle(robot, 5));
   }

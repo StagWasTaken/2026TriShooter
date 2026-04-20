@@ -369,8 +369,17 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer, Holon
     return maxSpeedMetersPerSec / driveBaseRadius;
   }
 
+  private Translation2d centerOfRotation = new Translation2d();
+
   @Override
   public void runRobotCentricChassisSpeeds(ChassisSpeeds speeds) {
+    // Overload this to default to center (0,0) if no CoR is provided
+    runRobotCentricChassisSpeeds(speeds, new Translation2d());
+  }
+
+  /** New method to support pivoting around a point */
+  public void runRobotCentricChassisSpeeds(ChassisSpeeds speeds, Translation2d CoR) {
+    this.centerOfRotation = CoR;
     this.setpoint = new SwerveSetpoint(speeds, getModuleStates(), null);
     executeSetpoint();
   }
@@ -383,10 +392,10 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer, Holon
   }
 
   private void executeSetpoint() {
+    ChassisSpeeds speeds = setpoint.robotRelativeSpeeds();
     OptionalDouble angularVelocityOverride =
         ChassisHeadingController.getInstance()
             .calculate(getMeasuredChassisSpeedsFieldRelative(), getPose());
-    ChassisSpeeds speeds = setpoint.robotRelativeSpeeds();
 
     if (angularVelocityOverride.isPresent()) {
       speeds =
@@ -397,7 +406,8 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer, Holon
       speeds = ChassisSpeeds.discretize(speeds, Robot.defaultPeriodSecs);
     }
 
-    SwerveModuleState[] setPointStates = DRIVE_KINEMATICS.toSwerveModuleStates(speeds);
+    SwerveModuleState[] setPointStates =
+        DRIVE_KINEMATICS.toSwerveModuleStates(speeds, centerOfRotation);
     SwerveDriveKinematics.desaturateWheelSpeeds(setPointStates, CHASSIS_MAX_VELOCITY);
 
     // Send setpoints to modules

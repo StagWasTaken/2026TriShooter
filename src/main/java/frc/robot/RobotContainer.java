@@ -175,7 +175,8 @@ public class RobotContainer {
     }
 
     this.ledStatusLight = new LEDStatusLight(0, 155, true, false);
-    hoodRef = new LoggedNetworkNumber("HoodRef", Robot.CURRENT_ROBOT == RobotName.HYDRA ? .2 : 33);
+    hoodRef =
+        new LoggedNetworkNumber("HoodRef", Robot.CURRENT_ROBOT == RobotName.HYDRA ? .2 : 25.33);
     shooterRef =
         new LoggedNetworkNumber(
             "ShooterRef",
@@ -212,7 +213,7 @@ public class RobotContainer {
     final JoystickDrive joystickDrive = new JoystickDrive(driveInput, () -> true, pov, drive);
     drive.setDefaultCommand(joystickDrive);
 
-    shooter.setDefaultCommand(shooter.runVelocity(0));
+    // shooter.setDefaultCommand(shooter.runVelocity(0));
     hood.setDefaultCommand(
         hood.setTargetPos(
             Robot.CURRENT_ROBOT_MODE == RobotMode.REAL
@@ -265,8 +266,6 @@ public class RobotContainer {
 
       driver.rightBumper().whileTrue(pass());
 
-      driver.aButton().onTrue(new CMD_Home(intake));
-
       driver
           .yButton()
           .whileTrue(
@@ -286,17 +285,23 @@ public class RobotContainer {
           .whileTrue(new CMD_Extake(conveyor, intake))
           .onFalse(new CMD_Extend(conveyor, intake));
 
-      driver.bButton().onTrue(new CMD_HomeHood(hood));
+      driver.aButton().onTrue(new CMD_Home(intake));
+
+      driver
+          .bButton()
+          .whileTrue(new DynamicPivotJoystickDrive(driver.getDriveInput(), true, () -> -1, drive));
 
       // operator
 
       operator.leftBumper().whileTrue(aimPassLeft());
       operator.rightBumper().whileTrue(aimPassRight());
+      operator.aButton().onTrue(shooter.runPreRev(2000));
+      operator.yButton().onTrue(new CMD_HomeIntake(intake));
+      operator.bButton().onTrue(new CMD_HomeHood(hood));
       operator
-          .aButton()
-          .onTrue(
-              shooter.runVelocity(
-                  Robot.CURRENT_ROBOT == RobotName.HYDRA ? Math.toRadians(12000) : 2000));
+          .xButton()
+          .whileTrue(intake.runVelocity(IntakeConstants.kIntake))
+          .onFalse(intake.runVelocity(IntakeConstants.kOff));
 
     } else if (Robot.CURRENT_ROBOT_MODE == RobotMode.SIM) {
       driver.scoreButton().whileTrue(new CMD_ShootFuelSim(drive, driveSimulation, driveInput));
@@ -374,33 +379,31 @@ public class RobotContainer {
         intake,
         kicker,
         shooter,
-        () -> Robot.CURRENT_ROBOT == RobotName.HYDRA ? Math.toRadians(15000) : 2700,
-        () -> Robot.CURRENT_ROBOT == RobotName.HYDRA ? 0.25 : 50,
+        () -> Robot.CURRENT_ROBOT == RobotName.HYDRA ? Math.toRadians(15000) : 2800,
+        () -> Robot.CURRENT_ROBOT == RobotName.HYDRA ? 0.25 : 33,
         () -> !operator.intakeButton().getAsBoolean(),
         () -> operator.scoreButton().getAsBoolean());
   }
 
   public Command aimPassLeft() {
     return JoystickDriveAndAimAtTarget.driveAndAimAtTarget(
-            driver.getDriveInput(),
-            drive,
-            () ->
-                FieldMirroringUtils.toCurrentAllianceTranslation(FieldConstants.LeftPassingTarget),
-            DrumConstants.kShooterOptimization,
-            1,
-            false)
-        .onlyWhile(() -> driver.rightBumper().getAsBoolean() || driver.yButton().getAsBoolean());
+        driver.getDriveInput(),
+        drive,
+        () -> FieldMirroringUtils.toCurrentAllianceTranslation(FieldConstants.LeftPassingTarget),
+        DrumConstants.kShooterOptimization,
+        1,
+        false,
+        () -> driver.rightBumper().getAsBoolean() || driver.yButton().getAsBoolean());
   }
 
   public Command aimPassRight() {
     return JoystickDriveAndAimAtTarget.driveAndAimAtTarget(
-            driver.getDriveInput(),
-            drive,
-            () ->
-                FieldMirroringUtils.toCurrentAllianceTranslation(FieldConstants.RightPassingTarget),
-            DrumConstants.kShooterOptimization,
-            1,
-            false)
-        .onlyWhile(() -> driver.rightBumper().getAsBoolean() || driver.yButton().getAsBoolean());
+        driver.getDriveInput(),
+        drive,
+        () -> FieldMirroringUtils.toCurrentAllianceTranslation(FieldConstants.RightPassingTarget),
+        DrumConstants.kShooterOptimization,
+        1,
+        false,
+        () -> driver.rightBumper().getAsBoolean() || driver.yButton().getAsBoolean());
   }
 }
