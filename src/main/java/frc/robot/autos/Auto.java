@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.RobotContainer;
 import frc.robot.commands.*;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.utils.LoggedTunableNumber;
 import frc.robot.utils.constants.FieldConstants;
 import java.io.IOException;
 import java.util.function.Supplier;
@@ -19,7 +20,16 @@ import org.ironmaple.utils.FieldMirroringUtils;
 import org.json.simple.parser.ParseException;
 
 public interface Auto {
+  /** Tunable delay to avoid collisions with partners at the start of Auto. */
+  static final LoggedTunableNumber autoStartDelay =
+      new LoggedTunableNumber("Auto/StartDelaySeconds", 0.0);
+
   Command getAutoCommand(RobotContainer robot) throws IOException, ParseException;
+
+  /** Wraps the auto command with a leading WaitCommand based on the dashboard value. */
+  default Command getDelayedAutoCommand(RobotContainer robot) throws IOException, ParseException {
+    return Commands.sequence(new WaitCommand(autoStartDelay.get()), getAutoCommand(robot));
+  }
 
   default Command shootCycle(
       RobotContainer robot, Supplier<Translation2d> targetSupplier, double timeout) {
@@ -27,7 +37,6 @@ public interface Auto {
         new CMD_Extend(robot.conveyor, robot.intake),
         new CMD_Shoot(
                 robot.drive,
-                // Extract the Translation2d from the target Pose2d
                 () -> targetSupplier.get(),
                 robot.conveyor,
                 robot.hood,
@@ -37,14 +46,11 @@ public interface Auto {
             .withTimeout(timeout));
   }
 
-  /** Default shootCycle targeting the Hub. */
   default Command shootCycle(RobotContainer robot, double timeout) {
     return shootCycle(robot, () -> FieldConstants.getHubPose(), timeout);
   }
 
-  /** Helper to follow a path while intaking and spinning up the shooter. */
   default Command sweepPath(PathPlannerPath path, RobotContainer robot, double spinupDelay) {
-    // The path is the 'deadline'. When it ends, the group ends.
     return AutoBuilder.followPath(path)
         .deadlineWith(
             new CMD_Intake(robot.intake),

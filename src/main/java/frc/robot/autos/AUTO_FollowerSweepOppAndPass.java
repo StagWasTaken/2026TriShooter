@@ -5,15 +5,16 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.RobotContainer;
 
-public class AUTO_FollowerSweepAndPass implements Auto {
+public class AUTO_FollowerSweepOppAndPass implements Auto {
   private final PathPlannerPath sweepMiddle;
-  private final String startPathName = "FollowerSweepAndPass";
-  private boolean isMirrored = false;
+  private final String startPathName = "FollowerSweepOppAndPass";
+  private boolean isMirrored;
 
   /**
    * @param mirrored Whether to mirror the paths and the starting pose.
    */
-  public AUTO_FollowerSweepAndPass() {
+  public AUTO_FollowerSweepOppAndPass(boolean mirrored) {
+    this.isMirrored = mirrored;
     try {
       // Logic for loading paths based on the mirrored boolean
       sweepMiddle = Auto.getPath(startPathName, isMirrored);

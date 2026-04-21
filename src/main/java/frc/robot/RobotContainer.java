@@ -182,9 +182,20 @@ public class RobotContainer {
 
     autoChooser = new LoggedDashboardChooser<>("Auto Choices");
 
-    autoChooser.addOption("27 left", new AUTO_27(true));
-    autoChooser.addOption("27 right", new AUTO_27(false));
+    // main autos
+    autoChooser.addOption("27 Left", new AUTO_27(true));
+    autoChooser.addOption("27 Right", new AUTO_27(false));
+
+    // 2nd pick autos
+    autoChooser.addOption("Follower Opp & Pass Left", new AUTO_FollowerSweepOppAndPass(true));
+    autoChooser.addOption("Follower Opp & Pass Right", new AUTO_FollowerSweepOppAndPass(false));
+    autoChooser.addOption("Follower Opp & Shoot Left", new AUTO_FollowerSweepOppAndShoot(true));
+    autoChooser.addOption("Follower Opp & Shoot Left", new AUTO_FollowerSweepOppAndShoot(false));
+    autoChooser.addOption("Follow & Shoot Left", new AUTO_FollowerSweepAndShoot(true));
+    autoChooser.addOption("Follow & Shoot Right", new AUTO_FollowerSweepAndShoot(false));
     autoChooser.addOption("Depot", new AUTO_Depot());
+
+    // test / utility autos
     autoChooser.addOption("intake test", new AUTO_3MeterTest());
 
     configureButtonBindings();

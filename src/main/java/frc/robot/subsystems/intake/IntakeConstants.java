@@ -61,7 +61,7 @@ public class IntakeConstants {
   public static final class ExtenderConstants {
     public static final int kIntakeExtenderCanId = 7;
 
-    public static final double kP = 5;
+    public static final double kP = 0.0;
     public static final double kI = 0.0;
     public static final double kD = 0.0;
 
@@ -87,9 +87,6 @@ public class IntakeConstants {
     public static final double kStow = Math.toRadians(120);
     public static final double kExtended = Math.toRadians(315);
 
-    public static final double kMaxVel = Math.toRadians(43200);
-    public static final double kMaxAccel = Math.toRadians(86400);
-
     public static final double kPositionTolerance = Math.toRadians(10);
 
     public static final double kGearRatio = 81;
@@ -97,6 +94,6 @@ public class IntakeConstants {
     public static final double kAbsoluteGearRatio = 3;
 
     public static final double kDeployVoltage = 5;
-    public static final double kHomingVelocityThreshold = 0.0025;
+    public static final double kHomingVelocityThreshold = 1;
   }
 }
