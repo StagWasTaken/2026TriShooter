@@ -25,8 +25,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Robot.RobotName;
 import frc.robot.autos.*;
-import frc.robot.autos.bump.*;
-import frc.robot.autos.trench.*;
 import frc.robot.commands.*;
 import frc.robot.commands.drive.*;
 import frc.robot.subsystems.conveyor.*;
@@ -184,23 +182,10 @@ public class RobotContainer {
 
     autoChooser = new LoggedDashboardChooser<>("Auto Choices");
 
-    // trench
-    autoChooser.addOption("Right Trench Middle", new AUTO_DoubleSweepRight());
-    autoChooser.addOption("Left Trench  Middle", new AUTO_DoubleSweepLeft());
-    autoChooser.addOption("Right Trench Partner", new AUTO_DoubleSweepPartnerSideRight());
-    autoChooser.addOption("Left Trench Partner", new AUTO_DoubleSweepPartnerSideLeft());
-    autoChooser.addOption("Right Trench Opponent", new AUTO_DoubleSweepOpponentSideRight());
-    autoChooser.addOption("Left Trench Opponent", new AUTO_DoubleSweepOpponentSideLeft());
-
-    // bump
-    autoChooser.addOption("27 Left", new AUTO_27Left());
-    autoChooser.addOption("27 Right", new AUTO_27Right());
-    autoChooser.addOption("Left Bump Opponent", new AUTO_DoubleSweepBumpOpponentLeft());
-    autoChooser.addOption("Right Bump Opponent", new AUTO_DoubleSweepBumpOpponentRight());
-    autoChooser.addOption("Left Bump Partner", new AUTO_DoubleSweepBumpPartnerLeft());
-    autoChooser.addOption("Right Bump Partner", new AUTO_DoubleSweepBumpPartnerRight());
-    autoChooser.addOption("Left Bump Middle", new AUTO_DoubleSweepBumpMiddleLeft());
-    autoChooser.addOption("Right Bump Middle", new AUTO_DoubleSweepBumpMiddleRight());
+    autoChooser.addOption("27 left", new AUTO_27(true));
+    autoChooser.addOption("27 right", new AUTO_27(false));
+    autoChooser.addOption("Depot", new AUTO_Depot());
+    autoChooser.addOption("intake test", new AUTO_3MeterTest());
 
     configureButtonBindings();
 
@@ -296,7 +281,6 @@ public class RobotContainer {
       operator.leftBumper().whileTrue(aimPassLeft());
       operator.rightBumper().whileTrue(aimPassRight());
       operator.aButton().onTrue(shooter.runPreRev(2000));
-      operator.yButton().onTrue(new CMD_HomeIntake(intake));
       operator.bButton().onTrue(new CMD_HomeHood(hood));
       operator
           .xButton()

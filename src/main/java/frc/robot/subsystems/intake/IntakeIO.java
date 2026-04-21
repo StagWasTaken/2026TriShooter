@@ -86,7 +86,5 @@ public interface IntakeIO {
 
   public default void setExtenderReference(double velocity) {}
 
-  public default void resetEncoder() {}
-
   public default void periodic() {}
 }

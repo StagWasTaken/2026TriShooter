@@ -27,14 +27,9 @@ public class CMD_ShootNoVision extends Command {
 
   private boolean shooting;
   private final DoubleSupplier hoodSupplier, shooterSupplier;
-
-  // When true, intake collapses slowly after 0.5 seconds (default behavior).
-  // When false, intake stays down and running — operator keeps it extended.
   private final BooleanSupplier stowIntakeOnShoot, slowStow;
-
   private final Timer timer = new Timer();
 
-  // Default constructor — always stows after 2 seconds
   public CMD_ShootNoVision(
       Conveyor conveyor, Hood hood, Intake intake, Kicker kicker, Shootable shooter) {
     this(
@@ -49,7 +44,6 @@ public class CMD_ShootNoVision extends Command {
         () -> false);
   }
 
-  // Constructor with custom hood/shooter suppliers — always stows after 2 seconds
   public CMD_ShootNoVision(
       Conveyor conveyor,
       Hood hood,
@@ -61,7 +55,6 @@ public class CMD_ShootNoVision extends Command {
     this(conveyor, hood, intake, kicker, shooter, shooterRPM, hoodAngle, () -> true, () -> false);
   }
 
-  // Full constructor — includes operator intake behavior control
   public CMD_ShootNoVision(
       Conveyor conveyor,
       Hood hood,
@@ -107,22 +100,18 @@ public class CMD_ShootNoVision extends Command {
 
     if (shooting) {
       if (!stowIntakeOnShoot.getAsBoolean()) {
-        if (!intake.getExtenderInPosition()) {
-          intake.setExtenderReference(ExtenderConstants.kExtended);
-        } else {
-          intake.setExtenderVoltage(0);
-          intake.setReference(IntakeConstants.kIntake);
-        }
-      } else if (intake.getExtenderPosition() > ExtenderConstants.kStow) {
-        intake.setExtenderVoltage(
-            slowStow.getAsBoolean() ? DrumConstants.kSlowStowVolts : DrumConstants.kStowVolts);
-        intake.setVoltage(2);
+        // Keep it down using homing voltage
+        intake.setExtenderVoltage(ExtenderConstants.kDeployVoltage);
+        intake.setReference(IntakeConstants.kIntake);
       } else {
-        intake.setExtenderVoltage(0);
-        intake.setVoltage(0);
+        // Stow logic: Run voltage toward home/stowed position
+        double stowVolts =
+            slowStow.getAsBoolean() ? DrumConstants.kSlowStowVolts : DrumConstants.kStowVolts;
+        intake.setExtenderVoltage(stowVolts);
+        intake.setVoltage(2);
       }
     } else {
-      intake.setExtenderVoltage(0);
+      intake.setExtenderVoltage(0.1); // Small holding voltage
     }
   }
 
@@ -132,7 +121,7 @@ public class CMD_ShootNoVision extends Command {
     hood.setReference(HoodConstants.kMinPos);
     conveyor.setVoltage(ConveyorConstants.kOff);
     kicker.setVoltage(KickerConstants.kOff);
-    intake.setExtenderReference(intake.getExtenderPosition());
+    intake.setExtenderVoltage(0);
     intake.setVoltage(0);
     shooter.stopShooting();
   }

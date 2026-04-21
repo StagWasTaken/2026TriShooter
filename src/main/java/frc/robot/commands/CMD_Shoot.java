@@ -33,11 +33,9 @@ public class CMD_Shoot extends Command {
   private final Intake intake;
   private final Kicker kicker;
   private final Shootable shooter;
-  private final MapleJoystickDriveInput driveSupplier; // null when using auto constructor
+  private final MapleJoystickDriveInput driveSupplier;
   private final Supplier<Translation2d> targetSupplier;
 
-  // When true, intake collapses slowly after 0.5 seconds (default behavior).
-  // When false, intake stays down and running — operator keeps it extended.
   private final BooleanSupplier stowIntakeOnShoot, slowStow;
 
   private boolean shooting;
@@ -45,7 +43,6 @@ public class CMD_Shoot extends Command {
   private final Timer shootTimer = new Timer();
   private Command driveCommand;
 
-  // Teleop constructor — includes driver joystick input and shoot-on-the-fly prediction
   public CMD_Shoot(
       Drive drive,
       MapleJoystickDriveInput driveSupplier,
@@ -71,7 +68,6 @@ public class CMD_Shoot extends Command {
     addRequirements(drive, conveyor, hood, intake, kicker, shooter);
   }
 
-  // Auto constructor — no driver input, always stows intake
   public CMD_Shoot(
       Drive drive,
       Supplier<Translation2d> targetSupplier,
@@ -80,22 +76,19 @@ public class CMD_Shoot extends Command {
       Intake intake,
       Kicker kicker,
       Shootable shooter) {
-    this.drive = drive;
-    this.driveSupplier = null;
-    this.targetSupplier = targetSupplier;
-    this.conveyor = conveyor;
-    this.hood = hood;
-    this.intake = intake;
-    this.kicker = kicker;
-    this.shooter = shooter;
-    this.stowIntakeOnShoot = () -> true;
-    this.slowStow = () -> false;
-
-    addRequirements(drive, conveyor, hood, intake, kicker, shooter);
+    this(
+        drive,
+        null,
+        targetSupplier,
+        conveyor,
+        hood,
+        intake,
+        kicker,
+        shooter,
+        () -> true,
+        () -> false);
   }
 
-  // Projects the robot's current position forward by tofSeconds to account for
-  // robot motion during the time-of-flight of the note
   private Translation2d getPredictedPosition(double tofSeconds) {
     var chassisSpeeds = drive.getMeasuredChassisSpeedsRobotRelative();
     var robotAngle = drive.getPose().getRotation();
@@ -113,8 +106,6 @@ public class CMD_Shoot extends Command {
         .plus(new Translation2d(vxField * tofSeconds, vyField * tofSeconds));
   }
 
-  // Does two lookups: one at current position to get tof, then
-  // a second at the predicted position to get the final shooting params
   private ShootingParams getShootingParamsWithPrediction() {
     double distMeters = targetSupplier.get().getDistance(drive.getPose().getTranslation());
     ShootingParams initialParams =
@@ -169,7 +160,6 @@ public class CMD_Shoot extends Command {
     driveCommand.execute();
 
     ShootingParams shootingParams = getShootingParamsWithPrediction();
-
     shooter.setReference(shootingParams.shooterReference());
     hood.setReference(shootingParams.hoodReference());
 
@@ -186,22 +176,19 @@ public class CMD_Shoot extends Command {
 
     if (shooting) {
       if (!stowIntakeOnShoot.getAsBoolean()) {
-        if (!intake.getExtenderInPosition()) {
-          intake.setExtenderReference(ExtenderConstants.kExtended);
-        } else {
-          intake.setExtenderVoltage(0);
-          intake.setReference(IntakeConstants.kIntake);
-        }
-      } else if (intake.getExtenderPosition() > ExtenderConstants.kStow) {
-        intake.setExtenderVoltage(
-            slowStow.getAsBoolean() ? DrumConstants.kSlowStowVolts : DrumConstants.kStowVolts);
-        intake.setVoltage(2);
+        // Keep it down logic: use homing voltage to ensure it's on the floor
+        intake.setExtenderVoltage(ExtenderConstants.kDeployVoltage);
+        intake.setReference(IntakeConstants.kIntake);
       } else {
-        intake.setExtenderVoltage(0);
-        intake.setVoltage(0);
+        // Stow logic: Use reverse homing voltage (UP)
+        // Since we removed getExtenderPosition, we run voltage toward the home stop
+        double stowVolts =
+            slowStow.getAsBoolean() ? DrumConstants.kSlowStowVolts : DrumConstants.kStowVolts;
+        intake.setExtenderVoltage(stowVolts); // Assuming negative is UP/STOW
+        intake.setVoltage(2); // Keep rollers spinning slightly to clear notes
       }
     } else {
-      intake.setExtenderVoltage(0);
+      intake.setExtenderVoltage(0.1); // Small holding voltage to keep it from flopping
     }
   }
 
@@ -216,8 +203,9 @@ public class CMD_Shoot extends Command {
     hood.setReference(HoodConstants.kMinPos);
     conveyor.setVoltage(ConveyorConstants.kOff);
     kicker.setVoltage(KickerConstants.kOff);
-    // Hold extender at current position and stop roller
-    intake.setExtenderReference(intake.getExtenderPosition());
+
+    // Stop rollers and kill extender voltage
     intake.setVoltage(0);
+    intake.setExtenderVoltage(0);
   }
 }
