@@ -94,6 +94,6 @@ public class IntakeConstants {
     public static final double kAbsoluteGearRatio = 3;
 
     public static final double kDeployVoltage = 5;
-    public static final double kHomingVelocityThreshold = 1;
+    public static final double kHomingVelocityThreshold = 100;
   }
 }

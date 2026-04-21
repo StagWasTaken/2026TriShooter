@@ -41,7 +41,7 @@
       },
       "nextControl": {
         "x": 8.285426225413396,
-        "y": 0.8153599242247684
+        "y": 0.8153599242247687
       },
       "isLocked": false,
       "linkedName": null
@@ -99,7 +99,7 @@
   "folder": "Follower",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -90.0
+    "rotation": 90.0
   },
   "useDefaultConstraints": true
 }

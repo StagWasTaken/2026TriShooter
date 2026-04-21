@@ -82,20 +82,19 @@ public class CMD_ShootNoVision extends Command {
   public void initialize() {
     shooting = false;
     timer.reset();
-    timer.stop();
+    timer.start();
   }
 
   @Override
   public void execute() {
     shooter.setReference(shooterSupplier.getAsDouble());
     hood.setReference(hoodSupplier.getAsDouble());
-
-    if (shooter.isReady() && hood.atReference() && !shooting) {
+    // shooter.isReady()
+    if (timer.hasElapsed(1.0) && hood.atReference() && !shooting) {
       conveyor.setVoltage(ConveyorConstants.kConvey);
       kicker.setVoltage(KickerConstants.kKick);
       shooting = true;
       shooter.startShooting();
-      timer.start();
     }
 
     if (shooting) {

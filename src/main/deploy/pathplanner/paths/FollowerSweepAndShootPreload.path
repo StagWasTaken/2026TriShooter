@@ -3,16 +3,16 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.575,
-        "y": 0.425
+        "x": 3.5,
+        "y": 0.75
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.208397727272727,
-        "y": 0.34515909090909086
+        "x": 8.218245363766048,
+        "y": 0.2504422253922973
       },
       "isLocked": false,
-      "linkedName": "FollowerStart"
+      "linkedName": null
     },
     {
       "anchor": {
@@ -62,12 +62,12 @@
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 0.33,
-      "rotationDegrees": -90.0
+      "waypointRelativePos": 0.13432835820895572,
+      "rotationDegrees": 90.0
     },
     {
       "waypointRelativePos": 1.0,
-      "rotationDegrees": 29.999999999999996
+      "rotationDegrees": -8.612539772247445
     },
     {
       "waypointRelativePos": 2.15,
@@ -123,8 +123,8 @@
   "reversed": false,
   "folder": "Follower",
   "idealStartingState": {
-    "velocity": 0,
-    "rotation": 90.0
+    "velocity": 0.0,
+    "rotation": 71.71084164999714
   },
   "useDefaultConstraints": true
 }

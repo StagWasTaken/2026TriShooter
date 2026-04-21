@@ -158,7 +158,8 @@ public class Robot extends LoggedRobot {
     HubShiftUtil.initialize();
     CommandScheduler.getInstance().schedule(new CMD_HomeHood(robotContainer.hood));
     try {
-      autonomousCommand = robotContainer.getAutonomousCommand().getAutoCommand(robotContainer);
+      autonomousCommand =
+          robotContainer.getAutonomousCommand().getDelayedAutoCommand(robotContainer);
     } catch (Exception e) {
       AlertsManager.create(e.getStackTrace().toString(), AlertType.kError);
       e.printStackTrace();
