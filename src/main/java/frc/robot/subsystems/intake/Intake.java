@@ -112,6 +112,10 @@ public class Intake extends SubsystemBase {
     return io.getExtenderInPosition();
   }
 
+  public void resetEncoder() {
+    io.resetEncoder();
+  }
+
   @Override
   public void periodic() {
     io.updateInputs(inputs);

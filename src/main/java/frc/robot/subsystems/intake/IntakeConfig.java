@@ -1,8 +1,12 @@
 package frc.robot.subsystems.intake;
 
+import com.revrobotics.spark.ClosedLoopSlot;
+import com.revrobotics.spark.FeedbackSensor;
+import com.revrobotics.spark.config.MAXMotionConfig.MAXMotionPositionMode;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
+import frc.robot.subsystems.intake.IntakeConstants.ExtenderConstants;
 
 public class IntakeConfig {
   public static final SparkFlexConfig intakeConfig = new SparkFlexConfig();
@@ -40,5 +44,30 @@ public class IntakeConfig {
         .idleMode(IdleMode.kBrake)
         .inverted(false)
         .smartCurrentLimit(40);
+    intakeExtenderConfig
+        .absoluteEncoder
+        .positionConversionFactor((Math.PI * 2))
+        .velocityConversionFactor((Math.PI * 2) / 60)
+        .averageDepth(2)
+        .inverted(true);
+    intakeExtenderConfig
+        .closedLoop
+        .pid(
+            ExtenderConstants.kP, ExtenderConstants.kI, ExtenderConstants.kD, ClosedLoopSlot.kSlot0)
+        .outputRange(ExtenderConstants.kMinOutput, ExtenderConstants.kMaxOutput)
+        .feedbackSensor(FeedbackSensor.kAbsoluteEncoder);
+    intakeExtenderConfig
+        .softLimit
+        .forwardSoftLimit(ExtenderConstants.kExtended + ExtenderConstants.kPositionTolerance)
+        .forwardSoftLimitEnabled(false)
+        .reverseSoftLimit(ExtenderConstants.kHome - ExtenderConstants.kPositionTolerance)
+        .reverseSoftLimitEnabled(false);
+    intakeExtenderConfig
+        .closedLoop
+        .maxMotion
+        .allowedProfileError(ExtenderConstants.kPositionTolerance, ClosedLoopSlot.kSlot0)
+        .cruiseVelocity(ExtenderConstants.kMaxVel, ClosedLoopSlot.kSlot0)
+        .maxAcceleration(ExtenderConstants.kMaxAccel, ClosedLoopSlot.kSlot0)
+        .positionMode(MAXMotionPositionMode.kMAXMotionTrapezoidal, ClosedLoopSlot.kSlot0);
   }
 }

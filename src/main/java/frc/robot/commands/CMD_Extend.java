@@ -40,5 +40,9 @@ public class CMD_Extend extends Command {
   @Override
   public void end(boolean interrupted) {
     intake.setExtenderVoltage(0.5);
+
+    if (!interrupted) {
+      intake.resetEncoder();
+    }
   }
 }

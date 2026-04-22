@@ -37,6 +37,7 @@ public class CMD_Intake extends Command {
 
     if (!interrupted) {
       intake.setReference(IntakeConstants.kIntake);
+      intake.resetEncoder();
     }
   }
 }
