@@ -48,12 +48,12 @@
     },
     {
       "anchor": {
-        "x": 1.475,
-        "y": 2.5
+        "x": 1.8097808601646332,
+        "y": 3.7658910485151775
       },
       "prevControl": {
-        "x": 4.023590909090909,
-        "y": 2.6745000000000005
+        "x": 3.4579201781733446,
+        "y": 1.9785755214301755
       },
       "nextControl": null,
       "isLocked": false,
@@ -64,6 +64,10 @@
     {
       "waypointRelativePos": 0.13432835820895572,
       "rotationDegrees": 90.0
+    },
+    {
+      "waypointRelativePos": 0.5,
+      "rotationDegrees": -117.49094017972617
     },
     {
       "waypointRelativePos": 1.0,
@@ -118,7 +122,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 25.780695304498924
+    "rotation": 5.64678642960768
   },
   "reversed": false,
   "folder": "Follower",

@@ -39,8 +39,6 @@ public class DrumConstants {
   public static final double kMaxOutput = 1;
 
   public static final double kIdleVolts = 0.5;
-  public static final double kStowVolts = -1.67;
-  public static final double kSlowStowVolts = -1.0;
   public static final double kStartOnTargetVel = 50;
 
   // sim
@@ -75,9 +73,9 @@ public class DrumConstants {
 
   // Real shooting table: {distance (meters), hood (degrees), velocity (rpm), tof (s)}
   public static final double[][] SHOOTING_TABLE_REAL = {
-    {1.524, 3.00, 1900.0, 0.456}, // 60in
-    {2.032, 16.00, 1800.0, 0.456}, // 80in
-    {2.540, 16.00, 2200.0, 0.456}, // 100in
+    {1.524, 3.00, 2000.0, 0.456}, // 60in
+    {2.032, 14.00, 2000.0, 0.456}, // 80in
+    {2.540, 16.00, 2250.0, 0.456}, // 100in
     {2.794, 22.00, 2200.0, 0.456}, // 110in
     {3.048, 23.00, 2300.0, 0.481}, // 120in
     {3.300, 25.00, 2400.0, 0.464}, // 130in

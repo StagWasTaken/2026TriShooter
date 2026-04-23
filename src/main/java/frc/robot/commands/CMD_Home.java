@@ -23,13 +23,12 @@ public class CMD_Home extends Command {
 
   @Override
   public void execute() {
-    intake.setExtenderVoltage(-ExtenderConstants.kDeployVoltage);
+    intake.setExtenderReference(ExtenderConstants.kHome);
   }
 
   @Override
   public boolean isFinished() {
-    return stalledDebouncer.calculate(
-        Math.abs(intake.getExtenderVelocity()) < ExtenderConstants.kHomingVelocityThreshold);
+    return intake.getExtenderInPosition();
   }
 
   @Override

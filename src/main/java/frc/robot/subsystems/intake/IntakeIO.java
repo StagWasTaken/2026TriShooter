@@ -84,7 +84,7 @@ public interface IntakeIO {
 
   public default void setExtenderVoltage(double voltage) {}
 
-  public default void setExtenderReference(double velocity) {}
+  public default void setExtenderReference(double pos) {}
 
   public default void resetEncoder() {}
 

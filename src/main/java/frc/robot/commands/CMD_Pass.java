@@ -36,7 +36,7 @@ public class CMD_Pass extends Command {
 
   private boolean shooting;
   private final Debouncer atSetpointDebouncer = new Debouncer(0.02);
-  private final Timer shootTimer = new Timer();
+  private final Timer timer = new Timer();
   private Command driveCommand;
 
   // Current target — updated each loop to closest passing target
@@ -107,8 +107,8 @@ public class CMD_Pass extends Command {
   public void initialize() {
     shooting = false;
     atSetpointDebouncer.calculate(false);
-    shootTimer.reset();
-    shootTimer.stop();
+    timer.reset();
+    timer.stop();
 
     currentTarget = getClosestTarget();
 
@@ -141,22 +141,31 @@ public class CMD_Pass extends Command {
     boolean driveReady =
         atSetpointDebouncer.calculate(ChassisHeadingController.getInstance().atSetPoint());
 
-    if (shooter.isReady() && hood.atReference() && driveReady && !shooting) {
+    if ((timer.hasElapsed(1) || atSetpointDebouncer.calculate(shooter.isReady()))
+        && hood.atReference()
+        && driveReady
+        && !shooting) {
       conveyor.setVoltage(ConveyorConstants.kConvey);
       kicker.setVoltage(KickerConstants.kKick);
       shooting = true;
       shooter.startShooting();
-      shootTimer.start();
+      timer.start();
     }
 
     if (shooting) {
       if (!stowIntakeOnShoot.getAsBoolean()) {
-        intake.setExtenderVoltage(ExtenderConstants.kDeployVoltage);
+        intake.setExtenderReference(ExtenderConstants.kExtended);
         intake.setReference(IntakeConstants.kIntake);
       } else {
         double stowVolts =
-            slowStow.getAsBoolean() ? DrumConstants.kSlowStowVolts : DrumConstants.kStowVolts;
-        intake.setExtenderVoltage(stowVolts);
+            slowStow.getAsBoolean()
+                ? ExtenderConstants.kSlowStowVolts
+                : ExtenderConstants.kStowVolts;
+        if (intake.getExtenderPosition() > ExtenderConstants.kStow) {
+          intake.setExtenderVoltage(stowVolts); // Assuming negative is UP/STOW
+        } else {
+          intake.setExtenderVoltage(0.0);
+        }
         intake.setVoltage(2);
       }
     } else {

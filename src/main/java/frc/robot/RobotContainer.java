@@ -36,6 +36,7 @@ import frc.robot.subsystems.kicker.*;
 import frc.robot.subsystems.led.LEDStatusLight;
 import frc.robot.subsystems.shooter.*;
 import frc.robot.subsystems.vision.*;
+import frc.robot.utils.LoggedTunableNumber;
 import frc.robot.utils.constants.FieldConstants;
 import frc.robot.utils.constants.RobotMode;
 import frc.robot.utils.custompids.ChassisHeadingController;
@@ -69,6 +70,7 @@ public class RobotContainer {
 
   private final LoggedDashboardChooser<Auto> autoChooser;
   private final LoggedNetworkNumber hoodRef, shooterRef;
+  public final LoggedTunableNumber autoDelay = new LoggedTunableNumber("Auto/delay", 0.0);
 
   public RobotContainer() {
     switch (Robot.CURRENT_ROBOT_MODE) {
@@ -187,7 +189,7 @@ public class RobotContainer {
     autoChooser.addOption(
         "Follower Preload & Shoot Left", new AUTO_FollowerSweepAndShootPreload(true));
     autoChooser.addOption(
-        "Follower Preload & Shoot Left", new AUTO_FollowerSweepAndShootPreload(false));
+        "Follower Preload & Shoot Right", new AUTO_FollowerSweepAndShootPreload(false));
     autoChooser.addOption("Follow & Shoot Left", new AUTO_FollowerSweepAndShoot(true));
     autoChooser.addOption("Follow & Shoot Right", new AUTO_FollowerSweepAndShoot(false));
     autoChooser.addOption("Depot", new AUTO_Depot());
@@ -241,7 +243,7 @@ public class RobotContainer {
       driver
           .intakeButton()
           .whileTrue(new CMD_Intake(intake))
-          .onFalse(new CMD_Extend(conveyor, intake));
+          .onFalse(new CMD_Extend(conveyor, intake, kicker));
 
       driver
           .leftBumper()
@@ -287,8 +289,8 @@ public class RobotContainer {
 
       driver
           .xButton()
-          .whileTrue(new CMD_Extake(conveyor, intake))
-          .onFalse(new CMD_Extend(conveyor, intake));
+          .whileTrue(new CMD_Extake(conveyor, intake, kicker))
+          .onFalse(new CMD_Extend(conveyor, intake, kicker));
 
       driver.aButton().onTrue(new CMD_Home(intake));
 

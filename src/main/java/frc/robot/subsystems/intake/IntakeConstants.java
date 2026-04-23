@@ -1,11 +1,13 @@
 package frc.robot.subsystems.intake;
 
+import edu.wpi.first.math.util.Units;
+
 public class IntakeConstants {
   public static final int kIntakeCanId = 12;
   public static final int kIntakeBottomRightanId = 1;
 
   public static final boolean kInverted = false;
-  public static final boolean kSecondaryInverted = false;
+  public static final boolean kSecondaryInverted = true;
   public static final double kMinOutput = -1;
   public static final double kMaxOutput = 1;
 
@@ -61,7 +63,7 @@ public class IntakeConstants {
   public static final class ExtenderConstants {
     public static final int kIntakeExtenderCanId = 7;
 
-    public static final double kP = 0.0;
+    public static final double kP = 5.0;
     public static final double kI = 0.0;
     public static final double kD = 0.0;
 
@@ -86,17 +88,20 @@ public class IntakeConstants {
     public static final double kMaxVel = Math.toRadians(43200);
     public static final double kMaxAccel = Math.toRadians(86400);
 
-    public static final double kHome = Math.toRadians(70);
-    public static final double kStow = Math.toRadians(120);
-    public static final double kExtended = Math.toRadians(315);
+    public static final double kHome = Units.degreesToRadians(75);
+    public static final double kStow = Units.degreesToRadians(100);
+    public static final double kExtended = Units.degreesToRadians(170);
+
+    public static final double kStowVolts = -2.5;
+    public static final double kSlowStowVolts = -1.5;
 
     public static final double kPositionTolerance = Math.toRadians(10);
 
-    public static final double kGearRatio = 81;
+    public static final double kGearRatio = 45;
     // absolute encoder has another 3:1 reduction after it
-    public static final double kAbsoluteGearRatio = 3;
+    public static final double kAbsoluteGearRatio = 1;
 
-    public static final double kDeployVoltage = 5;
-    public static final double kHomingVelocityThreshold = 100;
+    public static final double kDeployVoltage = 3;
+    public static final double kHomingVelocityThreshold = 0.005;
   }
 }

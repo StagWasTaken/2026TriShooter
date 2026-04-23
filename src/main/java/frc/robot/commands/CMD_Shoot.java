@@ -39,8 +39,8 @@ public class CMD_Shoot extends Command {
   private final BooleanSupplier stowIntakeOnShoot, slowStow;
 
   private boolean shooting;
-  private final Debouncer atSetpointDebouncer = new Debouncer(0.02);
-  private final Timer shootTimer = new Timer();
+  private final Debouncer atSetpointDebouncer = new Debouncer(0.04);
+  private final Timer timer = new Timer();
   private Command driveCommand;
 
   public CMD_Shoot(
@@ -124,9 +124,9 @@ public class CMD_Shoot extends Command {
   @Override
   public void initialize() {
     shooting = false;
-    atSetpointDebouncer.calculate(false);
-    shootTimer.reset();
-    shootTimer.start();
+    atSetpointDebouncer.calculate(false); // flush debouncer state
+    timer.reset();
+    timer.start();
 
     ChassisHeadingController.getInstance()
         .setHeadingRequest(new ChassisHeadingController.NullRequest());
@@ -165,8 +165,10 @@ public class CMD_Shoot extends Command {
 
     boolean driveReady =
         atSetpointDebouncer.calculate(ChassisHeadingController.getInstance().atSetPoint());
-    // shooter.isReady()
-    if (shootTimer.hasElapsed(1) && hood.atReference() && driveReady && !shooting) {
+    if ((timer.hasElapsed(1) || atSetpointDebouncer.calculate(shooter.isReady()))
+        && hood.atReference()
+        && driveReady
+        && !shooting) {
       conveyor.setVoltage(ConveyorConstants.kConvey);
       kicker.setVoltage(KickerConstants.kKick);
       shooting = true;
@@ -176,14 +178,20 @@ public class CMD_Shoot extends Command {
     if (shooting) {
       if (!stowIntakeOnShoot.getAsBoolean()) {
         // Keep it down logic: use homing voltage to ensure it's on the floor
-        intake.setExtenderVoltage(ExtenderConstants.kDeployVoltage);
+        intake.setExtenderReference(ExtenderConstants.kExtended);
         intake.setReference(IntakeConstants.kIntake);
       } else {
         // Stow logic: Use reverse homing voltage (UP)
         // Since we removed getExtenderPosition, we run voltage toward the home stop
         double stowVolts =
-            slowStow.getAsBoolean() ? DrumConstants.kSlowStowVolts : DrumConstants.kStowVolts;
-        intake.setExtenderVoltage(stowVolts); // Assuming negative is UP/STOW
+            slowStow.getAsBoolean()
+                ? ExtenderConstants.kSlowStowVolts
+                : ExtenderConstants.kStowVolts;
+        if (intake.getExtenderPosition() > ExtenderConstants.kStow) {
+          intake.setExtenderVoltage(stowVolts); // Assuming negative is UP/STOW
+        } else {
+          intake.setExtenderVoltage(0.0);
+        }
         intake.setVoltage(2); // Keep rollers spinning slightly to clear notes
       }
     } else {

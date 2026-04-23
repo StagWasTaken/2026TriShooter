@@ -24,17 +24,12 @@ public interface Auto {
   static final LoggedTunableNumber autoStartDelay =
       new LoggedTunableNumber("Auto/StartDelaySeconds", 0.0);
 
-  Command getAutoCommand(RobotContainer robot) throws IOException, ParseException;
-
-  /** Wraps the auto command with a leading WaitCommand based on the dashboard value. */
-  default Command getDelayedAutoCommand(RobotContainer robot) throws IOException, ParseException {
-    return Commands.sequence(new WaitCommand(autoStartDelay.get()), getAutoCommand(robot));
-  }
+  Command getAutoCommand(RobotContainer robot, double startDelay)
+      throws IOException, ParseException;
 
   default Command shootCycle(
       RobotContainer robot, Supplier<Translation2d> targetSupplier, double timeout) {
     return Commands.sequence(
-        new CMD_Extend(robot.conveyor, robot.intake),
         new CMD_Shoot(
                 robot.drive,
                 () -> targetSupplier.get(),
@@ -60,7 +55,7 @@ public interface Auto {
   static Auto none() {
     return new Auto() {
       @Override
-      public Command getAutoCommand(RobotContainer robot) {
+      public Command getAutoCommand(RobotContainer robot, double startDelay) {
         return Commands.none();
       }
     };

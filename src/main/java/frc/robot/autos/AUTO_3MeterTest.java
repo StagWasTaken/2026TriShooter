@@ -9,7 +9,8 @@ import org.json.simple.parser.ParseException;
 
 public class AUTO_3MeterTest implements Auto {
   @Override
-  public Command getAutoCommand(RobotContainer robot) throws IOException, ParseException {
+  public Command getAutoCommand(RobotContainer robot, double startDelay)
+      throws IOException, ParseException {
     return Commands.sequence(
         setAutoStartPose("3MeterTest", false, robot.drive),
         new CMD_Intake(robot.intake),

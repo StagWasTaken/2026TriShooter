@@ -8,7 +8,7 @@ import frc.robot.utils.constants.FieldConstants;
 
 public class AUTO_FollowerSweepAndShootPreload implements Auto {
   private final PathPlannerPath sweepMiddle;
-  private final String startPathName = "FollowerSweepAndShoot";
+  private final String startPathName = "FollowerSweepAndShootPreload";
   private boolean isMirrored;
 
   /**
@@ -20,20 +20,16 @@ public class AUTO_FollowerSweepAndShootPreload implements Auto {
       // Logic for loading paths based on the mirrored boolean
       sweepMiddle = Auto.getPath(startPathName, isMirrored);
     } catch (Exception e) {
-      throw new RuntimeException("Failed to preload auto paths for Sweep27", e);
+      throw new RuntimeException("Failed to preload auto paths", e);
     }
   }
 
   @Override
-  public Command getAutoCommand(RobotContainer robot) {
+  public Command getAutoCommand(RobotContainer robot, double startDelay) {
     return Commands.sequence(
-        // Passes the boolean through to the pose reset logic
         setAutoStartPose(startPathName, isMirrored, robot.drive),
-        shootCycle(robot, 3),
-        sweepPath(sweepMiddle, robot, 4.5),
-        shootCycle(
-            robot,
-            () -> isMirrored ? FieldConstants.LeftPassingTarget : FieldConstants.RightPassingTarget,
-            5));
+        shootCycle(robot, startDelay), // shoot for the delay timer and then run
+        sweepPath(sweepMiddle, robot, 4.0),
+        shootCycle(robot, () -> FieldConstants.getHubPose(), 5));
   }
 }

@@ -3,6 +3,7 @@ package frc.robot.autos;
 import com.pathplanner.lib.path.PathPlannerPath;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.RobotContainer;
 
 public class AUTO_27 implements Auto {
@@ -21,18 +22,19 @@ public class AUTO_27 implements Auto {
       sweepMiddle = Auto.getPath(startPathName, isMirrored);
       sweepAgain = Auto.getPath("ShootAndSweepAgain27", isMirrored);
     } catch (Exception e) {
-      throw new RuntimeException("Failed to preload auto paths for Sweep27", e);
+      throw new RuntimeException("Failed to preload auto paths", e);
     }
   }
 
   @Override
-  public Command getAutoCommand(RobotContainer robot) {
+  public Command getAutoCommand(RobotContainer robot, double startDelay) {
     return Commands.sequence(
         // Passes the boolean through to the pose reset logic
         setAutoStartPose(startPathName, isMirrored, robot.drive),
-        sweepPath(sweepMiddle, robot, 4.5),
-        shootCycle(robot, 2.5),
-        sweepPath(sweepAgain, robot, 7),
+        new WaitCommand(startDelay),
+        sweepPath(sweepMiddle, robot, 2.25),
+        shootCycle(robot, 3),
+        sweepPath(sweepAgain, robot, 4.5),
         shootCycle(robot, 5));
   }
 }

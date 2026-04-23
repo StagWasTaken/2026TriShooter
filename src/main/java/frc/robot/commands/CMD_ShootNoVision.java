@@ -1,12 +1,12 @@
 package frc.robot.commands;
 
+import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Robot;
 import frc.robot.Robot.RobotName;
 import frc.robot.subsystems.conveyor.Conveyor;
 import frc.robot.subsystems.conveyor.ConveyorConstants;
-import frc.robot.subsystems.drum.DrumConstants;
 import frc.robot.subsystems.hood.Hood;
 import frc.robot.subsystems.hood.HoodConstants;
 import frc.robot.subsystems.intake.Intake;
@@ -29,6 +29,7 @@ public class CMD_ShootNoVision extends Command {
   private final DoubleSupplier hoodSupplier, shooterSupplier;
   private final BooleanSupplier stowIntakeOnShoot, slowStow;
   private final Timer timer = new Timer();
+  private final Debouncer atSetpointDebouncer = new Debouncer(0.04);
 
   public CMD_ShootNoVision(
       Conveyor conveyor, Hood hood, Intake intake, Kicker kicker, Shootable shooter) {
@@ -81,6 +82,7 @@ public class CMD_ShootNoVision extends Command {
   @Override
   public void initialize() {
     shooting = false;
+    atSetpointDebouncer.calculate(false); // flush debouncer state
     timer.reset();
     timer.start();
   }
@@ -89,8 +91,9 @@ public class CMD_ShootNoVision extends Command {
   public void execute() {
     shooter.setReference(shooterSupplier.getAsDouble());
     hood.setReference(hoodSupplier.getAsDouble());
-    // shooter.isReady()
-    if (timer.hasElapsed(1.0) && hood.atReference() && !shooting) {
+    if ((timer.hasElapsed(1) || atSetpointDebouncer.calculate(shooter.isReady()))
+        && hood.atReference()
+        && !shooting) {
       conveyor.setVoltage(ConveyorConstants.kConvey);
       kicker.setVoltage(KickerConstants.kKick);
       shooting = true;
@@ -100,13 +103,19 @@ public class CMD_ShootNoVision extends Command {
     if (shooting) {
       if (!stowIntakeOnShoot.getAsBoolean()) {
         // Keep it down using homing voltage
-        intake.setExtenderVoltage(ExtenderConstants.kDeployVoltage);
+        intake.setExtenderReference(ExtenderConstants.kExtended);
         intake.setReference(IntakeConstants.kIntake);
       } else {
         // Stow logic: Run voltage toward home/stowed position
         double stowVolts =
-            slowStow.getAsBoolean() ? DrumConstants.kSlowStowVolts : DrumConstants.kStowVolts;
-        intake.setExtenderVoltage(stowVolts);
+            slowStow.getAsBoolean()
+                ? ExtenderConstants.kSlowStowVolts
+                : ExtenderConstants.kStowVolts;
+        if (intake.getExtenderPosition() > ExtenderConstants.kStow) {
+          intake.setExtenderVoltage(stowVolts); // Assuming negative is UP/STOW
+        } else {
+          intake.setExtenderVoltage(0.0);
+        }
         intake.setVoltage(2);
       }
     } else {

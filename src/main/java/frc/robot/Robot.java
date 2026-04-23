@@ -159,7 +159,9 @@ public class Robot extends LoggedRobot {
     CommandScheduler.getInstance().schedule(new CMD_HomeHood(robotContainer.hood));
     try {
       autonomousCommand =
-          robotContainer.getAutonomousCommand().getDelayedAutoCommand(robotContainer);
+          robotContainer
+              .getAutonomousCommand()
+              .getAutoCommand(robotContainer, robotContainer.autoDelay.getAsDouble());
     } catch (Exception e) {
       AlertsManager.create(e.getStackTrace().toString(), AlertType.kError);
       e.printStackTrace();

@@ -46,9 +46,9 @@ public class IntakeConfig {
         .smartCurrentLimit(40);
     intakeExtenderConfig
         .absoluteEncoder
-        .positionConversionFactor((Math.PI * 2))
+        .positionConversionFactor(Math.PI * 2)
         .velocityConversionFactor((Math.PI * 2) / 60)
-        .averageDepth(2)
+        .averageDepth(4)
         .inverted(true);
     intakeExtenderConfig
         .closedLoop
@@ -56,12 +56,6 @@ public class IntakeConfig {
             ExtenderConstants.kP, ExtenderConstants.kI, ExtenderConstants.kD, ClosedLoopSlot.kSlot0)
         .outputRange(ExtenderConstants.kMinOutput, ExtenderConstants.kMaxOutput)
         .feedbackSensor(FeedbackSensor.kAbsoluteEncoder);
-    intakeExtenderConfig
-        .softLimit
-        .forwardSoftLimit(ExtenderConstants.kExtended + ExtenderConstants.kPositionTolerance)
-        .forwardSoftLimitEnabled(false)
-        .reverseSoftLimit(ExtenderConstants.kHome - ExtenderConstants.kPositionTolerance)
-        .reverseSoftLimitEnabled(false);
     intakeExtenderConfig
         .closedLoop
         .maxMotion
