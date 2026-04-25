@@ -7,7 +7,7 @@ public class IntakeConstants {
   public static final int kIntakeBottomRightanId = 1;
 
   public static final boolean kInverted = false;
-  public static final boolean kSecondaryInverted = true;
+  public static final boolean kSecondaryInverted = false;
   public static final double kMinOutput = -1;
   public static final double kMaxOutput = 1;
 
@@ -63,11 +63,11 @@ public class IntakeConstants {
   public static final class ExtenderConstants {
     public static final int kIntakeExtenderCanId = 7;
 
-    public static final double kP = 5.0;
+    public static final double kP = 75.0;
     public static final double kI = 0.0;
     public static final double kD = 0.0;
 
-    public static final double kV = 0.0;
+    public static final double kV = 2.9;
     public static final double kS = 0.0;
     public static final double kG = 0.0;
     public static final double kA = 0.0;
@@ -85,10 +85,13 @@ public class IntakeConstants {
     public static final double kMinOutput = -1;
     public static final double kMaxOutput = 1;
 
-    public static final double kMaxVel = Math.toRadians(43200);
-    public static final double kMaxAccel = Math.toRadians(86400);
+    public static final double kStowProfileMaxVel = Units.degreesToRadians(45);
+    public static final double kStowProfileMaxAccel = Units.degreesToRadians(45);
 
-    public static final double kHome = Units.degreesToRadians(75);
+    public static final double kMaxVel = Math.toRadians(125);
+    public static final double kMaxAccel = Math.toRadians(180);
+
+    public static final double kHome = Units.degreesToRadians(85);
     public static final double kStow = Units.degreesToRadians(100);
     public static final double kExtended = Units.degreesToRadians(170);
 

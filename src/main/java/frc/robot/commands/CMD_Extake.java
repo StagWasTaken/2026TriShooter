@@ -1,6 +1,6 @@
 package frc.robot.commands;
 
-import edu.wpi.first.math.filter.Debouncer;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.conveyor.Conveyor;
 import frc.robot.subsystems.conveyor.ConveyorConstants;
@@ -14,18 +14,21 @@ public class CMD_Extake extends Command {
   private final Conveyor conveyor;
   private final Intake intake;
   private final Kicker kicker;
-  private final Debouncer stalledDebouncer = new Debouncer(0.1);
+  private final Timer timer = new Timer();
 
   public CMD_Extake(Conveyor conveyor, Intake intake, Kicker kicker) {
     this.conveyor = conveyor;
     this.intake = intake;
     this.kicker = kicker;
-    addRequirements(intake, conveyor, kicker);
+    addRequirements(conveyor, intake);
   }
 
   @Override
   public void initialize() {
-    stalledDebouncer.calculate(false);
+    timer.reset();
+    timer.start();
+    intake.setExtenderProfileConstraints(ExtenderConstants.kMaxVel, ExtenderConstants.kMaxAccel);
+    intake.setReference(IntakeConstants.kOff);
   }
 
   @Override
@@ -35,17 +38,17 @@ public class CMD_Extake extends Command {
 
   @Override
   public boolean isFinished() {
-    return intake.getExtenderInPosition();
+    return intake.getExtenderInPosition() || timer.hasElapsed(0.75);
   }
 
   @Override
   public void end(boolean interrupted) {
-    intake.setExtenderVoltage(0.5);
+    intake.setExtenderVoltage(0.0);
 
     if (!interrupted) {
-      intake.setVoltage(IntakeConstants.kExtake);
       conveyor.setVoltage(ConveyorConstants.kExtake);
-      kicker.setVoltage(-KickerConstants.kKick);
+      intake.setVoltage(IntakeConstants.kExtake);
+      kicker.setVoltage(KickerConstants.kExtake);
     }
   }
 }

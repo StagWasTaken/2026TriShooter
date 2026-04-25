@@ -1,6 +1,5 @@
 package frc.robot.commands;
 
-import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeConstants;
@@ -8,7 +7,6 @@ import frc.robot.subsystems.intake.IntakeConstants.ExtenderConstants;
 
 public class CMD_Home extends Command {
   private final Intake intake;
-  private final Debouncer stalledDebouncer = new Debouncer(0.1);
 
   public CMD_Home(Intake intake) {
     this.intake = intake;
@@ -17,7 +15,6 @@ public class CMD_Home extends Command {
 
   @Override
   public void initialize() {
-    stalledDebouncer.calculate(false);
     intake.setVoltage(IntakeConstants.kOff);
   }
 

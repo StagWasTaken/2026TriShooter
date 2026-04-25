@@ -27,7 +27,7 @@ public class CMD_ShootNoVision extends Command {
 
   private boolean shooting;
   private final DoubleSupplier hoodSupplier, shooterSupplier;
-  private final BooleanSupplier stowIntakeOnShoot, slowStow;
+  private final BooleanSupplier stowIntakeOnShoot;
   private final Timer timer = new Timer();
   private final Debouncer atSetpointDebouncer = new Debouncer(0.04);
 
@@ -74,7 +74,6 @@ public class CMD_ShootNoVision extends Command {
     this.shooterSupplier = shooterRPM;
     this.hoodSupplier = hoodAngle;
     this.stowIntakeOnShoot = stowIntakeOnShoot;
-    this.slowStow = slowStow;
 
     addRequirements(conveyor, hood, intake, kicker, shooter);
   }
@@ -102,24 +101,16 @@ public class CMD_ShootNoVision extends Command {
 
     if (shooting) {
       if (!stowIntakeOnShoot.getAsBoolean()) {
-        // Keep it down using homing voltage
+        intake.setExtenderProfileConstraints(
+            ExtenderConstants.kMaxVel, ExtenderConstants.kMaxAccel);
         intake.setExtenderReference(ExtenderConstants.kExtended);
         intake.setReference(IntakeConstants.kIntake);
       } else {
-        // Stow logic: Run voltage toward home/stowed position
-        double stowVolts =
-            slowStow.getAsBoolean()
-                ? ExtenderConstants.kSlowStowVolts
-                : ExtenderConstants.kStowVolts;
-        if (intake.getExtenderPosition() > ExtenderConstants.kStow) {
-          intake.setExtenderVoltage(stowVolts); // Assuming negative is UP/STOW
-        } else {
-          intake.setExtenderVoltage(0.0);
-        }
+        intake.setExtenderProfileConstraints(
+            ExtenderConstants.kStowProfileMaxVel, ExtenderConstants.kStowProfileMaxAccel);
+        intake.setExtenderReference(ExtenderConstants.kHome);
         intake.setVoltage(2);
       }
-    } else {
-      intake.setExtenderVoltage(0.1); // Small holding voltage
     }
   }
 

@@ -13,7 +13,7 @@ public class AUTO_3MeterTest implements Auto {
       throws IOException, ParseException {
     return Commands.sequence(
         setAutoStartPose("3MeterTest", false, robot.drive),
-        new CMD_Intake(robot.intake),
+        new CMD_Intake(robot.conveyor, robot.intake),
         followPath("3MeterTest", false));
   }
 }

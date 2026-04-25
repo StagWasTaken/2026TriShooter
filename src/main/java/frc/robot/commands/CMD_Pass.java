@@ -32,7 +32,7 @@ public class CMD_Pass extends Command {
   private final Kicker kicker;
   private final Shootable shooter;
   private final MapleJoystickDriveInput driveSupplier;
-  private final BooleanSupplier stowIntakeOnShoot, slowStow;
+  private final BooleanSupplier stowIntakeOnShoot;
 
   private boolean shooting;
   private final Debouncer atSetpointDebouncer = new Debouncer(0.02);
@@ -60,7 +60,6 @@ public class CMD_Pass extends Command {
     this.kicker = kicker;
     this.shooter = shooter;
     this.stowIntakeOnShoot = stowIntakeOnShoot;
-    this.slowStow = slowStow;
 
     addRequirements(drive, conveyor, hood, intake, kicker, shooter);
   }
@@ -154,22 +153,16 @@ public class CMD_Pass extends Command {
 
     if (shooting) {
       if (!stowIntakeOnShoot.getAsBoolean()) {
+        intake.setExtenderProfileConstraints(
+            ExtenderConstants.kMaxVel, ExtenderConstants.kMaxAccel);
         intake.setExtenderReference(ExtenderConstants.kExtended);
         intake.setReference(IntakeConstants.kIntake);
       } else {
-        double stowVolts =
-            slowStow.getAsBoolean()
-                ? ExtenderConstants.kSlowStowVolts
-                : ExtenderConstants.kStowVolts;
-        if (intake.getExtenderPosition() > ExtenderConstants.kStow) {
-          intake.setExtenderVoltage(stowVolts); // Assuming negative is UP/STOW
-        } else {
-          intake.setExtenderVoltage(0.0);
-        }
+        intake.setExtenderProfileConstraints(
+            ExtenderConstants.kStowProfileMaxVel, ExtenderConstants.kStowProfileMaxAccel);
+        intake.setExtenderReference(ExtenderConstants.kHome);
         intake.setVoltage(2);
       }
-    } else {
-      intake.setExtenderVoltage(0.1);
     }
   }
 

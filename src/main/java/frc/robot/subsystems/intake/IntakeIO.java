@@ -86,6 +86,8 @@ public interface IntakeIO {
 
   public default void setExtenderReference(double pos) {}
 
+  public default void setExtenderProfileConstraints(double maxVel, double maxAccel) {}
+
   public default void resetEncoder() {}
 
   public default void periodic() {}

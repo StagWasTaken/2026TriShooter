@@ -37,6 +37,12 @@ public class IntakeIOSpark implements IntakeIO {
   private TrapezoidProfile.State rollerSetpoint = new TrapezoidProfile.State();
   private TrapezoidProfile.State rollerGoal = new TrapezoidProfile.State();
 
+  // Extender profiles (Changed to allow switching)
+  private TrapezoidProfile extenderProfile;
+  private TrapezoidProfile.Constraints extenderConstraints;
+  private TrapezoidProfile.State extenderSetpoint = new TrapezoidProfile.State();
+  private TrapezoidProfile.State extenderGoal = new TrapezoidProfile.State();
+
   private double topPrevError = 0.0;
   private double bottomPrevError = 0.0;
   private double lastTimestamp = 0.0;
@@ -49,6 +55,8 @@ public class IntakeIOSpark implements IntakeIO {
   private double extenderOffsetRad = 0.0;
 
   private LoggedTunableNumber kS, kV, kP, kD;
+  private LoggedTunableNumber extenderKs, extenderKv, extenderKg, extenderKp, extenderKd;
+  private double extenderPrevError = 0.0;
 
   public IntakeIOSpark() {
     intakeMotor = new SparkFlex(IntakeConstants.kIntakeCanId, MotorType.kBrushless);
@@ -79,6 +87,11 @@ public class IntakeIOSpark implements IntakeIO {
             new TrapezoidProfile.Constraints(
                 IntakeConstants.kProfileMaxVel, IntakeConstants.kProfileMaxAccel));
 
+    // Initialize Extender Profile with default constants
+    extenderConstraints =
+        new TrapezoidProfile.Constraints(ExtenderConstants.kMaxVel, ExtenderConstants.kMaxAccel);
+    extenderProfile = new TrapezoidProfile(extenderConstraints);
+
     intakeReference = 0.0;
     voltageMode = false;
 
@@ -90,6 +103,25 @@ public class IntakeIOSpark implements IntakeIO {
       kV = new LoggedTunableNumber("Intake/kV", IntakeConstants.kV);
       kP = new LoggedTunableNumber("Intake/kP", IntakeConstants.kP);
       kD = new LoggedTunableNumber("Intake/kD", IntakeConstants.kD);
+
+      extenderKs = new LoggedTunableNumber("Intake/Extender/kS", ExtenderConstants.kS);
+      extenderKv = new LoggedTunableNumber("Intake/Extender/kV", ExtenderConstants.kV);
+      extenderKg = new LoggedTunableNumber("Intake/Extender/kG", ExtenderConstants.kG);
+      extenderKp = new LoggedTunableNumber("Intake/Extender/kP", ExtenderConstants.kP);
+      extenderKd = new LoggedTunableNumber("Intake/Extender/kD", ExtenderConstants.kD);
+    }
+  }
+
+  /**
+   * THE SWITCH: Call this to change the speed/acceleration of the arm. You should add this method
+   * signature to your IntakeIO interface as well.
+   */
+  @Override
+  public void setExtenderProfileConstraints(double maxVel, double maxAccel) {
+    if (maxVel != extenderConstraints.maxVelocity
+        || maxAccel != extenderConstraints.maxAcceleration) {
+      extenderConstraints = new TrapezoidProfile.Constraints(maxVel, maxAccel);
+      extenderProfile = new TrapezoidProfile(extenderConstraints);
     }
   }
 
@@ -110,6 +142,9 @@ public class IntakeIOSpark implements IntakeIO {
     } else {
       inputs.extenderReference = intakeExtenderReference;
     }
+
+    inputs.extenderProfilePositionSetpoint = Units.radiansToDegrees(extenderSetpoint.position);
+    inputs.extenderProfileVelocitySetpoint = Units.radiansToDegrees(extenderSetpoint.velocity);
 
     inputs.extenderVoltage =
         intakeExtenderMotor.getBusVoltage() * intakeExtenderMotor.getAppliedOutput();
@@ -143,7 +178,12 @@ public class IntakeIOSpark implements IntakeIO {
 
   @Override
   public void setExtenderReference(double angRad) {
+    if (angRad == intakeExtenderReference && intakeExtenderType != ControlType.kVoltage) return;
+    if (intakeExtenderType == ControlType.kVoltage) {
+      extenderSetpoint = new TrapezoidProfile.State(getExtenderPosition(), 0);
+    }
     intakeExtenderReference = angRad;
+    extenderGoal = new TrapezoidProfile.State(angRad, 0);
     intakeExtenderType = ControlType.kMAXMotionPositionControl;
   }
 
@@ -156,6 +196,7 @@ public class IntakeIOSpark implements IntakeIO {
   public void setExtenderVoltage(double voltage) {
     intakeExtenderReference = voltage;
     intakeExtenderType = ControlType.kVoltage;
+    extenderSetpoint = new TrapezoidProfile.State(getExtenderPosition(), 0);
   }
 
   @Override
@@ -178,7 +219,7 @@ public class IntakeIOSpark implements IntakeIO {
   @Override
   public void resetEncoder() {
     double currentPhysicalPos = intakeExtenderEncoder.getPosition();
-    double targetRad = Units.degreesToRadians(315.0);
+    double targetRad = ExtenderConstants.kExtended;
     extenderOffsetRad = currentPhysicalPos - targetRad;
   }
 
@@ -195,11 +236,15 @@ public class IntakeIOSpark implements IntakeIO {
     if (RobotState.isDisabled()) {
       topPrevError = 0.0;
       bottomPrevError = 0.0;
+      extenderPrevError = 0.0;
       rollerSetpoint = new TrapezoidProfile.State(intakeEncoder.getVelocity(), 0);
       lastTimestamp = Timer.getFPGATimestamp();
-      // Extender still runs while disabled for safe positioning
+
       intakeExtenderController.setSetpoint(
           intakeExtenderReference, intakeExtenderType, ClosedLoopSlot.kSlot0);
+
+      extenderSetpoint = new TrapezoidProfile.State(getExtenderPosition(), 0);
+      extenderGoal = new TrapezoidProfile.State(getExtenderPosition(), 0);
       return;
     }
 
@@ -208,15 +253,33 @@ public class IntakeIOSpark implements IntakeIO {
     lastTimestamp = now;
     if (dt <= 0.0 || dt > 0.5) dt = 0.02;
 
-    // Extender
+    // Extender Logic - Automatically uses whatever 'extenderProfile' is currently active
     if (intakeExtenderType == ControlType.kVoltage) {
-      intakeExtenderController.setSetpoint(
-          intakeExtenderReference, ControlType.kVoltage, ClosedLoopSlot.kSlot0);
+      intakeExtenderMotor.setVoltage(MathUtil.clamp(intakeExtenderReference, -12.0, 12.0));
     } else {
-      intakeExtenderController.setSetpoint(
-          intakeExtenderReference, ControlType.kMAXMotionPositionControl, ClosedLoopSlot.kSlot0);
+      extenderSetpoint = extenderProfile.calculate(0.02, extenderSetpoint, extenderGoal);
+
+      double kSVal = Robot.tuningMode ? extenderKs.get() : ExtenderConstants.kS;
+      double kVVal = Robot.tuningMode ? extenderKv.get() : ExtenderConstants.kV;
+      double kGVal = Robot.tuningMode ? extenderKg.get() : ExtenderConstants.kG;
+      double kPVal = Robot.tuningMode ? extenderKp.get() : ExtenderConstants.kP;
+      double kDVal = Robot.tuningMode ? extenderKd.get() : ExtenderConstants.kD;
+
+      double curPos = getExtenderPosition();
+
+      double gravityFF = kGVal * Math.sin(curPos);
+      double velocityFF = kVVal * extenderSetpoint.velocity;
+      double staticFF = kSVal * Math.signum(extenderSetpoint.velocity);
+
+      double error = extenderSetpoint.position - curPos;
+      double dError = (error - extenderPrevError) / dt;
+      extenderPrevError = error;
+
+      double output = gravityFF + velocityFF + staticFF + kPVal * error + kDVal * dError;
+      intakeExtenderMotor.setVoltage(MathUtil.clamp(output, -12.0, 12.0));
     }
 
+    // Roller Logic
     if (voltageMode) {
       setTopVoltage(intakeReference);
       setBottomVoltage(intakeReference);

@@ -1,5 +1,6 @@
 package frc.robot.commands;
 
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.Timer;
@@ -36,7 +37,7 @@ public class CMD_Shoot extends Command {
   private final MapleJoystickDriveInput driveSupplier;
   private final Supplier<Translation2d> targetSupplier;
 
-  private final BooleanSupplier stowIntakeOnShoot, slowStow;
+  private final BooleanSupplier stowIntakeOnShoot;
 
   private boolean shooting;
   private final Debouncer atSetpointDebouncer = new Debouncer(0.04);
@@ -63,7 +64,6 @@ public class CMD_Shoot extends Command {
     this.kicker = kicker;
     this.shooter = shooter;
     this.stowIntakeOnShoot = stowIntakeOnShoot;
-    this.slowStow = slowStow;
 
     addRequirements(drive, conveyor, hood, intake, kicker, shooter);
   }
@@ -158,6 +158,11 @@ public class CMD_Shoot extends Command {
   @Override
   public void execute() {
     driveCommand.execute();
+    PPHolonomicDriveController.overrideRotationFeedback(
+        () ->
+            ChassisHeadingController.getInstance()
+                .calculate(drive.getMeasuredChassisSpeedsFieldRelative(), drive.getPose())
+                .orElse(0.0));
 
     ShootingParams shootingParams = getShootingParamsWithPrediction();
     shooter.setReference(shootingParams.shooterReference());
@@ -177,25 +182,16 @@ public class CMD_Shoot extends Command {
 
     if (shooting) {
       if (!stowIntakeOnShoot.getAsBoolean()) {
-        // Keep it down logic: use homing voltage to ensure it's on the floor
+        intake.setExtenderProfileConstraints(
+            ExtenderConstants.kMaxVel, ExtenderConstants.kMaxAccel);
         intake.setExtenderReference(ExtenderConstants.kExtended);
         intake.setReference(IntakeConstants.kIntake);
       } else {
-        // Stow logic: Use reverse homing voltage (UP)
-        // Since we removed getExtenderPosition, we run voltage toward the home stop
-        double stowVolts =
-            slowStow.getAsBoolean()
-                ? ExtenderConstants.kSlowStowVolts
-                : ExtenderConstants.kStowVolts;
-        if (intake.getExtenderPosition() > ExtenderConstants.kStow) {
-          intake.setExtenderVoltage(stowVolts); // Assuming negative is UP/STOW
-        } else {
-          intake.setExtenderVoltage(0.0);
-        }
-        intake.setVoltage(2); // Keep rollers spinning slightly to clear notes
+        intake.setExtenderProfileConstraints(
+            ExtenderConstants.kStowProfileMaxVel, ExtenderConstants.kStowProfileMaxAccel);
+        intake.setExtenderReference(ExtenderConstants.kHome);
+        intake.setVoltage(2);
       }
-    } else {
-      intake.setExtenderVoltage(0.1); // Small holding voltage to keep it from flopping
     }
   }
 
@@ -205,13 +201,13 @@ public class CMD_Shoot extends Command {
       driveCommand.end(interrupted);
     }
 
+    PPHolonomicDriveController.clearFeedbackOverrides();
+
     shooter.setReference(0);
     shooter.stopShooting();
     hood.setReference(HoodConstants.kMinPos);
     conveyor.setVoltage(ConveyorConstants.kOff);
     kicker.setVoltage(KickerConstants.kOff);
-
-    // Stop rollers and kill extender voltage
     intake.setVoltage(0);
     intake.setExtenderVoltage(0);
   }

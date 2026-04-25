@@ -94,14 +94,30 @@ public class RobotContainer {
         kicker = new Kicker(new KickerIOSpark());
         hood = new Hood(new HoodIOSpark());
 
-        this.vision =
-            new Vision(
-                drive,
-                () -> drive.getMeasuredChassisSpeedsRobotRelative(),
-                new VisionIOPhotonVision(
-                    Vision_Constants.camera0Name, Vision_Constants.robotToCamera0),
-                new VisionIOPhotonVision(
-                    Vision_Constants.camera1Name, Vision_Constants.robotToCamera1));
+        if (Robot.CURRENT_ROBOT == RobotName.HYDRA) {
+          this.vision =
+              new Vision(
+                  drive,
+                  () -> drive.getMeasuredChassisSpeedsRobotRelative(),
+                  new VisionIOPhotonVision(
+                      Vision_Constants.camera0Name, Vision_Constants.robotToCamera0),
+                  new VisionIOPhotonVision(
+                      Vision_Constants.camera1Name, Vision_Constants.robotToCamera1));
+        } else {
+          this.vision =
+              new Vision(
+                  drive,
+                  () -> drive.getMeasuredChassisSpeedsRobotRelative(),
+                  new VisionIOPhotonVision(
+                      Vision_Constants.camera0Name, Vision_Constants.robotToCamera0),
+                  new VisionIOPhotonVision(
+                      Vision_Constants.camera1Name, Vision_Constants.robotToCamera1),
+                  new VisionIOPhotonVision(
+                      Vision_Constants.camera2Name, Vision_Constants.robotToCamera2),
+                  new VisionIOPhotonVision(
+                      Vision_Constants.camera3Name, Vision_Constants.robotToCamera3));
+        }
+
         break;
 
       case SIM:
@@ -242,7 +258,7 @@ public class RobotContainer {
 
       driver
           .intakeButton()
-          .whileTrue(new CMD_Intake(intake))
+          .whileTrue(new CMD_Intake(conveyor, intake))
           .onFalse(new CMD_Extend(conveyor, intake, kicker));
 
       driver

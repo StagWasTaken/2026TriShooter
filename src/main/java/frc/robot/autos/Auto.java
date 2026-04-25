@@ -48,7 +48,7 @@ public interface Auto {
   default Command sweepPath(PathPlannerPath path, RobotContainer robot, double spinupDelay) {
     return AutoBuilder.followPath(path)
         .deadlineWith(
-            new CMD_Intake(robot.intake),
+            new CMD_Intake(robot.conveyor, robot.intake),
             Commands.sequence(new WaitCommand(spinupDelay), robot.shooter.runPreRev(2000)));
   }
 
