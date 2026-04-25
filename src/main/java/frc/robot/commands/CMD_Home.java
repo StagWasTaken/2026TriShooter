@@ -10,14 +10,16 @@ public class CMD_Home extends Command {
 
   public CMD_Home(Intake intake) {
     this.intake = intake;
-
     addRequirements(intake);
   }
 
   @Override
   public void initialize() {
     intake.setVoltage(IntakeConstants.kOff);
+  }
 
+  @Override
+  public void execute() {
     intake.setExtenderReference(ExtenderConstants.kHome);
   }
 
@@ -28,6 +30,6 @@ public class CMD_Home extends Command {
 
   @Override
   public void end(boolean interrupted) {
-    if (interrupted) return;
+    intake.setExtenderVoltage(0);
   }
 }

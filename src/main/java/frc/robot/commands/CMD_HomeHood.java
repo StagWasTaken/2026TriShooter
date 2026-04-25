@@ -16,19 +16,17 @@ public class CMD_HomeHood extends Command {
 
   @Override
   public void initialize() {
-    stalledDebouncer.calculate(false); // flush debouncer state
+    stalledDebouncer.calculate(false);
     hood.setVoltage(0);
   }
 
   @Override
   public void execute() {
-    // Drive slowly toward hard stop
-    hood.setVoltage(HoodConstants.kHomingVoltage);
+    hood.setVoltage(HoodConstants.kDeployVoltage);
   }
 
   @Override
   public boolean isFinished() {
-    // Done when velocity stays near zero — i.e. we've hit the hard stop
     return stalledDebouncer.calculate(
         Math.abs(hood.getVelocity()) < HoodConstants.kHomingVelocityThreshold);
   }
@@ -36,8 +34,8 @@ public class CMD_HomeHood extends Command {
   @Override
   public void end(boolean interrupted) {
     hood.setVoltage(0);
+
     if (!interrupted) {
-      // Zero the encoder at the hard stop position
       hood.resetEncoder();
     }
   }

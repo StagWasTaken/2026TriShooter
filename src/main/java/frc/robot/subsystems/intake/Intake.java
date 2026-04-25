@@ -100,6 +100,10 @@ public class Intake extends SubsystemBase {
     io.setExtenderReference(angRad);
   }
 
+  public void setExtenderProfileConstraints(double maxVel, double maxAccel) {
+    io.setExtenderProfileConstraints(maxVel, maxAccel);
+  }
+
   public Command setExtenderTargetAngle(double angRad) {
     return Commands.runOnce(() -> setExtenderReference(angRad), this);
   }

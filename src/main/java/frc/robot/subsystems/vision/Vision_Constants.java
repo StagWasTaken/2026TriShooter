@@ -34,13 +34,18 @@ public class Vision_Constants {
   // Camera names, must match names configured on coprocessor
   public static String camera0Name = "LeftCam";
   public static String camera1Name = "RightCam";
+  public static String camera2Name = "LeftSideCam";
+  public static String camera3Name = "RightSideCam";
 
   public static final double stdDevFactor = 1;
 
   // Robot to camera transforms
   // (Not used by Limelight, configure in web UI instead)
-  public static final Transform3d robotToCamera0;
-  public static final Transform3d robotToCamera1;
+  public static final Transform3d robotToCamera0; // FL
+  public static final Transform3d robotToCamera1; // FR
+
+  public static final Transform3d robotToCamera2; // Left Side
+  public static final Transform3d robotToCamera3; // Right side
 
   static {
     if (Robot.CURRENT_ROBOT == Robot.RobotName.HYDRA) {
@@ -59,22 +64,54 @@ public class Vision_Constants {
                   Units.inchesToMeters(-7.75),
                   Units.inchesToMeters(12)),
               new Rotation3d(0, Math.toRadians(-17.75), 0));
+
+      robotToCamera2 =
+          new Transform3d(new Translation3d(), new Rotation3d()); // not present on this bot
+
+      robotToCamera3 =
+          new Transform3d(new Translation3d(), new Rotation3d()); // not present on this bot
     } else {
       robotToCamera0 =
           new Transform3d(
               new Translation3d(
-                  Units.inchesToMeters(12.5),
+                  Units.inchesToMeters(11.75),
                   Units.inchesToMeters(5.25),
-                  Units.inchesToMeters(9.5)),
-              new Rotation3d(0, Math.toRadians(-17), 0));
+                  Units.inchesToMeters(8.0)),
+              new Rotation3d(
+                  Math.toRadians(0),
+                  Math.toRadians(-12),
+                  Math.toRadians(0))); // angled 17 degrees up, facing front
 
       robotToCamera1 =
           new Transform3d(
               new Translation3d(
-                  Units.inchesToMeters(12.5),
-                  Units.inchesToMeters(-5.25),
-                  Units.inchesToMeters(9.5)),
-              new Rotation3d(0, Math.toRadians(-17.75), 0));
+                  Units.inchesToMeters(14), Units.inchesToMeters(-5.25), Units.inchesToMeters(9.5)),
+              new Rotation3d(
+                  Math.toRadians(0),
+                  Math.toRadians(-12.5),
+                  Math.toRadians(0))); // angled 17 degrees up, facing front
+
+      robotToCamera2 =
+          new Transform3d(
+              new Translation3d(
+                  Units.inchesToMeters(3.375), // forward of center
+                  Units.inchesToMeters(12.75), // left of center
+                  Units.inchesToMeters(9.0)), // off floor
+              new Rotation3d(
+                  Math.toRadians(0),
+                  Math.toRadians(-17),
+                  Math.toRadians(90))); // angled 17 degrees up, facing left
+
+      robotToCamera3 =
+          new Transform3d(
+              new Translation3d(
+                  Units.inchesToMeters(3.375), // forward of center
+                  Units.inchesToMeters(-12.75), // right of center
+                  Units.inchesToMeters(9.0)), // off floor
+              new Rotation3d(
+                  Math.toRadians(0),
+                  Math.toRadians(-17),
+                  Math.toRadians(-90))); // angled 17 degrees up, facing right
     }
   }
 

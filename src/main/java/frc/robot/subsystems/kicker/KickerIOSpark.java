@@ -27,7 +27,7 @@ public class KickerIOSpark implements KickerIO {
   private double kickerReference;
   private ControlType kickerType;
 
-  private LoggedTunableNumber kS, kV, kP, kD, kTargetVelocity;
+  private LoggedTunableNumber kS, kV, kP, kD;
 
   public KickerIOSpark() {
     kickerMotorLeader = new SparkMax(KickerConstants.kKickerLeadCanId, MotorType.kBrushless);
@@ -59,7 +59,6 @@ public class KickerIOSpark implements KickerIO {
       kV = new LoggedTunableNumber("Kicker/kV", KickerConstants.kV);
       kP = new LoggedTunableNumber("Kicker/kP", KickerConstants.kP);
       kD = new LoggedTunableNumber("Kicker/kD", KickerConstants.kD);
-      kTargetVelocity = new LoggedTunableNumber("Kicker/kTargetVelocity", KickerConstants.kKick);
     }
   }
 
@@ -124,8 +123,7 @@ public class KickerIOSpark implements KickerIO {
     double ff = 0;
 
     if (Robot.tuningMode) {
-      ff = kS.get() + (kV.get() * kTargetVelocity.get());
-      setReference(kTargetVelocity.get());
+      ff = kS.get() + (kV.get() * getReference());
 
       if (kP.hasChanged(kP.hashCode()) || kD.hasChanged(kD.hashCode())) {
         SparkMaxConfig newConfig = new SparkMaxConfig();

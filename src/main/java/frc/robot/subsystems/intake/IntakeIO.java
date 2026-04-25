@@ -5,8 +5,6 @@ import org.littletonrobotics.junction.AutoLog;
 public interface IntakeIO {
   @AutoLog
   public static class IntakeIOInputs {
-    public double intakeProfileSetpoint;
-    public double intakeBottomProfileSetpoint;
     public double intakeCurrent;
     public double intakeVoltage;
     public double intakeVelocity;
@@ -14,11 +12,10 @@ public interface IntakeIO {
     public double intakeBottomCurrent;
     public double intakeBottomVoltage;
     public double intakeBottomVelocity;
-    public double intakeBottomSpeedFtPerSec;
     public double intakeReference;
     public double intakePosition;
     public double intakeTemp;
-    public double intakeFollowerTemp;
+    public double intakeBottomRollerTemp;
 
     public double extenderCurrent;
     public double extenderVoltage;
@@ -84,7 +81,9 @@ public interface IntakeIO {
 
   public default void setExtenderVoltage(double voltage) {}
 
-  public default void setExtenderReference(double velocity) {}
+  public default void setExtenderReference(double pos) {}
+
+  public default void setExtenderProfileConstraints(double maxVel, double maxAccel) {}
 
   public default void resetEncoder() {}
 

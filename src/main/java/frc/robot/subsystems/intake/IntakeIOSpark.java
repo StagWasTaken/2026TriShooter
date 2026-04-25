@@ -28,43 +28,34 @@ public class IntakeIOSpark implements IntakeIO {
   private final RelativeEncoder intakeEncoder;
   private final RelativeEncoder intakeSecondaryEncoder;
 
-  // Top roller profile — position axis = RPM, velocity axis = RPM/s
-  private final TrapezoidProfile topProfile;
-  private TrapezoidProfile.State topProfileGoal = new TrapezoidProfile.State();
-  private TrapezoidProfile.State topProfileSetpoint = new TrapezoidProfile.State();
+  private final SparkMax intakeExtenderMotor;
+  private final AbsoluteEncoder intakeExtenderEncoder;
+  private final SparkClosedLoopController intakeExtenderController;
 
-  // Bottom roller profile
-  private final TrapezoidProfile bottomProfile;
-  private TrapezoidProfile.State bottomProfileGoal = new TrapezoidProfile.State();
-  private TrapezoidProfile.State bottomProfileSetpoint = new TrapezoidProfile.State();
+  private TrapezoidProfile extenderProfile;
+  private TrapezoidProfile.Constraints extenderConstraints;
+  private TrapezoidProfile.State extenderSetpoint = new TrapezoidProfile.State();
+  private TrapezoidProfile.State extenderGoal = new TrapezoidProfile.State();
 
-  // PID state — top
   private double topPrevError = 0.0;
-
-  // PID state — bottom
   private double bottomPrevError = 0.0;
-
   private double lastTimestamp = 0.0;
 
   private double intakeReference;
   private boolean voltageMode = false;
 
-  private LoggedTunableNumber kS, kV, kP, kD;
-  private LoggedTunableNumber kSBottom, kVBottom, kPBottom, kDBottom;
-
-  private final SparkMax intakeExtenderMotor;
-  private final AbsoluteEncoder intakeExtenderEncoder;
-  private final SparkClosedLoopController intakeExtenderController;
-
   private double intakeExtenderReference;
   private ControlType intakeExtenderType;
   private double extenderOffsetRad = 0.0;
+
+  private LoggedTunableNumber kS, kV, kP, kD;
+  private LoggedTunableNumber extenderKs, extenderKv, extenderKg, extenderKp, extenderKd;
+  private double extenderPrevError = 0.0;
 
   public IntakeIOSpark() {
     intakeMotor = new SparkFlex(IntakeConstants.kIntakeCanId, MotorType.kBrushless);
     intakeSecondaryMotor =
         new SparkFlex(IntakeConstants.kIntakeBottomRightanId, MotorType.kBrushless);
-
     intakeExtenderMotor =
         new SparkMax(ExtenderConstants.kIntakeExtenderCanId, MotorType.kBrushless);
 
@@ -85,14 +76,10 @@ public class IntakeIOSpark implements IntakeIO {
         ResetMode.kResetSafeParameters,
         PersistMode.kPersistParameters);
 
-    topProfile =
-        new TrapezoidProfile(
-            new TrapezoidProfile.Constraints(
-                IntakeConstants.kProfileMaxVel, IntakeConstants.kProfileMaxAccel));
-    bottomProfile =
-        new TrapezoidProfile(
-            new TrapezoidProfile.Constraints(
-                IntakeConstants.kProfileMaxVel, IntakeConstants.kProfileMaxAccel));
+    // Initialize Extender Profile
+    extenderConstraints =
+        new TrapezoidProfile.Constraints(ExtenderConstants.kMaxVel, ExtenderConstants.kMaxAccel);
+    extenderProfile = new TrapezoidProfile(extenderConstraints);
 
     intakeReference = 0.0;
     voltageMode = false;
@@ -101,100 +88,83 @@ public class IntakeIOSpark implements IntakeIO {
     intakeExtenderType = ControlType.kMAXMotionPositionControl;
 
     if (Robot.tuningMode) {
-      kS = new LoggedTunableNumber("Intake/Top/kS", IntakeConstants.kS);
-      kV = new LoggedTunableNumber("Intake/Top/kV", IntakeConstants.kV);
-      kP = new LoggedTunableNumber("Intake/Top/kP", IntakeConstants.kP);
-      kD = new LoggedTunableNumber("Intake/Top/kD", IntakeConstants.kD);
+      kS = new LoggedTunableNumber("Intake/kS", IntakeConstants.kS);
+      kV = new LoggedTunableNumber("Intake/kV", IntakeConstants.kV);
+      kP = new LoggedTunableNumber("Intake/kP", IntakeConstants.kP);
+      kD = new LoggedTunableNumber("Intake/kD", IntakeConstants.kD);
 
-      kSBottom = new LoggedTunableNumber("Intake/Bottom/kS", IntakeConstants.kSBottom);
-      kVBottom = new LoggedTunableNumber("Intake/Bottom/kV", IntakeConstants.kVBottom);
-      kPBottom = new LoggedTunableNumber("Intake/Bottom/kP", IntakeConstants.kPBottom);
-      kDBottom = new LoggedTunableNumber("Intake/Bottom/kD", IntakeConstants.kDBottom);
+      extenderKs = new LoggedTunableNumber("Intake/Extender/kS", ExtenderConstants.kS);
+      extenderKv = new LoggedTunableNumber("Intake/Extender/kV", ExtenderConstants.kV);
+      extenderKg = new LoggedTunableNumber("Intake/Extender/kG", ExtenderConstants.kG);
+      extenderKp = new LoggedTunableNumber("Intake/Extender/kP", ExtenderConstants.kP);
+      extenderKd = new LoggedTunableNumber("Intake/Extender/kD", ExtenderConstants.kD);
+    }
+  }
+
+  @Override
+  public void setExtenderProfileConstraints(double maxVel, double maxAccel) {
+    if (maxVel != extenderConstraints.maxVelocity
+        || maxAccel != extenderConstraints.maxAcceleration) {
+      extenderConstraints = new TrapezoidProfile.Constraints(maxVel, maxAccel);
+      extenderProfile = new TrapezoidProfile(extenderConstraints);
     }
   }
 
   @Override
   public void updateInputs(IntakeIOInputs inputs) {
-    inputs.intakeReference = getReference();
-    inputs.intakeProfileSetpoint = topProfileSetpoint.position;
-    inputs.intakeBottomProfileSetpoint = bottomProfileSetpoint.position;
-    inputs.intakeCurrent = getCurrent();
-    inputs.intakeVoltage = getVoltage();
-    inputs.intakeVelocity = getVelocity();
-    inputs.intakeSpeedFtPerSec = getVelocity() * IntakeConstants.kRPMToFtPerSec;
-    inputs.intakeBottomCurrent = intakeSecondaryMotor.getOutputCurrent();
-    inputs.intakeBottomVoltage =
-        intakeSecondaryMotor.getAppliedOutput() * intakeSecondaryMotor.getBusVoltage();
-    inputs.intakeBottomVelocity = intakeSecondaryEncoder.getVelocity();
-    inputs.intakeBottomSpeedFtPerSec =
-        intakeSecondaryEncoder.getVelocity() * IntakeConstants.kBottomRPMToFtPerSec;
-    inputs.intakePosition = getPosition();
-    inputs.intakeTemp = Fahrenheit.convertFrom(intakeMotor.getMotorTemperature(), Celsius);
-    inputs.intakeFollowerTemp =
-        Fahrenheit.convertFrom(intakeSecondaryMotor.getMotorTemperature(), Celsius);
+    inputs.intakeReference = intakeReference;
+    inputs.intakeVelocity = intakeEncoder.getVelocity();
+    inputs.intakeVoltage = intakeMotor.getBusVoltage() * intakeMotor.getAppliedOutput();
+    inputs.intakeCurrent = intakeMotor.getOutputCurrent();
 
-    inputs.extenderReference = Units.radiansToDegrees(getExtenderReference());
-    inputs.extenderCurrent = getExtenderCurrent();
-    inputs.extenderVoltage = getExtenderVoltage();
-    inputs.extenderVelocity = getExtenderVelocity();
+    inputs.intakeBottomVelocity = intakeSecondaryEncoder.getVelocity();
+    inputs.intakeBottomVoltage =
+        intakeSecondaryMotor.getBusVoltage() * intakeSecondaryMotor.getAppliedOutput();
+    inputs.intakeBottomCurrent = intakeSecondaryMotor.getOutputCurrent();
+
+    if (intakeExtenderType == ControlType.kMAXMotionPositionControl) {
+      inputs.extenderReference = Units.radiansToDegrees(intakeExtenderReference);
+    } else {
+      inputs.extenderReference = intakeExtenderReference;
+    }
+
+    inputs.extenderProfilePositionSetpoint = Units.radiansToDegrees(extenderSetpoint.position);
+    inputs.extenderProfileVelocitySetpoint = Units.radiansToDegrees(extenderSetpoint.velocity);
+
+    inputs.extenderVoltage =
+        intakeExtenderMotor.getBusVoltage() * intakeExtenderMotor.getAppliedOutput();
+    inputs.extenderVelocity = intakeExtenderEncoder.getVelocity();
+    inputs.extenderCurrent = intakeExtenderMotor.getOutputCurrent();
     inputs.extenderPosition = Units.radiansToDegrees(getExtenderPosition());
     inputs.extenderInPosition = getExtenderInPosition();
+
+    inputs.intakeTemp = Fahrenheit.convertFrom(intakeMotor.getMotorTemperature(), Celsius);
+    inputs.intakeBottomRollerTemp =
+        Fahrenheit.convertFrom(intakeSecondaryMotor.getMotorTemperature(), Celsius);
     inputs.extenderTemp =
         Fahrenheit.convertFrom(intakeExtenderMotor.getMotorTemperature(), Celsius);
   }
 
   @Override
   public void setReference(double velocity) {
-    if (voltageMode || intakeReference <= 0) {
-      topProfileSetpoint = new TrapezoidProfile.State(intakeEncoder.getVelocity(), 0);
-      bottomProfileSetpoint = new TrapezoidProfile.State(intakeSecondaryEncoder.getVelocity(), 0);
-    }
     intakeReference = velocity;
-    topProfileGoal = new TrapezoidProfile.State(velocity, 0);
-    bottomProfileGoal = new TrapezoidProfile.State(velocity - 500, 0);
     voltageMode = false;
-  }
-
-  @Override
-  public double getReference() {
-    return intakeReference;
   }
 
   @Override
   public void setVoltage(double voltage) {
     intakeReference = voltage;
     voltageMode = true;
-    topPrevError = 0.0;
-    bottomPrevError = 0.0;
-    topProfileSetpoint = new TrapezoidProfile.State();
-    topProfileGoal = new TrapezoidProfile.State();
-    bottomProfileSetpoint = new TrapezoidProfile.State();
-    bottomProfileGoal = new TrapezoidProfile.State();
-  }
-
-  @Override
-  public double getVoltage() {
-    return intakeMotor.getBusVoltage() * intakeMotor.getAppliedOutput();
-  }
-
-  @Override
-  public double getVelocity() {
-    return intakeEncoder.getVelocity();
-  }
-
-  @Override
-  public double getCurrent() {
-    return intakeMotor.getOutputCurrent();
-  }
-
-  @Override
-  public double getPosition() {
-    return intakeEncoder.getPosition();
   }
 
   @Override
   public void setExtenderReference(double angRad) {
+    if (angRad == intakeExtenderReference && intakeExtenderType != ControlType.kVoltage) return;
+    if (intakeExtenderType == ControlType.kVoltage) {
+      extenderSetpoint = new TrapezoidProfile.State(getExtenderPosition(), 0);
+    }
     intakeExtenderReference = angRad;
+    extenderGoal = new TrapezoidProfile.State(angRad, 0);
     intakeExtenderType = ControlType.kMAXMotionPositionControl;
   }
 
@@ -207,11 +177,7 @@ public class IntakeIOSpark implements IntakeIO {
   public void setExtenderVoltage(double voltage) {
     intakeExtenderReference = voltage;
     intakeExtenderType = ControlType.kVoltage;
-  }
-
-  @Override
-  public double getExtenderVoltage() {
-    return intakeExtenderMotor.getBusVoltage() * intakeExtenderMotor.getAppliedOutput();
+    extenderSetpoint = new TrapezoidProfile.State(getExtenderPosition(), 0);
   }
 
   @Override
@@ -220,12 +186,8 @@ public class IntakeIOSpark implements IntakeIO {
   }
 
   @Override
-  public double getExtenderCurrent() {
-    return intakeExtenderMotor.getOutputCurrent();
-  }
-
-  @Override
   public boolean getExtenderInPosition() {
+    if (intakeExtenderType == ControlType.kVoltage) return false;
     double positionError = Math.abs(getExtenderPosition() - getExtenderReference());
     return positionError < ExtenderConstants.kPositionTolerance;
   }
@@ -238,10 +200,7 @@ public class IntakeIOSpark implements IntakeIO {
   @Override
   public void resetEncoder() {
     double currentPhysicalPos = intakeExtenderEncoder.getPosition();
-    double targetRad = Units.degreesToRadians(315.0);
-
-    // Offset = Physical Position - Desired Position
-    // This makes: (Physical - Offset) = targetRad
+    double targetRad = ExtenderConstants.kExtended;
     extenderOffsetRad = currentPhysicalPos - targetRad;
   }
 
@@ -258,11 +217,14 @@ public class IntakeIOSpark implements IntakeIO {
     if (RobotState.isDisabled()) {
       topPrevError = 0.0;
       bottomPrevError = 0.0;
-      topProfileSetpoint = new TrapezoidProfile.State(intakeEncoder.getVelocity(), 0);
-      bottomProfileSetpoint = new TrapezoidProfile.State(intakeSecondaryEncoder.getVelocity(), 0);
+      extenderPrevError = 0.0;
       lastTimestamp = Timer.getFPGATimestamp();
+
       intakeExtenderController.setSetpoint(
           intakeExtenderReference, intakeExtenderType, ClosedLoopSlot.kSlot0);
+
+      extenderSetpoint = new TrapezoidProfile.State(getExtenderPosition(), 0);
+      extenderGoal = new TrapezoidProfile.State(getExtenderPosition(), 0);
       return;
     }
 
@@ -271,55 +233,60 @@ public class IntakeIOSpark implements IntakeIO {
     lastTimestamp = now;
     if (dt <= 0.0 || dt > 0.5) dt = 0.02;
 
+    // --- Extender Logic (Unchanged) ---
+    if (intakeExtenderType == ControlType.kVoltage) {
+      intakeExtenderMotor.setVoltage(MathUtil.clamp(intakeExtenderReference, -12.0, 12.0));
+    } else {
+      extenderSetpoint = extenderProfile.calculate(0.02, extenderSetpoint, extenderGoal);
+
+      double kSVal = Robot.tuningMode ? extenderKs.get() : ExtenderConstants.kS;
+      double kVVal = Robot.tuningMode ? extenderKv.get() : ExtenderConstants.kV;
+      double kGVal = Robot.tuningMode ? extenderKg.get() : ExtenderConstants.kG;
+      double kPVal = Robot.tuningMode ? extenderKp.get() : ExtenderConstants.kP;
+      double kDVal = Robot.tuningMode ? extenderKd.get() : ExtenderConstants.kD;
+
+      double curPos = getExtenderPosition();
+
+      double gravityFF = kGVal * Math.sin(curPos);
+      double velocityFF = kVVal * extenderSetpoint.velocity;
+      double staticFF = kSVal * Math.signum(extenderSetpoint.velocity);
+
+      double error = extenderSetpoint.position - curPos;
+      double dError = (error - extenderPrevError) / dt;
+      extenderPrevError = error;
+
+      double output = gravityFF + velocityFF + staticFF + kPVal * error + kDVal * dError;
+      intakeExtenderMotor.setVoltage(MathUtil.clamp(output, -12.0, 12.0));
+    }
+
     if (voltageMode) {
       setTopVoltage(intakeReference);
       setBottomVoltage(intakeReference);
-    } else if (intakeReference <= 0) {
-      topProfileSetpoint = new TrapezoidProfile.State();
-      topProfileGoal = new TrapezoidProfile.State();
-      bottomProfileSetpoint = new TrapezoidProfile.State();
-      bottomProfileGoal = new TrapezoidProfile.State();
+    } else if (intakeReference == 0) {
       topPrevError = 0.0;
       bottomPrevError = 0.0;
       setTopVoltage(0);
       setBottomVoltage(0);
     } else {
-      // Top roller
-      topProfileSetpoint = topProfile.calculate(0.02, topProfileSetpoint, topProfileGoal);
-      double topProfiledVel = topProfileSetpoint.position;
+      // Direct velocity control using the reference as the target
+      double targetVel = intakeReference;
 
       double kSVal = Robot.tuningMode ? kS.get() : IntakeConstants.kS;
       double kVVal = Robot.tuningMode ? kV.get() : IntakeConstants.kV;
-      double topFF = kSVal * Math.signum(topProfiledVel) + kVVal * topProfiledVel;
-
       double kPVal = Robot.tuningMode ? kP.get() : IntakeConstants.kP;
       double kDVal = Robot.tuningMode ? kD.get() : IntakeConstants.kD;
-      double topError = topProfiledVel - intakeEncoder.getVelocity();
+
+      double ff = kSVal * Math.signum(targetVel) + kVVal * targetVel;
+
+      double topError = targetVel - intakeEncoder.getVelocity();
       double topDError = (topError - topPrevError) / dt;
       topPrevError = topError;
+      setTopVoltage(ff + kPVal * topError + kDVal * topDError);
 
-      setTopVoltage(topFF + kPVal * topError + kDVal * topDError);
-
-      // Bottom roller
-      bottomProfileSetpoint =
-          bottomProfile.calculate(0.02, bottomProfileSetpoint, bottomProfileGoal);
-      double bottomProfiledVel = bottomProfileSetpoint.position;
-
-      double kSBVal = Robot.tuningMode ? kSBottom.get() : IntakeConstants.kSBottom;
-      double kVBVal = Robot.tuningMode ? kVBottom.get() : IntakeConstants.kVBottom;
-      double bottomFF = kSBVal * Math.signum(bottomProfiledVel) + kVBVal * bottomProfiledVel;
-
-      double kPBVal = Robot.tuningMode ? kPBottom.get() : IntakeConstants.kPBottom;
-      double kDBVal = Robot.tuningMode ? kDBottom.get() : IntakeConstants.kDBottom;
-      double bottomError = bottomProfiledVel - intakeSecondaryEncoder.getVelocity();
+      double bottomError = targetVel - intakeSecondaryEncoder.getVelocity();
       double bottomDError = (bottomError - bottomPrevError) / dt;
       bottomPrevError = bottomError;
-
-      setBottomVoltage(bottomFF + kPBVal * bottomError + kDBVal * bottomDError);
+      setBottomVoltage(ff + kPVal * bottomError + kDVal * bottomDError);
     }
-
-    // Extender always runs regardless of roller mode
-    intakeExtenderController.setSetpoint(
-        intakeExtenderReference, intakeExtenderType, ClosedLoopSlot.kSlot0);
   }
 }

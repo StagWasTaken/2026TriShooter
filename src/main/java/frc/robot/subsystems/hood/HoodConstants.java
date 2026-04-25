@@ -35,7 +35,7 @@ public class HoodConstants {
 
   public static final double kGearRatio = 25;
 
-  public static final double kHomingVoltage = -1.0;
+  public static final double kDeployVoltage = -1.0;
   public static final double kHomingVelocityThreshold = 5;
 
   // sim

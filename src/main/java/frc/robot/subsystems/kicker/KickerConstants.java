@@ -31,9 +31,9 @@ public class KickerConstants {
 
   public static final double kTolerance = Math.PI * 2;
 
-  public static final double kKick =
-      Robot.CURRENT_ROBOT == RobotName.HYDRA ? 11 /* volts */ : 10.5 /* volts */;
+  public static final double kKick = Robot.CURRENT_ROBOT == RobotName.HYDRA ? 11 : 12;
   public static final double kOff = 0;
+  public static final double kExtake = -12;
 
   public static final double kGearRatio = 2;
 }
