@@ -109,7 +109,7 @@ public class CMD_ShootNoVision extends Command {
         intake.setExtenderProfileConstraints(
             ExtenderConstants.kStowProfileMaxVel, ExtenderConstants.kStowProfileMaxAccel);
         intake.setExtenderReference(ExtenderConstants.kHome);
-        intake.setVoltage(2);
+        intake.setVoltage(0.0);
       }
     }
   }

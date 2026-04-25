@@ -161,7 +161,7 @@ public class CMD_Pass extends Command {
         intake.setExtenderProfileConstraints(
             ExtenderConstants.kStowProfileMaxVel, ExtenderConstants.kStowProfileMaxAccel);
         intake.setExtenderReference(ExtenderConstants.kHome);
-        intake.setVoltage(2);
+        intake.setVoltage(0.0);
       }
     }
   }

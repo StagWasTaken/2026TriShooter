@@ -74,23 +74,21 @@ public class Vision_Constants {
       robotToCamera0 =
           new Transform3d(
               new Translation3d(
-                  Units.inchesToMeters(12.5),
+                  Units.inchesToMeters(11.75),
                   Units.inchesToMeters(5.25),
-                  Units.inchesToMeters(9.5)),
+                  Units.inchesToMeters(8.0)),
               new Rotation3d(
                   Math.toRadians(0),
-                  Math.toRadians(-17),
+                  Math.toRadians(-12),
                   Math.toRadians(0))); // angled 17 degrees up, facing front
 
       robotToCamera1 =
           new Transform3d(
               new Translation3d(
-                  Units.inchesToMeters(12.5),
-                  Units.inchesToMeters(-5.25),
-                  Units.inchesToMeters(9.5)),
+                  Units.inchesToMeters(14), Units.inchesToMeters(-5.25), Units.inchesToMeters(9.5)),
               new Rotation3d(
                   Math.toRadians(0),
-                  Math.toRadians(-17.75),
+                  Math.toRadians(-12.5),
                   Math.toRadians(0))); // angled 17 degrees up, facing front
 
       robotToCamera2 =
