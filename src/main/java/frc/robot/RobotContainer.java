@@ -15,19 +15,15 @@ package frc.robot;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Robot.RobotName;
 import frc.robot.autos.*;
-import frc.robot.autos.bump.*;
-import frc.robot.autos.trench.*;
 import frc.robot.commands.*;
 import frc.robot.commands.drive.*;
 import frc.robot.subsystems.conveyor.*;
@@ -36,11 +32,11 @@ import frc.robot.subsystems.drive.io.*;
 import frc.robot.subsystems.drum.*;
 import frc.robot.subsystems.hood.*;
 import frc.robot.subsystems.intake.*;
-import frc.robot.subsystems.intake.IntakeConstants.ExtenderConstants;
 import frc.robot.subsystems.kicker.*;
 import frc.robot.subsystems.led.LEDStatusLight;
 import frc.robot.subsystems.shooter.*;
 import frc.robot.subsystems.vision.*;
+import frc.robot.utils.LoggedTunableNumber;
 import frc.robot.utils.constants.FieldConstants;
 import frc.robot.utils.constants.RobotMode;
 import frc.robot.utils.custompids.ChassisHeadingController;
@@ -49,7 +45,6 @@ import frc.robot.utils.hubcounter.HubShiftUtil;
 import java.util.function.IntSupplier;
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
-import org.ironmaple.utils.FieldMirroringUtils;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
@@ -75,6 +70,7 @@ public class RobotContainer {
 
   private final LoggedDashboardChooser<Auto> autoChooser;
   private final LoggedNetworkNumber hoodRef, shooterRef;
+  public final LoggedTunableNumber autoDelay = new LoggedTunableNumber("Auto/delay", 0.0);
 
   public RobotContainer() {
     switch (Robot.CURRENT_ROBOT_MODE) {
@@ -98,14 +94,30 @@ public class RobotContainer {
         kicker = new Kicker(new KickerIOSpark());
         hood = new Hood(new HoodIOSpark());
 
-        this.vision =
-            new Vision(
-                drive,
-                () -> drive.getMeasuredChassisSpeedsRobotRelative(),
-                new VisionIOPhotonVision(
-                    Vision_Constants.camera0Name, Vision_Constants.robotToCamera0),
-                new VisionIOPhotonVision(
-                    Vision_Constants.camera1Name, Vision_Constants.robotToCamera1));
+        if (Robot.CURRENT_ROBOT == RobotName.HYDRA) {
+          this.vision =
+              new Vision(
+                  drive,
+                  () -> drive.getMeasuredChassisSpeedsRobotRelative(),
+                  new VisionIOPhotonVision(
+                      Vision_Constants.camera0Name, Vision_Constants.robotToCamera0),
+                  new VisionIOPhotonVision(
+                      Vision_Constants.camera1Name, Vision_Constants.robotToCamera1));
+        } else {
+          this.vision =
+              new Vision(
+                  drive,
+                  () -> drive.getMeasuredChassisSpeedsRobotRelative(),
+                  new VisionIOPhotonVision(
+                      Vision_Constants.camera0Name, Vision_Constants.robotToCamera0),
+                  new VisionIOPhotonVision(
+                      Vision_Constants.camera1Name, Vision_Constants.robotToCamera1),
+                  new VisionIOPhotonVision(
+                      Vision_Constants.camera2Name, Vision_Constants.robotToCamera2),
+                  new VisionIOPhotonVision(
+                      Vision_Constants.camera3Name, Vision_Constants.robotToCamera3));
+        }
+
         break;
 
       case SIM:
@@ -177,31 +189,29 @@ public class RobotContainer {
     }
 
     this.ledStatusLight = new LEDStatusLight(0, 155, true, false);
-    hoodRef = new LoggedNetworkNumber("HoodRef", Robot.CURRENT_ROBOT == RobotName.HYDRA ? .2 : 23);
+    hoodRef = new LoggedNetworkNumber("HoodRef", Robot.CURRENT_ROBOT == RobotName.HYDRA ? .2 : 25);
     shooterRef =
         new LoggedNetworkNumber(
             "ShooterRef",
-            Robot.CURRENT_ROBOT == RobotName.HYDRA ? Units.degreesToRadians(12000) : 2400);
+            Robot.CURRENT_ROBOT == RobotName.HYDRA ? Units.degreesToRadians(12000) : 2450);
 
     autoChooser = new LoggedDashboardChooser<>("Auto Choices");
 
-    // trench
-    autoChooser.addOption("Right Trench Middle", new AUTO_DoubleSweepRight());
-    autoChooser.addOption("Left Trench  Middle", new AUTO_DoubleSweepLeft());
-    autoChooser.addOption("Right Trench Partner", new AUTO_DoubleSweepPartnerSideRight());
-    autoChooser.addOption("Left Trench Partner", new AUTO_DoubleSweepPartnerSideLeft());
-    autoChooser.addOption("Right Trench Opponent", new AUTO_DoubleSweepOpponentSideRight());
-    autoChooser.addOption("Left Trench Opponent", new AUTO_DoubleSweepOpponentSideLeft());
+    // main autos
+    autoChooser.addOption("27 Left", new AUTO_27(true));
+    autoChooser.addOption("27 Right", new AUTO_27(false));
 
-    // bump
-    autoChooser.addOption("27 Left", new AUTO_27Left());
-    autoChooser.addOption("27 Right", new AUTO_27Right());
-    autoChooser.addOption("Left Bump Opponent", new AUTO_DoubleSweepBumpOpponentLeft());
-    autoChooser.addOption("Right Bump Opponent", new AUTO_DoubleSweepBumpOpponentRight());
-    autoChooser.addOption("Left Bump Partner", new AUTO_DoubleSweepBumpPartnerLeft());
-    autoChooser.addOption("Right Bump Partner", new AUTO_DoubleSweepBumpPartnerRight());
-    autoChooser.addOption("Left Bump Middle", new AUTO_DoubleSweepBumpMiddleLeft());
-    autoChooser.addOption("Right Bump Middle", new AUTO_DoubleSweepBumpMiddleRight());
+    // 2nd pick autos
+    autoChooser.addOption(
+        "Follower Preload & Shoot Left", new AUTO_FollowerSweepAndShootPreload(true));
+    autoChooser.addOption(
+        "Follower Preload & Shoot Right", new AUTO_FollowerSweepAndShootPreload(false));
+    autoChooser.addOption("Follow & Shoot Left", new AUTO_FollowerSweepAndShoot(true));
+    autoChooser.addOption("Follow & Shoot Right", new AUTO_FollowerSweepAndShoot(false));
+    autoChooser.addOption("Depot", new AUTO_Depot());
+
+    // test / utility autos
+    autoChooser.addOption("intake test", new AUTO_3MeterTest());
 
     configureButtonBindings();
 
@@ -249,7 +259,7 @@ public class RobotContainer {
       driver
           .intakeButton()
           .whileTrue(new CMD_Intake(conveyor, intake))
-          .onFalse(new CMD_Extend(conveyor, intake));
+          .onFalse(new CMD_Extend(conveyor, intake, kicker));
 
       driver
           .leftBumper()
@@ -265,9 +275,19 @@ public class RobotContainer {
                   () -> !operator.intakeButton().getAsBoolean(),
                   () -> operator.scoreButton().getAsBoolean()));
 
-      driver.rightBumper().whileTrue(pass());
-
-      driver.aButton().onTrue(new CMD_Home(intake));
+      driver
+          .rightBumper()
+          .whileTrue(
+              new CMD_Pass(
+                  drive,
+                  driveInput,
+                  conveyor,
+                  hood,
+                  intake,
+                  kicker,
+                  shooter,
+                  () -> !operator.intakeButton().getAsBoolean(),
+                  () -> operator.scoreButton().getAsBoolean()));
 
       driver
           .yButton()
@@ -278,23 +298,29 @@ public class RobotContainer {
                   intake,
                   kicker,
                   shooter,
-                  () -> Robot.CURRENT_ROBOT == RobotName.HYDRA ? Math.toRadians(25000) : 4000,
+                  () -> Robot.CURRENT_ROBOT == RobotName.HYDRA ? Math.toRadians(25000) : 4500,
                   () -> Robot.CURRENT_ROBOT == RobotName.HYDRA ? 0.8 : 33,
                   () -> !operator.intakeButton().getAsBoolean(),
                   () -> operator.scoreButton().getAsBoolean()));
 
       driver
           .xButton()
-          .whileTrue(
-              intake
-                  .runVoltage(IntakeConstants.kExtake)
-                  .beforeStarting(
-                      conveyor
-                          .runVoltage(ConveyorConstants.kExtake)
-                          .alongWith(intake.setExtenderTargetAngle(ExtenderConstants.kExtended))))
-          .onFalse(new CMD_Extend(conveyor, intake));
+          .whileTrue(new CMD_Extake(conveyor, intake, kicker))
+          .onFalse(new CMD_Extend(conveyor, intake, kicker));
 
-      driver.bButton().onTrue(new CMD_HomeHood(hood));
+      driver.aButton().onTrue(new CMD_Home(intake));
+
+      driver
+          .bButton()
+          .whileTrue(new DynamicPivotJoystickDrive(driver.getDriveInput(), true, () -> -1, drive));
+
+      // operator
+      operator.aButton().onTrue(shooter.runPreRev(2000));
+      operator.bButton().onTrue(new CMD_HomeHood(hood));
+      operator
+          .xButton()
+          .whileTrue(intake.runVelocity(IntakeConstants.kIntake))
+          .onFalse(intake.runVelocity(IntakeConstants.kOff));
 
     } else if (Robot.CURRENT_ROBOT_MODE == RobotMode.SIM) {
       driver.scoreButton().whileTrue(new CMD_ShootFuelSim(drive, driveSimulation, driveInput));
@@ -360,23 +386,9 @@ public class RobotContainer {
         "DistFromHub",
         Units.metersToInches(
             FieldConstants.getHubPose().getDistance(drive.getPose().getTranslation())));
-  }
-
-  public Command pass() {
-    return new CMD_ShootNoVision(
-        conveyor,
-        hood,
-        intake,
-        kicker,
-        shooter,
-        () -> Robot.CURRENT_ROBOT == RobotName.HYDRA ? Math.toRadians(15000) : 3000,
-        () -> Robot.CURRENT_ROBOT == RobotName.HYDRA ? 0.25 : 45,
-        () -> !operator.intakeButton().getAsBoolean(),
-        () -> operator.scoreButton().getAsBoolean());
-  }
-
-  public Translation2d flipLeftRight(Translation2d translation) {
-    return new Translation2d(
-        translation.getX(), FieldMirroringUtils.FIELD_HEIGHT - translation.getY());
+    Logger.recordOutput(
+        "DistFromPass",
+        Units.metersToInches(
+            FieldConstants.LeftPassingTarget.getDistance(drive.getPose().getTranslation())));
   }
 }

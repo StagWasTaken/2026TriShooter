@@ -21,7 +21,7 @@ public class Drum extends SubsystemBase implements Shootable {
 
   @Override
   public Command runVoltage(double voltage) {
-    return Commands.runOnce(() -> setVoltage(voltage), this);
+    return Commands.runOnce(() -> setVoltage(voltage));
   }
 
   @Override
@@ -30,8 +30,18 @@ public class Drum extends SubsystemBase implements Shootable {
   }
 
   @Override
+  public void setPreRev(double velocity) {
+    io.setPreRev(velocity);
+  }
+
+  @Override
+  public Command runPreRev(double velocity) {
+    return Commands.runOnce(() -> io.setPreRev(velocity));
+  }
+
+  @Override
   public Command runVelocity(double velocity) {
-    return Commands.runOnce(() -> setReference(velocity), this);
+    return Commands.runOnce(() -> setReference(velocity));
   }
 
   @Override

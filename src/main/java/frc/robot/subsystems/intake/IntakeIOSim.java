@@ -28,7 +28,8 @@ public class IntakeIOSim implements IntakeIO {
   private final PIDController intakePIDController =
       new PIDController(IntakeConstants.kPSim, IntakeConstants.kISim, IntakeConstants.kDSim);
   private final SimpleMotorFeedforward intakeFeedforward =
-      new SimpleMotorFeedforward(IntakeConstants.kS, IntakeConstants.kV, IntakeConstants.kA);
+      new SimpleMotorFeedforward(
+          IntakeConstants.kSSim, IntakeConstants.kVSim, IntakeConstants.kASim);
   private static IntakeSimulation intakeSimulation;
   private double reference = 0;
 

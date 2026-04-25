@@ -44,6 +44,8 @@ public interface DrumIO {
 
   public default void setReference(double velocity) {}
 
+  public default void setPreRev(double velocity) {}
+
   public default boolean isReady() {
     return false;
   }

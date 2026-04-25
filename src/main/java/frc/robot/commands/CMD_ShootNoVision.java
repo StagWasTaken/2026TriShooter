@@ -1,12 +1,12 @@
 package frc.robot.commands;
 
+import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Robot;
 import frc.robot.Robot.RobotName;
 import frc.robot.subsystems.conveyor.Conveyor;
 import frc.robot.subsystems.conveyor.ConveyorConstants;
-import frc.robot.subsystems.drum.DrumConstants;
 import frc.robot.subsystems.hood.Hood;
 import frc.robot.subsystems.hood.HoodConstants;
 import frc.robot.subsystems.intake.Intake;
@@ -27,14 +27,10 @@ public class CMD_ShootNoVision extends Command {
 
   private boolean shooting;
   private final DoubleSupplier hoodSupplier, shooterSupplier;
-
-  // When true, intake collapses slowly after 0.5 seconds (default behavior).
-  // When false, intake stays down and running — operator keeps it extended.
-  private final BooleanSupplier stowIntakeOnShoot, slowStow;
-
+  private final BooleanSupplier stowIntakeOnShoot;
   private final Timer timer = new Timer();
+  private final Debouncer atSetpointDebouncer = new Debouncer(0.04);
 
-  // Default constructor — always stows after 2 seconds
   public CMD_ShootNoVision(
       Conveyor conveyor, Hood hood, Intake intake, Kicker kicker, Shootable shooter) {
     this(
@@ -49,7 +45,6 @@ public class CMD_ShootNoVision extends Command {
         () -> false);
   }
 
-  // Constructor with custom hood/shooter suppliers — always stows after 2 seconds
   public CMD_ShootNoVision(
       Conveyor conveyor,
       Hood hood,
@@ -61,7 +56,6 @@ public class CMD_ShootNoVision extends Command {
     this(conveyor, hood, intake, kicker, shooter, shooterRPM, hoodAngle, () -> true, () -> false);
   }
 
-  // Full constructor — includes operator intake behavior control
   public CMD_ShootNoVision(
       Conveyor conveyor,
       Hood hood,
@@ -80,7 +74,6 @@ public class CMD_ShootNoVision extends Command {
     this.shooterSupplier = shooterRPM;
     this.hoodSupplier = hoodAngle;
     this.stowIntakeOnShoot = stowIntakeOnShoot;
-    this.slowStow = slowStow;
 
     addRequirements(conveyor, hood, intake, kicker, shooter);
   }
@@ -88,40 +81,35 @@ public class CMD_ShootNoVision extends Command {
   @Override
   public void initialize() {
     shooting = false;
+    atSetpointDebouncer.calculate(false); // flush debouncer state
     timer.reset();
-    timer.stop();
+    timer.start();
   }
 
   @Override
   public void execute() {
     shooter.setReference(shooterSupplier.getAsDouble());
     hood.setReference(hoodSupplier.getAsDouble());
-
-    if (shooter.isReady() && hood.atReference() && !shooting) {
+    if ((timer.hasElapsed(1) || atSetpointDebouncer.calculate(shooter.isReady()))
+        && hood.atReference()
+        && !shooting) {
       conveyor.setVoltage(ConveyorConstants.kConvey);
       kicker.setVoltage(KickerConstants.kKick);
       shooting = true;
       shooter.startShooting();
-      timer.start();
     }
 
     if (shooting) {
       if (!stowIntakeOnShoot.getAsBoolean()) {
-        if (!intake.getExtenderInPosition()) {
-          intake.setExtenderReference(ExtenderConstants.kExtended);
-        } else {
-          intake.setExtenderVoltage(0);
-          intake.setVoltage(IntakeConstants.kOn);
-        }
-      }
-    } else if (timer.hasElapsed(0.5)) {
-      if (intake.getExtenderPosition() > ExtenderConstants.kStow) {
-        intake.setExtenderVoltage(
-            slowStow.getAsBoolean() ? DrumConstants.kSlowStowVolts : DrumConstants.kStowVolts);
-        intake.setVoltage(2);
+        intake.setExtenderProfileConstraints(
+            ExtenderConstants.kMaxVel, ExtenderConstants.kMaxAccel);
+        intake.setExtenderReference(ExtenderConstants.kExtended);
+        intake.setReference(IntakeConstants.kIntake);
       } else {
-        intake.setExtenderVoltage(0);
-        intake.setVoltage(0);
+        intake.setExtenderProfileConstraints(
+            ExtenderConstants.kStowProfileMaxVel, ExtenderConstants.kStowProfileMaxAccel);
+        intake.setExtenderReference(ExtenderConstants.kHome);
+        intake.setVoltage(2);
       }
     }
   }
@@ -132,7 +120,7 @@ public class CMD_ShootNoVision extends Command {
     hood.setReference(HoodConstants.kMinPos);
     conveyor.setVoltage(ConveyorConstants.kOff);
     kicker.setVoltage(KickerConstants.kOff);
-    intake.setExtenderReference(intake.getExtenderPosition());
+    intake.setExtenderVoltage(0);
     intake.setVoltage(0);
     shooter.stopShooting();
   }

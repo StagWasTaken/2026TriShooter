@@ -8,6 +8,7 @@ import frc.robot.subsystems.drive.HolonomicDriveSubsystem;
 import frc.robot.utils.custompids.ChassisHeadingController;
 import frc.robot.utils.custompids.MapleJoystickDriveInput;
 import frc.robot.utils.custompids.MapleShooterOptimization;
+import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
 public class JoystickDriveAndAimAtTarget {
@@ -59,6 +60,68 @@ public class JoystickDriveAndAimAtTarget {
             ChassisHeadingController.getInstance()
                 .setHeadingRequest(new ChassisHeadingController.NullRequest()),
         () -> finishWhenComplete && ChassisHeadingController.getInstance().atSetPoint(),
+        driveSubsystem);
+  }
+
+  public static Command driveAndAimAtTarget(
+      MapleJoystickDriveInput input,
+      HolonomicDriveSubsystem driveSubsystem,
+      Supplier<Translation2d> targetPositionSupplier,
+      MapleShooterOptimization shooterOptimization,
+      double pilotInputMultiplier,
+      boolean finishWhenComplete,
+      BooleanSupplier enabled) {
+    return new FunctionalCommand(
+        // Init: Only set heading request if enabled
+        () -> {
+          if (enabled.getAsBoolean()) {
+            ChassisHeadingController.getInstance()
+                .setHeadingRequest(
+                    new ChassisHeadingController.FaceToTargetRequest(
+                        targetPositionSupplier, shooterOptimization));
+          }
+        },
+        // Execute: Only run logic if enabled
+        () -> {
+          if (!enabled.getAsBoolean()) {
+            // Optional: You could call driveSubsystem.stop() here
+            // if you want to ensure it doesn't coast.
+            return;
+          }
+
+          double rawX = input.joystickXSupplier.getAsDouble();
+          double rawY = input.joystickYSupplier.getAsDouble();
+          boolean isMoving = Math.abs(rawX) > 0.1 || Math.abs(rawY) > 0.1;
+
+          double offsetDegrees =
+              isMoving
+                  ? calculateAngleOffset(
+                      rawX,
+                      rawY,
+                      driveSubsystem.getPose().getTranslation(),
+                      targetPositionSupplier.get())
+                  : 0.0;
+
+          ChassisHeadingController.getInstance()
+              .setHeadingRequest(
+                  new ChassisHeadingController.FaceToTargetRequest(
+                      targetPositionSupplier, shooterOptimization, offsetDegrees));
+
+          if (isMoving) {
+            execute(driveSubsystem, input, pilotInputMultiplier);
+          } else {
+            driveSubsystem.activeXLock();
+          }
+        },
+        // End: Always clean up the heading request when the command ends
+        (interrupted) ->
+            ChassisHeadingController.getInstance()
+                .setHeadingRequest(new ChassisHeadingController.NullRequest()),
+        // IsFinished: Only finish if enabled AND conditions met
+        () ->
+            enabled.getAsBoolean()
+                && finishWhenComplete
+                && ChassisHeadingController.getInstance().atSetPoint(),
         driveSubsystem);
   }
 

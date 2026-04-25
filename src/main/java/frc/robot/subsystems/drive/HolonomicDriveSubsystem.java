@@ -33,6 +33,8 @@ public interface HolonomicDriveSubsystem extends Subsystem {
    */
   void runRobotCentricChassisSpeeds(ChassisSpeeds speeds);
 
+  void runRobotCentricChassisSpeeds(ChassisSpeeds speeds, Translation2d centerOfRotation);
+
   /**
    * runs a ChassisSpeeds without doing any pre-processing
    *

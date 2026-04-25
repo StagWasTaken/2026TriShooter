@@ -72,6 +72,10 @@ public class Intake extends SubsystemBase {
     io.setReference(velocity);
   }
 
+  public Command runVelocity(double velocity) {
+    return Commands.runOnce(() -> io.setReference(velocity));
+  }
+
   public double getExtenderReference() {
     return io.getExtenderReference();
   }
@@ -96,6 +100,10 @@ public class Intake extends SubsystemBase {
     io.setExtenderReference(angRad);
   }
 
+  public void setExtenderProfileConstraints(double maxVel, double maxAccel) {
+    io.setExtenderProfileConstraints(maxVel, maxAccel);
+  }
+
   public Command setExtenderTargetAngle(double angRad) {
     return Commands.runOnce(() -> setExtenderReference(angRad), this);
   }
@@ -106,6 +114,10 @@ public class Intake extends SubsystemBase {
 
   public boolean getExtenderInPosition() {
     return io.getExtenderInPosition();
+  }
+
+  public void resetEncoder() {
+    io.resetEncoder();
   }
 
   @Override

@@ -46,7 +46,7 @@ public class Robot extends LoggedRobot {
   private static final RobotMode JAVA_SIM_MODE = RobotMode.SIM;
   public static final RobotMode CURRENT_ROBOT_MODE = isReal() ? RobotMode.REAL : JAVA_SIM_MODE;
   public static final RobotName CURRENT_ROBOT = RobotName.DRUM_BOT;
-  public static final boolean tuningMode = false;
+  public static final boolean tuningMode = true;
 
   private Command autonomousCommand;
   private RobotContainer robotContainer;
@@ -158,7 +158,10 @@ public class Robot extends LoggedRobot {
     HubShiftUtil.initialize();
     CommandScheduler.getInstance().schedule(new CMD_HomeHood(robotContainer.hood));
     try {
-      autonomousCommand = robotContainer.getAutonomousCommand().getAutoCommand(robotContainer);
+      autonomousCommand =
+          robotContainer
+              .getAutonomousCommand()
+              .getAutoCommand(robotContainer, robotContainer.autoDelay.getAsDouble());
     } catch (Exception e) {
       AlertsManager.create(e.getStackTrace().toString(), AlertType.kError);
       e.printStackTrace();

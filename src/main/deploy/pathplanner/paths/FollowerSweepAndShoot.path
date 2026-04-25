@@ -1,0 +1,130 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 3.575,
+        "y": 0.425
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 9.045867469879518,
+        "y": 0.26493975903614453
+      },
+      "isLocked": false,
+      "linkedName": "FollowerStart"
+    },
+    {
+      "anchor": {
+        "x": 6.373545454545454,
+        "y": 4.045306818181818
+      },
+      "prevControl": {
+        "x": 8.718036144578313,
+        "y": 4.00221686746988
+      },
+      "nextControl": {
+        "x": 5.713296295874108,
+        "y": 4.057441694138331
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 5.94065909090909,
+        "y": 2.96309090909091
+      },
+      "prevControl": {
+        "x": 6.428822850664129,
+        "y": 3.615499351033866
+      },
+      "nextControl": {
+        "x": 5.51621686746988,
+        "y": 2.3958433734939764
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 1.8097808601646332,
+        "y": 3.7658910485151775
+      },
+      "prevControl": {
+        "x": 3.560156626506024,
+        "y": 2.0898674698795183
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "FollowerShoot"
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.33,
+      "rotationDegrees": -90.0
+    },
+    {
+      "waypointRelativePos": 1.0,
+      "rotationDegrees": 29.999999999999996
+    },
+    {
+      "waypointRelativePos": 2.15,
+      "rotationDegrees": 59.99999999999999
+    },
+    {
+      "waypointRelativePos": 2.67,
+      "rotationDegrees": 59.99999999999999
+    }
+  ],
+  "constraintZones": [
+    {
+      "name": "Constraints Zone",
+      "minWaypointRelativePos": 0.5,
+      "maxWaypointRelativePos": 2.0,
+      "constraints": {
+        "maxVelocity": 2.0,
+        "maxAcceleration": 3.25,
+        "maxAngularVelocity": 360.0,
+        "maxAngularAcceleration": 360.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
+    },
+    {
+      "name": "Constraints Zone",
+      "minWaypointRelativePos": 2.0,
+      "maxWaypointRelativePos": 2.75,
+      "constraints": {
+        "maxVelocity": 2.5,
+        "maxAcceleration": 2.5,
+        "maxAngularVelocity": 360.0,
+        "maxAngularAcceleration": 360.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
+    }
+  ],
+  "pointTowardsZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 3.25,
+    "maxAcceleration": 3.25,
+    "maxAngularVelocity": 360.0,
+    "maxAngularAcceleration": 360.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 5.64678642960768
+  },
+  "reversed": false,
+  "folder": "Follower",
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": -90.0
+  },
+  "useDefaultConstraints": true
+}

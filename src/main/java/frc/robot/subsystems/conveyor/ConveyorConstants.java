@@ -28,7 +28,7 @@ public class ConveyorConstants {
   public static final double kMinOutput = -1;
   public static final double kMaxOutput = 1;
 
-  public static final double kConvey = Robot.CURRENT_ROBOT == RobotName.HYDRA ? 10 : 7.0;
+  public static final double kConvey = Robot.CURRENT_ROBOT == RobotName.HYDRA ? 10 : 12.0;
   public static final double kOff = 0;
   public static final double kExtake = -kConvey;
 

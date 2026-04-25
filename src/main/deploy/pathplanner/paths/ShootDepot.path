@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 0.0,
-        "y": 0.0
+        "x": 0.6449815389389453,
+        "y": 5.967263719242172
       },
       "prevControl": null,
       "nextControl": {
-        "x": 0.25,
-        "y": 0.0
+        "x": 2.4446661879780445,
+        "y": 6.066553610729651
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "IntakeDepot"
     },
     {
       "anchor": {
-        "x": 4.0,
-        "y": 0.0
+        "x": 1.9102197170579411,
+        "y": 4.24746638883524
       },
       "prevControl": {
-        "x": 3.75,
-        "y": 0.0
+        "x": 1.9709050747513204,
+        "y": 5.868215516217293
       },
       "nextControl": null,
       "isLocked": false,
@@ -33,22 +33,22 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 2.5,
-    "maxAcceleration": 2.5,
+    "maxVelocity": 1.5,
+    "maxAcceleration": 1.5,
     "maxAngularVelocity": 360.0,
-    "maxAngularAcceleration": 720.0,
+    "maxAngularAcceleration": 360.0,
     "nominalVoltage": 12.0,
     "unlimited": false
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": -4.8468295562081565
   },
   "reversed": false,
-  "folder": null,
+  "folder": "Follower",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": 0.0
   },
   "useDefaultConstraints": false
 }

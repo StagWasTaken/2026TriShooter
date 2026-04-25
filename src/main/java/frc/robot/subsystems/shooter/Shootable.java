@@ -10,6 +10,10 @@ public interface Shootable extends Subsystem {
 
   void setReference(double velocity);
 
+  void setPreRev(double velocity);
+
+  Command runPreRev(double velocity);
+
   Command runVelocity(double velocity);
 
   boolean isReady();

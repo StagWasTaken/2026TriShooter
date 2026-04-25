@@ -25,10 +25,15 @@ public class DrumIOSpark implements DrumIO {
   private final RelativeEncoder topRightEncoder;
   private final RelativeEncoder bottomRightEncoder;
 
-  // Trapezoidal profile — position axis = RPM, velocity axis = RPM/s
+  // Normal ramp — used when actively shooting
   private final TrapezoidProfile shooterProfile;
+  // Pre-rev ramp — slower accel to bring drum up to speed without brownout risk
+  private final TrapezoidProfile preRevProfile;
+
   private TrapezoidProfile.State profileGoal = new TrapezoidProfile.State();
   private TrapezoidProfile.State profileSetpoint = new TrapezoidProfile.State();
+
+  private boolean preRev = false;
 
   // PID state
   private double prevError = 0.0;
@@ -69,6 +74,11 @@ public class DrumIOSpark implements DrumIO {
         new TrapezoidProfile(
             new TrapezoidProfile.Constraints(
                 DrumConstants.kProfileMaxVel, DrumConstants.kProfileMaxAccel));
+
+    preRevProfile =
+        new TrapezoidProfile(
+            new TrapezoidProfile.Constraints(
+                DrumConstants.kPreRevMaxVel, DrumConstants.kPreRevMaxAccel));
 
     shooterReference = 0.0;
     voltageMode = false;
@@ -114,7 +124,6 @@ public class DrumIOSpark implements DrumIO {
     return shooterReference;
   }
 
-  // Returns the current profiled RPM being commanded
   public double getProfiledReference() {
     return profileSetpoint.position;
   }
@@ -132,6 +141,18 @@ public class DrumIOSpark implements DrumIO {
     shooterReference = velocity;
     profileGoal = new TrapezoidProfile.State(velocity, 0);
     voltageMode = false;
+    preRev = false;
+  }
+
+  @Override
+  public void setPreRev(double velocity) {
+    if (voltageMode || shooterReference <= 0) {
+      profileSetpoint = new TrapezoidProfile.State(topLeftEncoder.getVelocity(), 0);
+    }
+    shooterReference = velocity;
+    profileGoal = new TrapezoidProfile.State(velocity, 0);
+    voltageMode = false;
+    preRev = true;
   }
 
   @Override
@@ -195,16 +216,15 @@ public class DrumIOSpark implements DrumIO {
       return;
     }
 
-    // Advance the profile — position = RPM, velocity = RPM/s
-    profileSetpoint = shooterProfile.calculate(0.02, profileSetpoint, profileGoal);
+    // Advance whichever profile is active
+    TrapezoidProfile activeProfile = preRev ? preRevProfile : shooterProfile;
+    profileSetpoint = activeProfile.calculate(0.02, profileSetpoint, profileGoal);
     double profiledVel = profileSetpoint.position;
 
-    // Feedforward
     double kSVal = Robot.tuningMode ? kS.get() : DrumConstants.kS;
     double kVVal = Robot.tuningMode ? kV.get() : DrumConstants.kV;
     double ff = kSVal * Math.signum(profiledVel) + kVVal * profiledVel;
 
-    // PD on actual velocity vs profiled setpoint
     double kPVal = Robot.tuningMode ? kP.get() : DrumConstants.kP;
     double kDVal = Robot.tuningMode ? kD.get() : DrumConstants.kD;
     double error = profiledVel - topLeftEncoder.getVelocity();
