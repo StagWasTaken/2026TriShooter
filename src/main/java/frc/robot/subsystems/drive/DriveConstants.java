@@ -73,6 +73,8 @@ public class DriveConstants {
   public static final int backLeftTurnCanId = 9;
   public static final int backRightTurnCanId = 10;
 
+  public static final int pigeonCanId = 21;
+
   // Drive motor configuration
   public static final int driveMotorStallCurrentLimit = 60;
   public static final int driveMotorCurrentLimit = 100;
