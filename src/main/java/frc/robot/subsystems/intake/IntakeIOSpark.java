@@ -270,6 +270,7 @@ public class IntakeIOSpark implements IntakeIO {
     } else {
       // Direct velocity control using the reference as the target
       double targetVel = intakeReference;
+      double targetBottomVel = intakeReference + 500;
 
       double kSVal = Robot.tuningMode ? kS.get() : IntakeConstants.kS;
       double kVVal = Robot.tuningMode ? kV.get() : IntakeConstants.kV;
@@ -283,10 +284,12 @@ public class IntakeIOSpark implements IntakeIO {
       topPrevError = topError;
       setTopVoltage(ff + kPVal * topError + kDVal * topDError);
 
+      double bottomFF = kSVal * Math.signum(targetVel) + kVVal * targetBottomVel;
+
       double bottomError = targetVel - intakeSecondaryEncoder.getVelocity();
       double bottomDError = (bottomError - bottomPrevError) / dt;
       bottomPrevError = bottomError;
-      setBottomVoltage(ff + kPVal * bottomError + kDVal * bottomDError);
+      setBottomVoltage(bottomFF + kPVal * bottomError + kDVal * bottomDError);
     }
   }
 }

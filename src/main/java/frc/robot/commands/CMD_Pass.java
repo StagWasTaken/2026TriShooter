@@ -107,7 +107,7 @@ public class CMD_Pass extends Command {
     shooting = false;
     atSetpointDebouncer.calculate(false);
     timer.reset();
-    timer.stop();
+    timer.start();
 
     currentTarget = getClosestTarget();
 
@@ -140,7 +140,7 @@ public class CMD_Pass extends Command {
     boolean driveReady =
         atSetpointDebouncer.calculate(ChassisHeadingController.getInstance().atSetPoint());
 
-    if ((timer.hasElapsed(1) || atSetpointDebouncer.calculate(shooter.isReady()))
+    if ((timer.hasElapsed(1.0) || atSetpointDebouncer.calculate(shooter.isReady()))
         && hood.atReference()
         && driveReady
         && !shooting) {
@@ -161,7 +161,7 @@ public class CMD_Pass extends Command {
         intake.setExtenderProfileConstraints(
             ExtenderConstants.kStowProfileMaxVel, ExtenderConstants.kStowProfileMaxAccel);
         intake.setExtenderReference(ExtenderConstants.kHome);
-        intake.setVoltage(0.0);
+        intake.setVoltage(2.0);
       }
     }
   }

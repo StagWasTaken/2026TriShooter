@@ -11,7 +11,7 @@ import frc.robot.utils.constants.FieldConstants;
 
 public class AUTO_DepotOnFly implements Auto {
   private final PathPlannerPath shootDepot;
-  private final String startPathName = "IntakeDepot";
+  private final String startPathName = "IntakeDepotOnFly";
   private boolean isMirrored = false;
 
   public AUTO_DepotOnFly() {

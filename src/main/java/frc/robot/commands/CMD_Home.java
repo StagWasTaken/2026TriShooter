@@ -16,6 +16,7 @@ public class CMD_Home extends Command {
   @Override
   public void initialize() {
     intake.setVoltage(IntakeConstants.kOff);
+    intake.setExtenderProfileConstraints(ExtenderConstants.kMaxVel, ExtenderConstants.kMaxAccel);
   }
 
   @Override

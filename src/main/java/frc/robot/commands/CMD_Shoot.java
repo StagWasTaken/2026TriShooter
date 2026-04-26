@@ -170,7 +170,7 @@ public class CMD_Shoot extends Command {
 
     boolean driveReady =
         atSetpointDebouncer.calculate(ChassisHeadingController.getInstance().atSetPoint());
-    if ((timer.hasElapsed(1) || atSetpointDebouncer.calculate(shooter.isReady()))
+    if ((timer.hasElapsed(2.0) || atSetpointDebouncer.calculate(shooter.isReady()))
         && hood.atReference()
         && driveReady
         && !shooting) {
@@ -190,7 +190,7 @@ public class CMD_Shoot extends Command {
         intake.setExtenderProfileConstraints(
             ExtenderConstants.kStowProfileMaxVel, ExtenderConstants.kStowProfileMaxAccel);
         intake.setExtenderReference(ExtenderConstants.kHome);
-        intake.setVoltage(0.0);
+        intake.setVoltage(2.0);
       }
     }
   }

@@ -77,7 +77,7 @@ public class RobotContainer {
       case REAL:
         drive =
             new Drive(
-                new GyroIOPigeon2(),
+                new GyroIONavX(),
                 new ModuleIOSpark(0),
                 new ModuleIOSpark(1),
                 new ModuleIOSpark(2),
@@ -108,8 +108,8 @@ public class RobotContainer {
               new Vision(
                   drive,
                   () -> drive.getMeasuredChassisSpeedsRobotRelative(),
-                  new VisionIOPhotonVision(
-                      Vision_Constants.camera0Name, Vision_Constants.robotToCamera0),
+                  //   new VisionIOPhotonVision(
+                  //       Vision_Constants.camera0Name, Vision_Constants.robotToCamera0),
                   new VisionIOPhotonVision(
                       Vision_Constants.camera1Name, Vision_Constants.robotToCamera1),
                   new VisionIOPhotonVision(
@@ -209,6 +209,7 @@ public class RobotContainer {
     autoChooser.addOption("Follow & Shoot Left", new AUTO_FollowerSweepAndShoot(true));
     autoChooser.addOption("Follow & Shoot Right", new AUTO_FollowerSweepAndShoot(false));
     autoChooser.addOption("Depot", new AUTO_Depot());
+    autoChooser.addOption("DepotOnFly", new AUTO_DepotOnFly());
 
     // test / utility autos
     autoChooser.addOption("intake test", new AUTO_3MeterTest());

@@ -68,10 +68,10 @@ public class IntakeConstants {
     public static final double kStowProfileMaxVel = Units.degreesToRadians(30);
     public static final double kStowProfileMaxAccel = Units.degreesToRadians(30);
 
-    public static final double kMaxVel = Math.toRadians(125);
-    public static final double kMaxAccel = Math.toRadians(180);
+    public static final double kMaxVel = Math.toRadians(360);
+    public static final double kMaxAccel = Math.toRadians(360);
 
-    public static final double kHome = Units.degreesToRadians(85);
+    public static final double kHome = Units.degreesToRadians(80);
     public static final double kStow = Units.degreesToRadians(100);
     public static final double kExtended = Units.degreesToRadians(170);
 

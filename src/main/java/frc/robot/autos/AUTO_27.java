@@ -20,7 +20,7 @@ public class AUTO_27 implements Auto {
     try {
       // Logic for loading paths based on the mirrored boolean
       sweepMiddle = Auto.getPath(startPathName, isMirrored);
-      sweepAgain = Auto.getPath("ShootAndSweepAgain27", isMirrored);
+      sweepAgain = Auto.getPath("ShootAndSweepAgain", isMirrored);
     } catch (Exception e) {
       throw new RuntimeException("Failed to preload auto paths", e);
     }
@@ -32,9 +32,9 @@ public class AUTO_27 implements Auto {
         // Passes the boolean through to the pose reset logic
         setAutoStartPose(startPathName, isMirrored, robot.drive),
         new WaitCommand(startDelay),
-        sweepPath(sweepMiddle, robot, 2.25),
+        sweepPath(sweepMiddle, robot, 2),
         shootCycle(robot, 3),
-        sweepPath(sweepAgain, robot, 4.5),
+        sweepPath(sweepAgain, robot, 4),
         shootCycle(robot, 5));
   }
 }
