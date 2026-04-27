@@ -11,7 +11,7 @@ public class IntakeConstants {
   public static final double kMinOutput = -1;
   public static final double kMaxOutput = 1;
 
-  public static final double kIntake = 5500; // rpm
+  public static final double kIntake = 4500; // 5500 // rpm
   public static final double kOff = 0;
   public static final double kExtake = -12; // volts
 
@@ -43,7 +43,7 @@ public class IntakeConstants {
   public static final class ExtenderConstants {
     public static final int kIntakeExtenderCanId = 7;
 
-    public static final double kP = 75.0;
+    public static final double kP = 33.0;
     public static final double kI = 0.0;
     public static final double kD = 0.0;
 
@@ -71,7 +71,7 @@ public class IntakeConstants {
     public static final double kMaxVel = Math.toRadians(360);
     public static final double kMaxAccel = Math.toRadians(360);
 
-    public static final double kHome = Units.degreesToRadians(80);
+    public static final double kHome = Units.degreesToRadians(70);
     public static final double kStow = Units.degreesToRadians(100);
     public static final double kExtended = Units.degreesToRadians(170);
 

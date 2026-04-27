@@ -30,7 +30,5 @@ public class CMD_Home extends Command {
   }
 
   @Override
-  public void end(boolean interrupted) {
-    intake.setExtenderVoltage(0);
-  }
+  public void end(boolean interrupted) {}
 }

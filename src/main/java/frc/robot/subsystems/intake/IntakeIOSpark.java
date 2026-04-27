@@ -270,7 +270,9 @@ public class IntakeIOSpark implements IntakeIO {
     } else {
       // Direct velocity control using the reference as the target
       double targetVel = intakeReference;
-      double targetBottomVel = intakeReference + 500;
+      double targetBottomVel =
+          intakeReference
+              * 1.33; // bottom roller is 1.5 in diameter compared to top rollers 2in diameter
 
       double kSVal = Robot.tuningMode ? kS.get() : IntakeConstants.kS;
       double kVVal = Robot.tuningMode ? kV.get() : IntakeConstants.kV;
