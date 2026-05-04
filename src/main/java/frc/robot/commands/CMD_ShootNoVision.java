@@ -90,7 +90,7 @@ public class CMD_ShootNoVision extends Command {
   public void execute() {
     shooter.setReference(shooterSupplier.getAsDouble());
     hood.setReference(hoodSupplier.getAsDouble());
-    if ((timer.hasElapsed(1) || atSetpointDebouncer.calculate(shooter.isReady()))
+    if ((timer.hasElapsed(1.0) || atSetpointDebouncer.calculate(shooter.isReady()))
         && hood.atReference()
         && !shooting) {
       conveyor.setVoltage(ConveyorConstants.kConvey);
@@ -109,14 +109,13 @@ public class CMD_ShootNoVision extends Command {
         intake.setExtenderProfileConstraints(
             ExtenderConstants.kStowProfileMaxVel, ExtenderConstants.kStowProfileMaxAccel);
         intake.setExtenderReference(ExtenderConstants.kHome);
-        intake.setVoltage(2);
+        intake.setVoltage(2.0);
       }
     }
   }
 
   @Override
   public void end(boolean interrupted) {
-    shooter.setReference(0);
     hood.setReference(HoodConstants.kMinPos);
     conveyor.setVoltage(ConveyorConstants.kOff);
     kicker.setVoltage(KickerConstants.kOff);

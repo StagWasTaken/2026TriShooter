@@ -36,6 +36,7 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.PowerDistribution;
 import frc.robot.subsystems.drive.SparkOdometryThread;
 import java.util.Queue;
 import java.util.function.DoubleSupplier;
@@ -187,7 +188,7 @@ public class ModuleIOSpark implements ModuleIO {
   }
 
   @Override
-  public void updateInputs(ModuleIOInputs inputs) {
+  public void updateInputs(ModuleIOInputs inputs, PowerDistribution pdh) {
     inputs.configurationFailed = this.configurationFailed;
     // Update drive inputs
     sparkStickyFault = false;
@@ -233,6 +234,10 @@ public class ModuleIOSpark implements ModuleIO {
 
     inputs.driveTemp = Fahrenheit.convertFrom(driveSpark.getMotorTemperature(), Celsius);
     inputs.turnTemp = Fahrenheit.convertFrom(turnSpark.getMotorTemperature(), Celsius);
+
+    int driveSlot = (driveSpark.getDeviceId() == 62) ? 0 : driveSpark.getDeviceId();
+    inputs.driveSupplyCurrentAmps = pdh.getCurrent(driveSlot);
+    inputs.turnSupplyCurrentAmps = pdh.getCurrent(turnSpark.getDeviceId());
   }
 
   @Override

@@ -14,6 +14,7 @@
 package frc.robot.subsystems.drive.io;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.PowerDistribution;
 import org.littletonrobotics.junction.AutoLog;
 
 public interface ModuleIO {
@@ -25,6 +26,7 @@ public interface ModuleIO {
     public double driveVelocityRadPerSec = 0.0;
     public double driveAppliedVolts = 0.0;
     public double driveCurrentAmps = 0.0;
+    public double driveSupplyCurrentAmps = 0.0;
     public double driveTemp;
 
     public boolean turnConnected = false;
@@ -33,6 +35,7 @@ public interface ModuleIO {
     public double turnVelocityRadPerSec = 0.0;
     public double turnAppliedVolts = 0.0;
     public double turnCurrentAmps = 0.0;
+    public double turnSupplyCurrentAmps = 0.0;
     public double turnTemp;
 
     public double[] odometryTimestamps = new double[] {};
@@ -41,7 +44,7 @@ public interface ModuleIO {
   }
 
   /** Updates the set of loggable inputs. */
-  public default void updateInputs(ModuleIOInputs inputs) {}
+  public default void updateInputs(ModuleIOInputs inputs, PowerDistribution pdh) {}
 
   /** Run the drive motor at the specified open loop value. */
   public default void setDriveOpenLoop(double output) {}

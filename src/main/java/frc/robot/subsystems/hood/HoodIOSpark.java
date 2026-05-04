@@ -12,6 +12,7 @@ import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
+import edu.wpi.first.wpilibj.PowerDistribution;
 import frc.robot.Robot;
 import frc.robot.Robot.RobotName;
 
@@ -55,9 +56,10 @@ public class HoodIOSpark implements HoodIO {
   }
 
   @Override
-  public void updateInputs(HoodIOInputs inputs) {
+  public void updateInputs(HoodIOInputs inputs, PowerDistribution pdh) {
     inputs.hoodReference = getReference();
     inputs.hoodCurrent = getCurrent();
+    inputs.hoodSupplyCurrent = pdh.getCurrent(hoodMotor.getDeviceId());
     inputs.hoodVoltage = getVoltage();
     inputs.hoodVelocity = getVelocity();
     inputs.hoodPos = getPosition();

@@ -1,20 +1,24 @@
 package frc.robot.subsystems.intake;
 
+import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.Robot;
 import org.littletonrobotics.junction.Logger;
 
 public class Intake extends SubsystemBase {
   private final IntakeIO io;
   private final IntakeIOInputsAutoLogged inputs = new IntakeIOInputsAutoLogged();
+  private final PowerDistribution pdh;
 
   private final SysIdRoutine intakeSysIdRoutine;
   private final SysIdRoutine intakeExtenderSysIdRoutine;
 
-  public Intake(IntakeIO io) {
+  public Intake(IntakeIO io, PowerDistribution pdh) {
     this.io = io;
+    this.pdh = pdh;
     this.intakeSysIdRoutine =
         new SysIdRoutine(
             new SysIdRoutine.Config(
@@ -122,8 +126,14 @@ public class Intake extends SubsystemBase {
 
   @Override
   public void periodic() {
-    io.updateInputs(inputs);
+    io.updateInputs(inputs, pdh);
     io.periodic();
     Logger.processInputs(this.getName(), inputs);
+
+    Robot.batteryLogger.reportCurrentUsage(
+        this.getName(), false, inputs.intakeSupplyCurrent, inputs.intakeBottomSupplyCurrent);
+
+    Robot.batteryLogger.reportCurrentUsage(
+        this.getName() + "/Extender", false, inputs.extenderSupplyCurrent);
   }
 }

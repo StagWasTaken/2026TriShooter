@@ -7,6 +7,7 @@ package frc.robot;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.Alert.AlertType;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -20,6 +21,7 @@ import frc.robot.subsystems.intake.IntakeConstants.ExtenderConstants;
 import frc.robot.subsystems.kicker.KickerConstants;
 import frc.robot.subsystems.shooter.ShooterConstants;
 import frc.robot.utils.AlertsManager;
+import frc.robot.utils.BatteryLogger;
 import frc.robot.utils.constants.RobotMode;
 import frc.robot.utils.hubcounter.HubShiftUtil;
 import java.util.HashMap;
@@ -37,6 +39,7 @@ public class Robot extends LoggedRobot {
   // Physics simulation engine (only used in sim)
   private SwervePhysicsSim sim = new SwervePhysicsSim();
   Pose2d simPose = sim.getPose2d();
+  public static final BatteryLogger batteryLogger = new BatteryLogger();
 
   public enum RobotName {
     HYDRA,
@@ -131,6 +134,7 @@ public class Robot extends LoggedRobot {
 
     // Start AdvantageKit logger
     Logger.start();
+    RobotController.setBrownoutVoltage(5.5);
   }
 
   /** This function is called periodically during all modes. */
@@ -138,6 +142,10 @@ public class Robot extends LoggedRobot {
   public void robotPeriodic() {
     CommandScheduler.getInstance().run();
     robotContainer.updateTelemetryAndLED();
+
+    // update battery / power logging
+    batteryLogger.setBatteryVoltage(RobotController.getBatteryVoltage());
+    batteryLogger.periodicAfterScheduler();
   }
 
   /** This function is called once when the robot is disabled. */
@@ -156,7 +164,8 @@ public class Robot extends LoggedRobot {
   @Override
   public void autonomousInit() {
     HubShiftUtil.initialize();
-    CommandScheduler.getInstance().schedule(new CMD_HomeHood(robotContainer.hood));
+    CommandScheduler.getInstance()
+        .schedule(new CMD_HomeHood(robotContainer.hood, robotContainer.shooter));
     try {
       autonomousCommand =
           robotContainer

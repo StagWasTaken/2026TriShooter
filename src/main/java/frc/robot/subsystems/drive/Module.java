@@ -24,6 +24,8 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.units.measure.Force;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
+import edu.wpi.first.wpilibj.PowerDistribution;
+import frc.robot.Robot;
 import frc.robot.subsystems.drive.io.ModuleIO;
 import frc.robot.subsystems.drive.io.ModuleIOInputsAutoLogged;
 import frc.robot.utils.AlertsManager;
@@ -35,15 +37,17 @@ public class Module {
   private final int index;
 
   private SwerveModuleState setPoint;
+  private final PowerDistribution pdh;
 
   private final Alert configurationFailed;
   private final Alert driveDisconnectedAlert;
   private final Alert turnDisconnectedAlert;
   private SwerveModulePosition[] odometryPositions = new SwerveModulePosition[] {};
 
-  public Module(ModuleIO io, int index) {
+  public Module(ModuleIO io, int index, PowerDistribution pdh) {
     this.io = io;
     this.index = index;
+    this.pdh = pdh;
     this.configurationFailed =
         AlertsManager.create(
             "Module-" + this.index + " configuration failed. Reboot robot after fixing connection.",
@@ -61,7 +65,7 @@ public class Module {
   }
 
   public void periodic() {
-    io.updateInputs(inputs);
+    io.updateInputs(inputs, pdh);
     Logger.processInputs("Drive/Module" + Integer.toString(index), inputs);
 
     // Calculate positions for odometry
@@ -77,6 +81,12 @@ public class Module {
     driveDisconnectedAlert.set(!inputs.driveConnected);
     turnDisconnectedAlert.set(!inputs.turnConnected);
     configurationFailed.set(inputs.configurationFailed);
+
+    Robot.batteryLogger.reportCurrentUsage(
+        "Drive/Module" + index + "/Drive", true, inputs.driveSupplyCurrentAmps);
+
+    Robot.batteryLogger.reportCurrentUsage(
+        "Drive/Module" + index + "/Turn", true, inputs.turnSupplyCurrentAmps);
   }
 
   /** Runs the module with the specified setpoint state. Mutates the state to optimize it. */

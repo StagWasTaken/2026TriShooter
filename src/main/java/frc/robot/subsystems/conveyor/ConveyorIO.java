@@ -1,11 +1,13 @@
 package frc.robot.subsystems.conveyor;
 
+import edu.wpi.first.wpilibj.PowerDistribution;
 import org.littletonrobotics.junction.AutoLog;
 
 public interface ConveyorIO {
   @AutoLog
   public static class ConveyorIOInputs {
     public double conveyorCurrent;
+    public double conveyorSupplyCurrent;
     public double conveyorVoltage;
     public double conveyorVelocity;
     public double conveyorReference;
@@ -13,7 +15,7 @@ public interface ConveyorIO {
   }
 
   /** Updates the set of loggable inputs. */
-  public default void updateInputs(ConveyorIOInputs inputs) {}
+  public default void updateInputs(ConveyorIOInputs inputs, PowerDistribution pdh) {}
 
   public default double getCurrent() {
     return 0;

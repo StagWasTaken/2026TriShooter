@@ -73,9 +73,10 @@ public class DriveConstants {
   public static final int backLeftTurnCanId = 9;
   public static final int backRightTurnCanId = 10;
 
+  public static final int pigeonCanId = 21;
+
   // Drive motor configuration
   public static final int driveMotorStallCurrentLimit = 60;
-  public static final int driveMotorCurrentLimit = 100;
   public static final double wheelRadiusMeters = Units.inchesToMeters(1.463);
   public static final double driveMotorReduction =
       (45.0 * 22.0) / (12.0 * 15.0); // MAXSwerve with 12 pinion teeth and 22 spur teeth
@@ -131,7 +132,7 @@ public class DriveConstants {
               maxSpeedMetersPerSec,
               wheelCOF,
               driveGearbox.withReduction(driveMotorReduction),
-              driveMotorCurrentLimit,
+              driveMotorStallCurrentLimit,
               1),
           moduleTranslations);
 

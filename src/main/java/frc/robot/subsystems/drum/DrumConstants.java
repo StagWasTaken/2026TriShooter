@@ -15,7 +15,7 @@ public class DrumConstants {
 
   public static final double kS = 0.22;
   public static final double kV = 0.002185;
-  public static final double kP = 0.0025;
+  public static final double kP = 0.0067; // 0.0025
   public static final double kD = 0.0;
 
   public static final double kProfileMaxVel = 4000.0;
@@ -35,10 +35,12 @@ public class DrumConstants {
   public static final boolean kTopRightInverted = true;
   public static final boolean kBottomRightInverted = true;
 
+  public static final int kCurrentLimit = 50;
+
   public static final double kMinOutput = -1;
   public static final double kMaxOutput = 1;
 
-  public static final double kIdleVolts = 0.5;
+  public static final double kIdleVolts = 4.5;
   public static final double kStartOnTargetVel = 50;
 
   // sim
@@ -73,18 +75,35 @@ public class DrumConstants {
 
   // Real shooting table: {distance (meters), hood (degrees), velocity (rpm), tof (s)}
   public static final double[][] SHOOTING_TABLE_REAL = {
-    {1.524, 3.00, 2000.0, 0.456}, // 60in
-    {2.032, 14.00, 2000.0, 0.456}, // 80in
-    {2.540, 16.00, 2250.0, 0.456}, // 100in
-    {2.794, 22.00, 2200.0, 0.456}, // 110in
-    {3.048, 23.00, 2300.0, 0.481}, // 120in
-    {3.300, 25.00, 2400.0, 0.464}, // 130in
-    {3.429, 25.00, 2450.0, 0.464}, // 135in
-    {3.810, 25.00, 2500.0, 0.468}, // 140in
-    {4.064, 27.00, 2600.0, 0.468}, // 160in
-    {4.318, 28.00, 2650.0, 0.468}, // 170in
-    {5.080, 26.00, 2800.0, 0.468}, // 200in
+    {1.524, 3.00, 1950.0, 0.9}, // 60in
+    {2.032, 12.00, 1875.0, 0.95}, // 80in
+    {2.540, 16.00, 2300.0, 1.0}, // 100in
+    {2.794, 22.00, 2250.0, 1.05}, // 110in
+    {3.048, 23.00, 2250.0, 1.1}, // 120in
+    {3.300, 25.00, 2250.0, 1.15}, // 130in
+    {3.429, 25.00, 2450.0, 1.2}, // 135in
+    {3.810, 25.00, 2500.0, 1.25}, // 140in
+    {4.064, 27.00, 2650.0, 1.3}, // 160in
+    {4.318, 28.00, 2600.0, 1.4}, // 170in
+    {5.080, 26.00, 2750.0, 1.5}, // 200in
   };
+
+  /*
+  // Real shooting table: {distance (meters), hood (degrees), velocity (rpm), tof (s)}
+  public static final double[][] SHOOTING_TABLE_REAL = {
+    {1.524, 3.00, 2000.0, 0.9}, // 60in
+    {2.032, 14.00, 2000.0, 0.95}, // 80in
+    {2.540, 16.00, 2250.0, 1.0}, // 100in
+    {2.794, 22.00, 2200.0, 1.05}, // 110in
+    {3.048, 23.00, 2300.0, 1.1}, // 120in
+    {3.300, 25.00, 2400.0, 1.15}, // 130in
+    {3.429, 25.00, 2533.0, 1.2}, // 135in
+    {3.810, 25.00, 2500.0, 1.25}, // 140in
+    {4.064, 27.00, 2650.0, 1.3}, // 160in
+    {4.318, 28.00, 2650.0, 1.4}, // 170in
+    {5.080, 26.00, 2800.0, 1.5}, // 200in
+  };
+   */
 
   // Passing table: {distance (meters), hood (degrees), velocity (rpm), tof (s)}
   public static final double[][] PASSING_TABLE_REAL = {

@@ -1,7 +1,5 @@
 package frc.robot.subsystems.drum;
 
-import com.revrobotics.spark.ClosedLoopSlot;
-import com.revrobotics.spark.FeedbackSensor;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
@@ -16,20 +14,13 @@ public class DrumConfig {
         .disableFollowerMode()
         .idleMode(IdleMode.kCoast)
         .inverted(inverted)
-        .smartCurrentLimit(50)
-        .secondaryCurrentLimit(60);
+        .smartCurrentLimit(DrumConstants.kCurrentLimit);
     config
         .encoder
         .positionConversionFactor(1)
         .velocityConversionFactor(1)
         .uvwAverageDepth(2)
         .uvwMeasurementPeriod(20);
-    config
-        .closedLoop
-        .pid(DrumConstants.kP, 0.0, DrumConstants.kD, ClosedLoopSlot.kSlot0)
-        .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-        .outputRange(DrumConstants.kMinOutput, DrumConstants.kMaxOutput)
-        .positionWrappingEnabled(false);
   }
 
   static {

@@ -3,6 +3,7 @@ package frc.robot.subsystems.intake;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
+import frc.robot.subsystems.intake.IntakeConstants.ExtenderConstants;
 
 public class IntakeConfig {
   public static final SparkFlexConfig intakeConfig = new SparkFlexConfig();
@@ -39,7 +40,7 @@ public class IntakeConfig {
         .disableFollowerMode()
         .idleMode(IdleMode.kBrake)
         .inverted(false)
-        .smartCurrentLimit(40);
+        .smartCurrentLimit(ExtenderConstants.kCurrentLimit);
     intakeExtenderConfig
         .absoluteEncoder
         .positionConversionFactor(Math.PI * 2)

@@ -1,19 +1,23 @@
 package frc.robot.subsystems.kicker;
 
+import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.Robot;
 import org.littletonrobotics.junction.Logger;
 
 public class Kicker extends SubsystemBase {
   private final KickerIO io;
   private final KickerIOInputsAutoLogged inputs = new KickerIOInputsAutoLogged();
+  private final PowerDistribution pdh;
 
   private final SysIdRoutine sysIdRoutine;
 
-  public Kicker(KickerIO io) {
+  public Kicker(KickerIO io, PowerDistribution pdh) {
     this.io = io;
+    this.pdh = pdh;
     this.sysIdRoutine =
         new SysIdRoutine(
             new SysIdRoutine.Config(
@@ -67,8 +71,10 @@ public class Kicker extends SubsystemBase {
 
   @Override
   public void periodic() {
-    io.updateInputs(inputs);
+    io.updateInputs(inputs, pdh);
     io.periodic();
     Logger.processInputs(this.getName(), inputs);
+
+    Robot.batteryLogger.reportCurrentUsage(this.getName(), false, inputs.kickerSupplyCurrent);
   }
 }

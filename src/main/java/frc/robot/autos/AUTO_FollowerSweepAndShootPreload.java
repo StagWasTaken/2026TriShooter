@@ -4,7 +4,6 @@ import com.pathplanner.lib.path.PathPlannerPath;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.RobotContainer;
-import frc.robot.utils.constants.FieldConstants;
 
 public class AUTO_FollowerSweepAndShootPreload implements Auto {
   private final PathPlannerPath sweepMiddle;
@@ -30,6 +29,6 @@ public class AUTO_FollowerSweepAndShootPreload implements Auto {
         setAutoStartPose(startPathName, isMirrored, robot.drive),
         shootCycle(robot, startDelay), // shoot for the delay timer and then run
         sweepPath(sweepMiddle, robot, 4.0),
-        shootCycle(robot, () -> FieldConstants.getHubPose(), 5));
+        shootCycle(robot, 5));
   }
 }

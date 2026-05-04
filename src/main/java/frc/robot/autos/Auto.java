@@ -12,7 +12,6 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.RobotContainer;
 import frc.robot.commands.*;
 import frc.robot.subsystems.drive.Drive;
-import frc.robot.utils.LoggedTunableNumber;
 import frc.robot.utils.constants.FieldConstants;
 import java.io.IOException;
 import java.util.function.Supplier;
@@ -21,9 +20,6 @@ import org.json.simple.parser.ParseException;
 
 public interface Auto {
   /** Tunable delay to avoid collisions with partners at the start of Auto. */
-  static final LoggedTunableNumber autoStartDelay =
-      new LoggedTunableNumber("Auto/StartDelaySeconds", 0.0);
-
   Command getAutoCommand(RobotContainer robot, double startDelay)
       throws IOException, ParseException;
 

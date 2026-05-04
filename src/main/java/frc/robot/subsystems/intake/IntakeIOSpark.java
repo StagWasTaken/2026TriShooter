@@ -16,6 +16,7 @@ import com.revrobotics.spark.SparkMax;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Robot;
@@ -32,12 +33,6 @@ public class IntakeIOSpark implements IntakeIO {
   private final AbsoluteEncoder intakeExtenderEncoder;
   private final SparkClosedLoopController intakeExtenderController;
 
-  // Roller profiles
-  private final TrapezoidProfile intakeProfile;
-  private TrapezoidProfile.State rollerSetpoint = new TrapezoidProfile.State();
-  private TrapezoidProfile.State rollerGoal = new TrapezoidProfile.State();
-
-  // Extender profiles (Changed to allow switching)
   private TrapezoidProfile extenderProfile;
   private TrapezoidProfile.Constraints extenderConstraints;
   private TrapezoidProfile.State extenderSetpoint = new TrapezoidProfile.State();
@@ -82,12 +77,7 @@ public class IntakeIOSpark implements IntakeIO {
         ResetMode.kResetSafeParameters,
         PersistMode.kPersistParameters);
 
-    intakeProfile =
-        new TrapezoidProfile(
-            new TrapezoidProfile.Constraints(
-                IntakeConstants.kProfileMaxVel, IntakeConstants.kProfileMaxAccel));
-
-    // Initialize Extender Profile with default constants
+    // Initialize Extender Profile
     extenderConstraints =
         new TrapezoidProfile.Constraints(ExtenderConstants.kMaxVel, ExtenderConstants.kMaxAccel);
     extenderProfile = new TrapezoidProfile(extenderConstraints);
@@ -112,10 +102,6 @@ public class IntakeIOSpark implements IntakeIO {
     }
   }
 
-  /**
-   * THE SWITCH: Call this to change the speed/acceleration of the arm. You should add this method
-   * signature to your IntakeIO interface as well.
-   */
   @Override
   public void setExtenderProfileConstraints(double maxVel, double maxAccel) {
     if (maxVel != extenderConstraints.maxVelocity
@@ -126,16 +112,18 @@ public class IntakeIOSpark implements IntakeIO {
   }
 
   @Override
-  public void updateInputs(IntakeIOInputs inputs) {
+  public void updateInputs(IntakeIOInputs inputs, PowerDistribution pdh) {
     inputs.intakeReference = intakeReference;
     inputs.intakeVelocity = intakeEncoder.getVelocity();
     inputs.intakeVoltage = intakeMotor.getBusVoltage() * intakeMotor.getAppliedOutput();
     inputs.intakeCurrent = intakeMotor.getOutputCurrent();
+    inputs.intakeSupplyCurrent = pdh.getCurrent(intakeMotor.getDeviceId());
 
     inputs.intakeBottomVelocity = intakeSecondaryEncoder.getVelocity();
     inputs.intakeBottomVoltage =
         intakeSecondaryMotor.getBusVoltage() * intakeSecondaryMotor.getAppliedOutput();
     inputs.intakeBottomCurrent = intakeSecondaryMotor.getOutputCurrent();
+    inputs.intakeBottomSupplyCurrent = pdh.getCurrent(intakeSecondaryMotor.getDeviceId());
 
     if (intakeExtenderType == ControlType.kMAXMotionPositionControl) {
       inputs.extenderReference = Units.radiansToDegrees(intakeExtenderReference);
@@ -150,11 +138,12 @@ public class IntakeIOSpark implements IntakeIO {
         intakeExtenderMotor.getBusVoltage() * intakeExtenderMotor.getAppliedOutput();
     inputs.extenderVelocity = intakeExtenderEncoder.getVelocity();
     inputs.extenderCurrent = intakeExtenderMotor.getOutputCurrent();
+    inputs.extenderSupplyCurrent = pdh.getCurrent(intakeExtenderMotor.getDeviceId());
     inputs.extenderPosition = Units.radiansToDegrees(getExtenderPosition());
     inputs.extenderInPosition = getExtenderInPosition();
 
     inputs.intakeTemp = Fahrenheit.convertFrom(intakeMotor.getMotorTemperature(), Celsius);
-    inputs.intakeFollowerTemp =
+    inputs.intakeBottomRollerTemp =
         Fahrenheit.convertFrom(intakeSecondaryMotor.getMotorTemperature(), Celsius);
     inputs.extenderTemp =
         Fahrenheit.convertFrom(intakeExtenderMotor.getMotorTemperature(), Celsius);
@@ -162,11 +151,7 @@ public class IntakeIOSpark implements IntakeIO {
 
   @Override
   public void setReference(double velocity) {
-    if (voltageMode || intakeReference <= 0) {
-      rollerSetpoint = new TrapezoidProfile.State(intakeEncoder.getVelocity(), 0);
-    }
     intakeReference = velocity;
-    rollerGoal = new TrapezoidProfile.State(velocity, 0);
     voltageMode = false;
   }
 
@@ -237,7 +222,6 @@ public class IntakeIOSpark implements IntakeIO {
       topPrevError = 0.0;
       bottomPrevError = 0.0;
       extenderPrevError = 0.0;
-      rollerSetpoint = new TrapezoidProfile.State(intakeEncoder.getVelocity(), 0);
       lastTimestamp = Timer.getFPGATimestamp();
 
       intakeExtenderController.setSetpoint(
@@ -253,7 +237,7 @@ public class IntakeIOSpark implements IntakeIO {
     lastTimestamp = now;
     if (dt <= 0.0 || dt > 0.5) dt = 0.02;
 
-    // Extender Logic - Automatically uses whatever 'extenderProfile' is currently active
+    // --- Extender Logic (Unchanged) ---
     if (intakeExtenderType == ControlType.kVoltage) {
       intakeExtenderMotor.setVoltage(MathUtil.clamp(intakeExtenderReference, -12.0, 12.0));
     } else {
@@ -279,20 +263,20 @@ public class IntakeIOSpark implements IntakeIO {
       intakeExtenderMotor.setVoltage(MathUtil.clamp(output, -12.0, 12.0));
     }
 
-    // Roller Logic
     if (voltageMode) {
       setTopVoltage(intakeReference);
       setBottomVoltage(intakeReference);
-    } else if (intakeReference <= 0) {
-      rollerSetpoint = new TrapezoidProfile.State();
-      rollerGoal = new TrapezoidProfile.State();
+    } else if (intakeReference == 0) {
       topPrevError = 0.0;
       bottomPrevError = 0.0;
       setTopVoltage(0);
       setBottomVoltage(0);
     } else {
-      rollerSetpoint = intakeProfile.calculate(0.02, rollerSetpoint, rollerGoal);
-      double targetVel = rollerSetpoint.position;
+      // Direct velocity control using the reference as the target
+      double targetVel = intakeReference;
+      double targetBottomVel =
+          intakeReference
+              * 1.33; // bottom roller is 1.5 in diameter compared to top rollers 2in diameter
 
       double kSVal = Robot.tuningMode ? kS.get() : IntakeConstants.kS;
       double kVVal = Robot.tuningMode ? kV.get() : IntakeConstants.kV;
@@ -306,10 +290,12 @@ public class IntakeIOSpark implements IntakeIO {
       topPrevError = topError;
       setTopVoltage(ff + kPVal * topError + kDVal * topDError);
 
+      double bottomFF = kSVal * Math.signum(targetVel) + kVVal * targetBottomVel;
+
       double bottomError = targetVel - intakeSecondaryEncoder.getVelocity();
       double bottomDError = (bottomError - bottomPrevError) / dt;
       bottomPrevError = bottomError;
-      setBottomVoltage(ff + kPVal * bottomError + kDVal * bottomDError);
+      setBottomVoltage(bottomFF + kPVal * bottomError + kDVal * bottomDError);
     }
   }
 }

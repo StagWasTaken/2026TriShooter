@@ -1,11 +1,13 @@
 package frc.robot.subsystems.hood;
 
+import edu.wpi.first.wpilibj.PowerDistribution;
 import org.littletonrobotics.junction.AutoLog;
 
 public interface HoodIO {
   @AutoLog
   public static class HoodIOInputs {
     public double hoodCurrent;
+    public double hoodSupplyCurrent;
     public double hoodVoltage;
     public double hoodVelocity;
     public double hoodReference;
@@ -15,7 +17,7 @@ public interface HoodIO {
   }
 
   /** Updates the set of loggable inputs. */
-  public default void updateInputs(HoodIOInputs inputs) {}
+  public default void updateInputs(HoodIOInputs inputs, PowerDistribution pdh) {}
 
   public default double getCurrent() {
     return 0;
