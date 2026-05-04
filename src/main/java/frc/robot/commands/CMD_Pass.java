@@ -1,7 +1,9 @@
 package frc.robot.commands;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.commands.drive.JoystickDriveAndAimAtTarget;
@@ -94,7 +96,8 @@ public class CMD_Pass extends Command {
 
   private ShootingParams getPassingParamsWithPrediction() {
     double distMeters = currentTarget.getDistance(drive.getPose().getTranslation());
-    ShootingParams initialParams = DrumConstants.getPassingParams(distMeters);
+    ShootingParams initialParams =
+        DrumConstants.getPassingParams(MathUtil.clamp(distMeters, 0.0, Units.feetToMeters(10)));
 
     Translation2d predictedPos = getPredictedPosition(initialParams.tofSeconds());
     double predictedDist = currentTarget.getDistance(predictedPos);
@@ -169,7 +172,6 @@ public class CMD_Pass extends Command {
   @Override
   public void end(boolean interrupted) {
     if (driveCommand != null) driveCommand.end(interrupted);
-    shooter.setReference(0);
     shooter.stopShooting();
     hood.setReference(HoodConstants.kMinPos);
     conveyor.setVoltage(ConveyorConstants.kOff);

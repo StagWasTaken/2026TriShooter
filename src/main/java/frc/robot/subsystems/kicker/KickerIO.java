@@ -1,11 +1,13 @@
 package frc.robot.subsystems.kicker;
 
+import edu.wpi.first.wpilibj.PowerDistribution;
 import org.littletonrobotics.junction.AutoLog;
 
 public interface KickerIO {
   @AutoLog
   public static class KickerIOInputs {
     public double kickerCurrent;
+    public double kickerSupplyCurrent;
     public double kickerVoltage;
     public double kickerVelocity;
     public double kickerReference;
@@ -17,7 +19,7 @@ public interface KickerIO {
   }
 
   /** Updates the set of loggable inputs. */
-  public default void updateInputs(KickerIOInputs inputs) {}
+  public default void updateInputs(KickerIOInputs inputs, PowerDistribution pdh) {}
 
   public default double getCurrent() {
     return 0;

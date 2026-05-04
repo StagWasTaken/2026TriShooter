@@ -18,6 +18,7 @@ import static frc.robot.subsystems.drive.DriveConstants.*;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.PowerDistribution;
 import frc.robot.utils.SparkUtil;
 import java.util.Arrays;
 import org.ironmaple.simulation.drivesims.SwerveModuleSimulation;
@@ -42,7 +43,7 @@ public class ModuleIOSim implements ModuleIO {
     this.driveMotor =
         moduleSimulation
             .useGenericMotorControllerForDrive()
-            .withCurrentLimit(Amps.of(driveMotorCurrentLimit));
+            .withCurrentLimit(Amps.of(driveMotorStallCurrentLimit));
     this.turnMotor =
         moduleSimulation
             .useGenericControllerForSteer()
@@ -53,7 +54,7 @@ public class ModuleIOSim implements ModuleIO {
   }
 
   @Override
-  public void updateInputs(ModuleIOInputs inputs) {
+  public void updateInputs(ModuleIOInputs inputs, PowerDistribution pdh) {
     // Run closed-loop control
     if (driveClosedLoop) {
       driveAppliedVolts =

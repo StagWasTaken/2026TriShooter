@@ -10,6 +10,7 @@ import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
+import edu.wpi.first.wpilibj.PowerDistribution;
 
 public class ConveyorIOSpark implements ConveyorIO {
   private final SparkMax conveyorMotor;
@@ -41,9 +42,10 @@ public class ConveyorIOSpark implements ConveyorIO {
   }
 
   @Override
-  public void updateInputs(ConveyorIOInputs inputs) {
+  public void updateInputs(ConveyorIOInputs inputs, PowerDistribution pdh) {
     inputs.conveyorReference = getReference();
     inputs.conveyorCurrent = getCurrent();
+    inputs.conveyorSupplyCurrent = pdh.getCurrent(conveyorMotor.getDeviceId());
     inputs.conveyorVoltage = getVoltage();
     inputs.conveyorVelocity = getVelocity();
     inputs.conveyorTemp = Fahrenheit.convertFrom(conveyorMotor.getMotorTemperature(), Celsius);

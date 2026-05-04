@@ -1,5 +1,6 @@
 package frc.robot.subsystems.drum;
 
+import edu.wpi.first.wpilibj.PowerDistribution;
 import org.littletonrobotics.junction.AutoLog;
 
 public interface DrumIO {
@@ -10,27 +11,31 @@ public interface DrumIO {
     public boolean readyToShoot;
 
     public double topLeftCurrent;
+    public double topLeftSupplyCurrent;
     public double topLeftVoltage;
     public double topLeftVelocity;
     public double topLeftTemp;
 
     public double bottomLeftCurrent;
+    public double bottomLeftSupplyCurrent;
     public double bottomLeftVoltage;
     public double bottomLeftTemp;
     public double bottomLeftVel;
 
     public double topRightCurrent;
+    public double topRightSupplyCurrent;
     public double topRightVoltage;
     public double topRightTemp;
     public double topRightVel;
 
     public double bottomRightCurrent;
+    public double bottomRightSupplyCurrent;
     public double bottomRightVoltage;
     public double bottomRightTemp;
     public double bottomRightVel;
   }
 
-  public default void updateInputs(DrumIOInputs inputs) {}
+  public default void updateInputs(DrumIOInputs inputs, PowerDistribution pdh) {}
 
   public default double getReference() {
     return 0;

@@ -6,6 +6,7 @@ import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.simulation.FlywheelSim;
 
 public class DrumIOSim implements DrumIO {
@@ -42,7 +43,7 @@ public class DrumIOSim implements DrumIO {
   }
 
   @Override
-  public void updateInputs(DrumIOInputs inputs) {
+  public void updateInputs(DrumIOInputs inputs, PowerDistribution pdh) {
     inputs.shooterReference = Units.radiansToDegrees(getReference());
     inputs.readyToShoot = isReady();
 

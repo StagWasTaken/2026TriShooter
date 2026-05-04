@@ -1,19 +1,23 @@
 package frc.robot.subsystems.conveyor;
 
+import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.Robot;
 import org.littletonrobotics.junction.Logger;
 
 public class Conveyor extends SubsystemBase {
   private final ConveyorIO io;
   private final ConveyorIOInputsAutoLogged inputs = new ConveyorIOInputsAutoLogged();
+  private final PowerDistribution pdh;
 
   private final SysIdRoutine sysIdRoutine;
 
-  public Conveyor(ConveyorIO io) {
+  public Conveyor(ConveyorIO io, PowerDistribution pdh) {
     this.io = io;
+    this.pdh = pdh;
     this.sysIdRoutine =
         new SysIdRoutine(
             new SysIdRoutine.Config(
@@ -59,8 +63,9 @@ public class Conveyor extends SubsystemBase {
 
   @Override
   public void periodic() {
-    io.updateInputs(inputs);
+    io.updateInputs(inputs, pdh);
     io.periodic();
     Logger.processInputs(this.getName(), inputs);
+    Robot.batteryLogger.reportCurrentUsage(this.getName(), false, inputs.conveyorSupplyCurrent);
   }
 }

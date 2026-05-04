@@ -16,6 +16,7 @@ import com.revrobotics.spark.SparkMax;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Robot;
@@ -111,16 +112,18 @@ public class IntakeIOSpark implements IntakeIO {
   }
 
   @Override
-  public void updateInputs(IntakeIOInputs inputs) {
+  public void updateInputs(IntakeIOInputs inputs, PowerDistribution pdh) {
     inputs.intakeReference = intakeReference;
     inputs.intakeVelocity = intakeEncoder.getVelocity();
     inputs.intakeVoltage = intakeMotor.getBusVoltage() * intakeMotor.getAppliedOutput();
     inputs.intakeCurrent = intakeMotor.getOutputCurrent();
+    inputs.intakeSupplyCurrent = pdh.getCurrent(intakeMotor.getDeviceId());
 
     inputs.intakeBottomVelocity = intakeSecondaryEncoder.getVelocity();
     inputs.intakeBottomVoltage =
         intakeSecondaryMotor.getBusVoltage() * intakeSecondaryMotor.getAppliedOutput();
     inputs.intakeBottomCurrent = intakeSecondaryMotor.getOutputCurrent();
+    inputs.intakeBottomSupplyCurrent = pdh.getCurrent(intakeSecondaryMotor.getDeviceId());
 
     if (intakeExtenderType == ControlType.kMAXMotionPositionControl) {
       inputs.extenderReference = Units.radiansToDegrees(intakeExtenderReference);
@@ -135,6 +138,7 @@ public class IntakeIOSpark implements IntakeIO {
         intakeExtenderMotor.getBusVoltage() * intakeExtenderMotor.getAppliedOutput();
     inputs.extenderVelocity = intakeExtenderEncoder.getVelocity();
     inputs.extenderCurrent = intakeExtenderMotor.getOutputCurrent();
+    inputs.extenderSupplyCurrent = pdh.getCurrent(intakeExtenderMotor.getDeviceId());
     inputs.extenderPosition = Units.radiansToDegrees(getExtenderPosition());
     inputs.extenderInPosition = getExtenderInPosition();
 

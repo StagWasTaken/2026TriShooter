@@ -4,6 +4,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 
 public class HoodIOSim implements HoodIO {
@@ -29,7 +30,7 @@ public class HoodIOSim implements HoodIO {
   }
 
   @Override
-  public void updateInputs(HoodIOInputs inputs) {
+  public void updateInputs(HoodIOInputs inputs, PowerDistribution pdh) {
     inputs.hoodCurrent = getCurrent();
     inputs.hoodVoltage = getVoltage();
     inputs.hoodReference = Units.radiansToDegrees(getReference());

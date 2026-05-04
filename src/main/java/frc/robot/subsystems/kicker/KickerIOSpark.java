@@ -13,6 +13,7 @@ import com.revrobotics.spark.SparkClosedLoopController.ArbFFUnits;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkMaxConfig;
+import edu.wpi.first.wpilibj.PowerDistribution;
 import frc.robot.Robot;
 import frc.robot.Robot.RobotName;
 import frc.robot.utils.LoggedTunableNumber;
@@ -63,9 +64,10 @@ public class KickerIOSpark implements KickerIO {
   }
 
   @Override
-  public void updateInputs(KickerIOInputs inputs) {
+  public void updateInputs(KickerIOInputs inputs, PowerDistribution pdh) {
     inputs.kickerReference = getReference();
     inputs.kickerCurrent = getCurrent();
+    inputs.kickerSupplyCurrent = pdh.getCurrent(kickerMotorLeader.getDeviceId());
     inputs.kickerVoltage = getVoltage();
     inputs.kickerVelocity = getVelocity();
     inputs.atVelocity = atVelocity();

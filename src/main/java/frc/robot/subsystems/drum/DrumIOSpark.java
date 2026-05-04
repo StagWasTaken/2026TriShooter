@@ -11,6 +11,7 @@ import com.revrobotics.spark.SparkMax;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Robot;
@@ -93,27 +94,31 @@ public class DrumIOSpark implements DrumIO {
   }
 
   @Override
-  public void updateInputs(DrumIOInputs inputs) {
+  public void updateInputs(DrumIOInputs inputs, PowerDistribution pdh) {
     inputs.shooterReference = getReference();
     inputs.profiledReference = getProfiledReference();
     inputs.readyToShoot = isReady();
 
     inputs.topLeftCurrent = topLeft.getOutputCurrent();
+    inputs.topLeftSupplyCurrent = pdh.getCurrent(topLeft.getDeviceId());
     inputs.topLeftVoltage = topLeft.getBusVoltage() * topLeft.getAppliedOutput();
     inputs.topLeftVelocity = topLeftEncoder.getVelocity();
     inputs.topLeftTemp = Fahrenheit.convertFrom(topLeft.getMotorTemperature(), Celsius);
 
     inputs.bottomLeftCurrent = bottomLeft.getOutputCurrent();
+    inputs.bottomLeftSupplyCurrent = pdh.getCurrent(bottomLeft.getDeviceId());
     inputs.bottomLeftVoltage = bottomLeft.getBusVoltage() * bottomLeft.getAppliedOutput();
     inputs.bottomLeftTemp = Fahrenheit.convertFrom(bottomLeft.getMotorTemperature(), Celsius);
     inputs.bottomLeftVel = bottomLeftEncoder.getVelocity();
 
     inputs.topRightCurrent = topRight.getOutputCurrent();
+    inputs.topRightSupplyCurrent = pdh.getCurrent(topRight.getDeviceId());
     inputs.topRightVoltage = topRight.getBusVoltage() * topRight.getAppliedOutput();
     inputs.topRightTemp = Fahrenheit.convertFrom(topRight.getMotorTemperature(), Celsius);
     inputs.topRightVel = topRightEncoder.getVelocity();
 
     inputs.bottomRightCurrent = bottomRight.getOutputCurrent();
+    inputs.bottomRightSupplyCurrent = pdh.getCurrent(bottomRight.getDeviceId());
     inputs.bottomRightVoltage = bottomRight.getBusVoltage() * bottomRight.getAppliedOutput();
     inputs.bottomRightTemp = Fahrenheit.convertFrom(bottomRight.getMotorTemperature(), Celsius);
     inputs.bottomRightVel = bottomRightEncoder.getVelocity();
@@ -179,6 +184,8 @@ public class DrumIOSpark implements DrumIO {
   @Override
   public void stopShooting() {
     shooting = false;
+    setReference(0.0);
+    setAllVoltage(DrumConstants.kIdleVolts);
   }
 
   private void setAllVoltage(double voltage) {
@@ -212,7 +219,6 @@ public class DrumIOSpark implements DrumIO {
       profileSetpoint = new TrapezoidProfile.State();
       profileGoal = new TrapezoidProfile.State();
       prevError = 0.0;
-      setAllVoltage(DrumConstants.kIdleVolts);
       return;
     }
 

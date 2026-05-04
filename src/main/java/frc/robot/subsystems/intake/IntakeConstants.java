@@ -16,7 +16,7 @@ public class IntakeConstants {
   public static final double kExtake = -12; // volts
 
   // Top roller gains
-  public static final double kP = 0.001;
+  public static final double kP = 0.0005; // .001
   public static final double kI = 0.0;
   public static final double kD = 0.0;
 
@@ -43,7 +43,7 @@ public class IntakeConstants {
   public static final class ExtenderConstants {
     public static final int kIntakeExtenderCanId = 7;
 
-    public static final double kP = 33.0;
+    public static final double kP = 10.0; // 33.0
     public static final double kI = 0.0;
     public static final double kD = 0.0;
 
@@ -65,15 +65,17 @@ public class IntakeConstants {
     public static final double kMinOutput = -1;
     public static final double kMaxOutput = 1;
 
+    public static final int kCurrentLimit = 40;
+
     public static final double kStowProfileMaxVel = Units.degreesToRadians(30);
     public static final double kStowProfileMaxAccel = Units.degreesToRadians(30);
 
     public static final double kMaxVel = Math.toRadians(360);
     public static final double kMaxAccel = Math.toRadians(360);
 
-    public static final double kHome = Units.degreesToRadians(70);
+    public static final double kHome = Units.degreesToRadians(80);
     public static final double kStow = Units.degreesToRadians(100);
-    public static final double kExtended = Units.degreesToRadians(170);
+    public static final double kExtended = Units.degreesToRadians(155);
 
     public static final double kStowVolts = -2.5;
     public static final double kSlowStowVolts = -1.5;

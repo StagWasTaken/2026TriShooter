@@ -18,6 +18,8 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.PowerDistribution;
+import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -61,6 +63,7 @@ public class RobotContainer {
   public final LEDStatusLight ledStatusLight;
 
   public SwerveDriveSimulation driveSimulation = null;
+  private final PowerDistribution powerDistribution;
 
   private final Field2d field = new Field2d();
   public final DriverMap driver = new DriverMap.LeftHandedXbox(0);
@@ -73,6 +76,8 @@ public class RobotContainer {
   public final LoggedTunableNumber autoDelay = new LoggedTunableNumber("Auto/delay", 0.0);
 
   public RobotContainer() {
+    powerDistribution = new PowerDistribution(1, ModuleType.kRev);
+
     switch (Robot.CURRENT_ROBOT_MODE) {
       case REAL:
         drive =
@@ -82,17 +87,18 @@ public class RobotContainer {
                 new ModuleIOSpark(1),
                 new ModuleIOSpark(2),
                 new ModuleIOSpark(3),
-                (pose) -> {});
+                (pose) -> {},
+                powerDistribution);
 
         shooter =
             Robot.CURRENT_ROBOT == Robot.RobotName.DRUM_BOT
-                ? new Drum(new DrumIOSpark())
+                ? new Drum(new DrumIOSpark(), powerDistribution)
                 : new Shooter(new ShooterIOSpark());
 
-        intake = new Intake(new IntakeIOSpark());
-        conveyor = new Conveyor(new ConveyorIOSpark());
-        kicker = new Kicker(new KickerIOSpark());
-        hood = new Hood(new HoodIOSpark());
+        intake = new Intake(new IntakeIOSpark(), powerDistribution);
+        conveyor = new Conveyor(new ConveyorIOSpark(), powerDistribution);
+        kicker = new Kicker(new KickerIOSpark(), powerDistribution);
+        hood = new Hood(new HoodIOSpark(), powerDistribution);
 
         if (Robot.CURRENT_ROBOT == RobotName.HYDRA) {
           this.vision =
@@ -108,12 +114,12 @@ public class RobotContainer {
               new Vision(
                   drive,
                   () -> drive.getMeasuredChassisSpeedsRobotRelative(),
-                  //   new VisionIOPhotonVision(
-                  //       Vision_Constants.camera0Name, Vision_Constants.robotToCamera0),
+                  new VisionIOPhotonVision(
+                      Vision_Constants.camera0Name, Vision_Constants.robotToCamera0),
                   new VisionIOPhotonVision(
                       Vision_Constants.camera1Name, Vision_Constants.robotToCamera1),
-                  new VisionIOPhotonVision(
-                      Vision_Constants.camera2Name, Vision_Constants.robotToCamera2),
+                  //   new VisionIOPhotonVision(
+                  //       Vision_Constants.camera2Name, Vision_Constants.robotToCamera2),
                   new VisionIOPhotonVision(
                       Vision_Constants.camera3Name, Vision_Constants.robotToCamera3));
         }
@@ -133,17 +139,18 @@ public class RobotContainer {
                 new ModuleIOSim(driveSimulation.getModules()[1]),
                 new ModuleIOSim(driveSimulation.getModules()[2]),
                 new ModuleIOSim(driveSimulation.getModules()[3]),
-                driveSimulation::setSimulationWorldPose);
+                driveSimulation::setSimulationWorldPose,
+                powerDistribution);
 
         shooter =
             Robot.CURRENT_ROBOT == Robot.RobotName.DRUM_BOT
-                ? new Drum(new DrumIOSim())
+                ? new Drum(new DrumIOSim(), powerDistribution)
                 : new Shooter(new ShooterIOSim());
 
-        intake = new Intake(new IntakeIOSim(driveSimulation));
-        conveyor = new Conveyor(new ConveyorIOSim());
-        kicker = new Kicker(new KickerIOSim());
-        hood = new Hood(new HoodIOSim());
+        intake = new Intake(new IntakeIOSim(driveSimulation), powerDistribution);
+        conveyor = new Conveyor(new ConveyorIOSim(), powerDistribution);
+        kicker = new Kicker(new KickerIOSim(), powerDistribution);
+        hood = new Hood(new HoodIOSim(), powerDistribution);
 
         vision =
             new Vision(
@@ -167,17 +174,18 @@ public class RobotContainer {
                 new ModuleIO() {},
                 new ModuleIO() {},
                 new ModuleIO() {},
-                (pose) -> {});
+                (pose) -> {},
+                new PowerDistribution());
 
         shooter =
             Robot.CURRENT_ROBOT == Robot.RobotName.DRUM_BOT
-                ? new Drum(new DrumIO() {})
+                ? new Drum(new DrumIO() {}, new PowerDistribution())
                 : new Shooter(new ShooterIO() {});
 
-        intake = new Intake(new IntakeIO() {});
-        conveyor = new Conveyor(new ConveyorIO() {});
-        kicker = new Kicker(new KickerIO() {});
-        hood = new Hood(new HoodIO() {});
+        intake = new Intake(new IntakeIO() {}, new PowerDistribution());
+        conveyor = new Conveyor(new ConveyorIO() {}, new PowerDistribution());
+        kicker = new Kicker(new KickerIO() {}, new PowerDistribution());
+        hood = new Hood(new HoodIO() {}, new PowerDistribution());
 
         vision =
             new Vision(
@@ -210,6 +218,7 @@ public class RobotContainer {
     autoChooser.addOption("Follow & Shoot Right", new AUTO_FollowerSweepAndShoot(false));
     autoChooser.addOption("Depot", new AUTO_Depot());
     autoChooser.addOption("DepotOnFly", new AUTO_DepotOnFly());
+    autoChooser.addOption("Middle", new AUTO_Middle());
 
     // test / utility autos
     autoChooser.addOption("intake test", new AUTO_3MeterTest());
@@ -225,7 +234,6 @@ public class RobotContainer {
     final JoystickDrive joystickDrive = new JoystickDrive(driveInput, () -> true, pov, drive);
     drive.setDefaultCommand(joystickDrive);
 
-    // shooter.setDefaultCommand(shooter.runVelocity(0));
     hood.setDefaultCommand(
         hood.setTargetPos(
             Robot.CURRENT_ROBOT_MODE == RobotMode.REAL
@@ -317,11 +325,25 @@ public class RobotContainer {
 
       // operator
       operator.aButton().onTrue(shooter.runPreRev(2000));
-      operator.bButton().onTrue(new CMD_HomeHood(hood));
+      operator.bButton().onTrue(new CMD_HomeHood(hood, shooter));
       operator
           .xButton()
           .whileTrue(intake.runVelocity(IntakeConstants.kIntake))
           .onFalse(intake.runVelocity(IntakeConstants.kOff));
+      operator
+          .povUp()
+          .whileTrue(kicker.runVoltage(KickerConstants.kExtake))
+          .onFalse(kicker.runVoltage(KickerConstants.kOff));
+      operator
+          .povDown()
+          .whileTrue(
+              conveyor
+                  .runVoltage(ConveyorConstants.kExtake)
+                  .alongWith(intake.runVoltage(IntakeConstants.kExtake)))
+          .onFalse(
+              conveyor
+                  .runVoltage(ConveyorConstants.kOff)
+                  .alongWith(intake.runVoltage(IntakeConstants.kOff)));
 
     } else if (Robot.CURRENT_ROBOT_MODE == RobotMode.SIM) {
       driver.scoreButton().whileTrue(new CMD_ShootFuelSim(drive, driveSimulation, driveInput));
@@ -387,9 +409,5 @@ public class RobotContainer {
         "DistFromHub",
         Units.metersToInches(
             FieldConstants.getHubPose().getDistance(drive.getPose().getTranslation())));
-    Logger.recordOutput(
-        "DistFromPass",
-        Units.metersToInches(
-            FieldConstants.LeftPassingTarget.getDistance(drive.getPose().getTranslation())));
   }
 }

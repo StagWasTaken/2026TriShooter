@@ -170,7 +170,7 @@ public class CMD_Shoot extends Command {
 
     boolean driveReady =
         atSetpointDebouncer.calculate(ChassisHeadingController.getInstance().atSetPoint());
-    if ((timer.hasElapsed(2.0) || atSetpointDebouncer.calculate(shooter.isReady()))
+    if ((timer.hasElapsed(1.0) || atSetpointDebouncer.calculate(shooter.isReady()))
         && hood.atReference()
         && driveReady
         && !shooting) {
@@ -203,7 +203,6 @@ public class CMD_Shoot extends Command {
 
     PPHolonomicDriveController.clearFeedbackOverrides();
 
-    shooter.setReference(0);
     shooter.stopShooting();
     hood.setReference(HoodConstants.kMinPos);
     conveyor.setVoltage(ConveyorConstants.kOff);

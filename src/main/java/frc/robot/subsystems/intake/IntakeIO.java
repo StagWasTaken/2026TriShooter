@@ -1,15 +1,19 @@
 package frc.robot.subsystems.intake;
 
+import edu.wpi.first.wpilibj.PowerDistribution;
 import org.littletonrobotics.junction.AutoLog;
 
 public interface IntakeIO {
   @AutoLog
   public static class IntakeIOInputs {
     public double intakeCurrent;
+    public double intakeSupplyCurrent;
     public double intakeVoltage;
     public double intakeVelocity;
     public double intakeSpeedFtPerSec;
+
     public double intakeBottomCurrent;
+    public double intakeBottomSupplyCurrent;
     public double intakeBottomVoltage;
     public double intakeBottomVelocity;
     public double intakeReference;
@@ -18,6 +22,7 @@ public interface IntakeIO {
     public double intakeBottomRollerTemp;
 
     public double extenderCurrent;
+    public double extenderSupplyCurrent;
     public double extenderVoltage;
     public double extenderVelocity;
     public double extenderReference;
@@ -29,7 +34,7 @@ public interface IntakeIO {
   }
 
   /** Updates the set of loggable inputs. */
-  public default void updateInputs(IntakeIOInputs inputs) {}
+  public default void updateInputs(IntakeIOInputs inputs, PowerDistribution pdh) {}
 
   public default double getCurrent() {
     return 0;
