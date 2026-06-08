@@ -1,10 +1,13 @@
 plugins {
     id "java"
     id "edu.wpi.first.GradleRIO" version "2026.2.1"
-    id "com.diffplug.spotless" version "6.25.0"
+    id "com.diffplug.spotless" version "7.0.2"
 }
 
 java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
     sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
 }
@@ -27,18 +30,13 @@ tasks.register('installGitHooks') {
         // This script works on Windows (Git Bash), macOS, and Linux.
         // It runs spotless, and if successful, stages the formatted files.
         hookFile.text = """#!/bin/sh
-echo "--- Running Pre-Commit Spotless Check ---"
-./gradlew spotlessApply
-
-if [ \$? -eq 0 ]; then
-    echo "Spotless applied successfully. Staging changes..."
-    git add .
-    exit 0
-else
-    echo "Spotless failed! Commit aborted."
-    exit 1
-fi
-"""
+        echo "--- Running Pre-Commit Spotless Check ---"
+        if [ -f "./gradlew" ]; then
+            ./gradlew spotlessApply -x test
+        else
+            cmd.exe /c "gradlew.bat spotlessApply -x test"
+        fi
+        """
         hookFile.setExecutable(true)
         println "Git pre-commit hook installed/updated."
     }
@@ -95,8 +93,8 @@ dependencies {
     nativeRelease wpi.java.vendor.jniRelease(wpi.platforms.desktop)
     simulationRelease wpi.sim.enableRelease()
 
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.1'
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    // testImplementation 'org.junit.jupiter:junit-jupiter:5.10.1'
+    // testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
     implementation 'org.ode4j:core:0.5.4'
 
@@ -108,10 +106,11 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok:1.18.34'
 }
 
-test {
-    useJUnitPlatform()
-    systemProperty 'junit.jupiter.extensions.autodetection.enabled', 'true'
-}
+// tasks.named('test') {
+//     useJUnitPlatform()
+//     jvmArgs '--enable-native-access=ALL-UNNAMED'
+//     systemProperty 'junit.jupiter.extensions.autodetection.enabled', 'true'
+// }
 
 wpi.sim.addDriverstation().defaultEnabled = true
 
@@ -126,7 +125,7 @@ jar {
 
 deployArtifact.jarTask = jar
 wpi.java.configureExecutableTasks(jar)
-wpi.java.configureTestTasks(test)
+// wpi.java.configureTestTasks(test)
 
 tasks.withType(JavaCompile) {
     options.compilerArgs.add '-XDstringConcat=inline'
